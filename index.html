@@ -103,17 +103,18 @@ a{color:inherit}
   <nav class="modnav">
     <a class="mod active" href="index.html">Work</a>
     <a class="mod" href="speaking.html">Speaking Trainer</a>
+    <a class="mod" href="listening.html">Listening</a>
     <a class="mod" href="writing.html">Writing Lab</a>
   </nav>
 </header>
 
 <section class="hero">
   <div class="hero-in">
-    <p class="eyebrow">Two systems · built end to end</p>
+    <p class="eyebrow">Three systems · built end to end</p>
     <h1>Language tools that explain themselves.</h1>
-    <p class="lead">I build small, complete systems around language learning. One turns written scripts into an audio trainer you can click through sentence by sentence. The other scores an IELTS essay against the official band descriptors and shows where every mark was lost. <strong>Both run entirely in the browser, with no backend.</strong></p>
+    <p class="lead">I build small, complete systems around language learning. One turns written scripts into an audio trainer you can click through sentence by sentence. A second reuses those same timings to check a dictation word by word. A third scores an IELTS essay against the official band descriptors and shows where every mark was lost. <strong>All three run entirely in the browser, with no backend.</strong></p>
     <div class="metaline">
-      <span>2 projects</span>
+      <span>3 projects</span>
       <span>0 servers</span>
       <span>100% static</span>
       <span>Vanilla HTML / CSS / JS</span>
@@ -132,7 +133,7 @@ a{color:inherit}
       <div class="pnum">01</div>
       <h3>Speaking Trainer</h3>
       <div class="kind">Audio pipeline · forced alignment</div>
-      <p>Sixty-four IELTS Speaking topics, voiced by two synthetic speakers, aligned word by word to the waveform. Click any line in the transcript and the audio jumps to that exact moment — with no timestamps written by hand. A dictation mode reuses the same timings to check a typed transcript word by word.</p>
+      <p>Sixty-four IELTS Speaking topics, voiced by two synthetic speakers, aligned word by word to the waveform. Click any line in the transcript and the audio jumps to that exact moment — with no timestamps written by hand.</p>
       <div class="stats">
         <div><b>64</b>topics</div>
         <div><b>436</b>Q&amp;A prompts</div>
@@ -145,8 +146,25 @@ a{color:inherit}
       <span class="go">Read the case study <i>→</i></span>
     </a>
 
-    <a class="pcard" href="writing.html">
+    <a class="pcard" href="listening.html">
       <div class="pnum">02</div>
+      <h3>Listening &amp; Dictation</h3>
+      <div class="kind">Forced alignment &middot; word-level diff</div>
+      <p>Every line already knows when it starts and when it ends. That turns dictation into a string problem rather than a machine-learning one: play one sentence, type it, and a longest-common-subsequence check marks each word as correct, wrong or missing &mdash; with no speech recognition anywhere.</p>
+      <div class="stats">
+        <div><b>2,491</b>sentences</div>
+        <div><b>64</b>topics</div>
+        <div><b>0</b>ASR calls</div>
+      </div>
+      <div class="tags">
+        <span class="tag">Forced alignment</span><span class="tag">LCS diff</span>
+        <span class="tag">Media seek</span><span class="tag">localStorage</span>
+      </div>
+      <span class="go">Try the drill <i>→</i></span>
+    </a>
+
+    <a class="pcard" href="writing.html">
+      <div class="pnum">03</div>
       <h3>Writing Lab</h3>
       <div class="kind">Prompt architecture · rubric scoring</div>
       <p>An essay scorer built on one constraint: the model must classify the task before it is allowed to score it. The output is a nine-section report with a band for each criterion, the evidence behind it, and a rewritten sentence for every paragraph.</p>
@@ -179,7 +197,7 @@ a{color:inherit}
     <div class="ap">
       <div class="k">Rule 02</div>
       <h3>No backend unless it earns one</h3>
-      <p>Both projects are static files on GitHub Pages. Progress, drafts and API keys live in localStorage. Nothing to deploy, nothing to keep awake, nothing to leak.</p>
+      <p>All three are static files on GitHub Pages. Progress, drafts and API keys live in localStorage. Nothing to deploy, nothing to keep awake, nothing to leak.</p>
     </div>
     <div class="ap">
       <div class="k">Rule 03</div>
@@ -192,7 +210,7 @@ a{color:inherit}
 <section class="about">
   <div class="about-in">
     <h2>About</h2>
-    <p>I study computer science and teach myself by building things I actually need. Both projects here started as preparation tools for my own IELTS exam, then grew into exercises in making an offline pipeline and a language model behave predictably.</p>
+    <p>I study computer science and teach myself by building things I actually need. All three projects here started as preparation tools for my own IELTS exam, then grew into exercises in making an offline pipeline and a language model behave predictably.</p>
     <p>Everything on this site is hand-written HTML, CSS and JavaScript — no frameworks, no build step, no dependencies beyond the browser. Source code is on <a href="https://github.com/nyatskr" target="_blank" rel="noopener">GitHub</a>.</p>
   </div>
 </section>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Listening &amp; Dictation · IELTS Speaking Trainer</title>
+<meta name="description" content="A sentence-level dictation drill built on the same forced-alignment timings as the speaking trainer. No speech recognition: the script is the answer key.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e7490'/%3E%3Cpath d='M6 14v4M11 10v12M16 6v20M21 10v12M26 14v4' stroke='white' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f5f3ed; --card:#ffffff; --line:#e6e1d5;
+  --muted:#64707d; --text:#232c38;
+  --teal:#0e7490; --teal-deep:#0a4d63; --teal-bright:#2dd4bf;
+  --mono:"Consolas","Cascadia Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.7;font-size:16px}
+a{color:inherit}
+
+.sitebar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  background:#0b141d;color:#e6f0f4;padding:10px 22px;border-bottom:1px solid #1e3342}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none}
+.brand svg{width:30px;height:30px;flex:0 0 auto}
+.brand-name{font-weight:700;font-size:14.5px;letter-spacing:.2px;line-height:1.25}
+.brand-sub{font-size:10.5px;color:#8fb3c4;font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase;line-height:1.3}
+.modnav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mod{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;border-radius:6px;color:#9fb8c8;
+  text-decoration:none;font-size:12.5px;line-height:1.35;white-space:nowrap;transition:color .15s,background .15s}
+.mod:hover{color:#f2f7fa;background:#12222e}
+.mod.active{color:#a7e8dd;background:#12222e}
+
+.hero{background:radial-gradient(1100px 460px at 74% -14%, #13303e 0%, #0b141d 60%), #0b141d;
+  color:#dbe7ee;padding:60px 22px 54px}
+.hero-in{max-width:900px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--teal-bright);
+  text-transform:uppercase;margin:0 0 16px}
+.hero h1{font-family:Georgia,serif;font-weight:700;font-size:clamp(27px,4.4vw,44px);line-height:1.16;
+  margin:0 0 18px;color:#f2f7fa;max-width:780px}
+.hero .lead{font-size:16.5px;color:#b6c9d5;max-width:720px;margin:0}
+.hero .lead strong{color:#e2edf3;font-weight:600}
+
+.panel{max-width:900px;margin:0 auto;padding:44px 22px 8px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.bar label{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.bar select{background:#fff;color:var(--text);border:1px solid var(--line);border-radius:8px;
+  padding:9px 11px;font-size:13.5px;font-family:inherit;max-width:min(380px,74vw)}
+.meta{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--teal-deep);white-space:nowrap}
+.card{background:#0b141d;border:1px solid #1b2f3e;border-radius:18px;padding:24px 24px 22px;
+  box-shadow:0 12px 34px rgba(16,28,39,.10)}
+.stage{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:16px}
+.dbtn{display:inline-flex;align-items:center;gap:7px;background:#12222e;color:#cfe2ec;border:1px solid #24404f;
+  border-radius:8px;padding:9px 15px;font-size:13px;font-family:inherit;cursor:pointer;
+  transition:background .15s,color .15s,border-color .15s}
+.dbtn:hover:not(:disabled){background:#17303f;color:#f2f7fa}
+.dbtn.primary{background:#0e7490;border-color:#0e7490;color:#fff;font-weight:600}
+.dbtn.primary:hover:not(:disabled){background:#12879f}
+.dbtn:disabled{opacity:.38;cursor:default}
+.dbtn.on{background:#0f2b38;border-color:#1d4a5c;color:#8fd8c8}
+#dictInput{width:100%;min-height:88px;resize:vertical;background:#0c1620;color:#e6f0f4;
+  border:1px solid #24404f;border-radius:10px;padding:13px 15px;font-size:15px;line-height:1.62;
+  font-family:inherit;display:block}
+#dictInput:focus{outline:none;border-color:#2f6b80;box-shadow:0 0 0 3px rgba(14,116,144,.18)}
+#dictInput::placeholder{color:#5d7484}
+.foot{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:12px}
+.hint{margin-left:auto;font-size:12px;color:#7d94a4}
+.res{margin-top:18px;padding-top:16px;border-top:1px solid #1b2f3e;display:none}
+.res.show{display:block}
+.score{font-family:var(--mono);font-size:13px;color:#8fd8c8;margin-bottom:10px}
+.score b{font-size:17px;color:#a7e8dd}
+.ans{font-size:15.5px;line-height:1.95;color:#c8d8e2;font-family:Georgia,serif}
+.ans .ok{color:#8fd8c8}
+.ans .miss{color:#e0a184;border-bottom:2px dotted #a2491b}
+.ans .bad{color:#f0a3a3;border-bottom:2px solid #b45309;background:rgba(180,83,9,.14);
+  border-radius:3px;padding:0 2px;cursor:help}
+.extra{margin-top:10px;font-size:12.5px;color:#8fa8b8;font-family:var(--mono)}
+.extra b{color:#e8a0a0}
+
+.how{max-width:900px;margin:0 auto;padding:38px 22px 60px}
+.how h2{font-family:Georgia,serif;font-size:23px;color:#1b2530;margin:0 0 18px}
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.how-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.how-item .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;color:#a49d8c;text-transform:uppercase}
+.how-item h3{font-size:15px;margin:6px 0 8px;color:#1e2833}
+.how-item p{font-size:13.5px;color:#5a636d;margin:0;line-height:1.75}
+.pagefoot{max-width:900px;margin:0 auto;padding:0 22px 44px;font-size:11.5px;color:#8b8f97;
+  font-family:var(--mono);display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between}
+
+@media (max-width:640px){
+  .hero{padding:40px 16px 40px}
+  .panel{padding:32px 16px 8px}
+  .card{padding:17px 15px 15px}
+  .hint{margin-left:0;width:100%}
+  .how{padding:30px 16px 44px}
+}
+</style>
+</head>
+<body>
+
+<header class="sitebar">
+  <a class="brand" href="index.html">
+    <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="7" fill="#0e7490"/><path d="M6 14v4M11 10v12M16 6v20M21 10v12M26 14v4" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
+    <div><div class="brand-name">Listening &amp; Dictation</div><div class="brand-sub">Built on forced alignment</div></div>
+  </a>
+  <nav class="modnav" aria-label="Projects">
+    <a class="mod" href="speaking.html">Speaking Trainer</a>
+    <a class="mod active" href="listening.html">Listening</a>
+    <a class="mod" href="writing.html">Writing Lab</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-in">
+    <p class="eyebrow">Dictation &times; Forced Alignment</p>
+    <h1>Listen to one sentence. Type it. See exactly what you missed.</h1>
+    <p class="lead">Every line in the speaking trainer already has a known script and a start/end time. That makes a dictation drill cheap to build and <strong>impossible to fake</strong>: the script is the answer key, so checking your attempt is a word-by-word comparison rather than a transcription problem. <strong>No speech recognition anywhere.</strong></p>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="bar">
+    <label for="dictTopic">Topic</label>
+    <select id="dictTopic"></select>
+    <span class="meta" id="dictMeta">&mdash;</span>
+  </div>
+
+  <div class="card">
+    <div class="stage">
+      <button type="button" class="dbtn primary" id="dictPlay">&#9654; Play sentence</button>
+      <button type="button" class="dbtn" id="dictSlow" title="Play at 0.75&times;">0.75&times;</button>
+      <button type="button" class="dbtn" id="dictFull" title="Play the whole line this sentence belongs to">Whole line</button>
+      <button type="button" class="dbtn" id="dictReveal">Show answer</button>
+    </div>
+    <textarea id="dictInput" placeholder="Type the sentence you heard&hellip;" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+    <div class="foot">
+      <button type="button" class="dbtn primary" id="dictCheck">Check</button>
+      <button type="button" class="dbtn" id="dictPrev">&larr; Previous</button>
+      <button type="button" class="dbtn" id="dictNext">Next &rarr;</button>
+      <span class="hint" id="dictHint">Press Play, then type what you hear.</span>
+    </div>
+    <div class="res" id="dictRes"></div>
+  </div>
+</section>
+
+<section class="how">
+  <h2>Why this works without a speech model</h2>
+  <div class="how-grid">
+    <div class="how-item">
+      <div class="k">Point 01</div>
+      <h3>The timings already exist</h3>
+      <p>Each line was aligned to the waveform when the audio was produced, so a drill needs no hand-made cue points. Playback seeks to the exact millisecond the sentence begins.</p>
+    </div>
+    <div class="how-item">
+      <div class="k">Point 02</div>
+      <h3>The answer key is the script</h3>
+      <p>Marking is a longest-common-subsequence alignment between the words you typed and the words that were spoken. That is a string problem, not an inference problem.</p>
+    </div>
+    <div class="how-item">
+      <div class="k">Point 03</div>
+      <h3>Long answers are split by sentence</h3>
+      <p>Some lines run to fifty words. They are cut at sentence boundaries, and the cut times are interpolated inside the line's real start and end &mdash; accurate here because a neural voice speaks at a near-constant rate.</p>
+    </div>
+  </div>
+</section>
+
+<div class="pagefoot">
+  <span>64 topics &middot; 436 Part 1 prompts &middot; 28 cue cards</span>
+  <span>Vanilla HTML, CSS and JavaScript &middot; no backend</span>
+</div>
+
+<script src="listening-data.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var DKEY  = "ielts_dict_v1";
+  var SPLIT = /(?<=[.!?])\s+/;
+  /* the scripts use curly apostrophes (I'm); fold them to ASCII or contractions split in two */
+  var WORDS = function(s){ return (String(s).replace(/[\u2018\u2019\u02bc]/g, "'").match(/[A-Za-z0-9']+/g) || []); };
+  var NORM  = function(w){ return w.toLowerCase().replace(/[^a-z0-9']/g, ""); };
+  var $d    = function(id){ return document.getElementById(id); };
+  var esc   = function(s){ return String(s).replace(/[&<>"]/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); };
+
+  var lines = [], idx = 0, slow = false, revealed = false;
+  var pool = {}, playing = null;
+
+  /* ---------- audio ---------- */
+  function audioFor(src){
+    if (pool[src]) return pool[src];
+    var a = document.createElement("audio");
+    a.preload = "none";
+    a.src = src;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.addEventListener("timeupdate", function(){
+      if (playing && playing.a === a && a.currentTime >= playing.end){
+        a.pause();
+        playing = null;
+      }
+    });
+    pool[src] = a;
+    return a;
+  }
+
+  function playRange(src, start, end){
+    var a = audioFor(src);
+    Object.keys(pool).forEach(function(k){ if (pool[k] !== a) pool[k].pause(); });
+    a.playbackRate = slow ? 0.75 : 1;
+    /* seek and play at once, then redo the seek if the metadata had not arrived yet */
+    a.currentTime = start;
+    playing = {a: a, end: end};
+    var p = a.play();
+    if (p && p.catch) p.catch(function(){});
+    if (a.readyState === 0){
+      a.addEventListener("loadedmetadata", function once(){
+        a.removeEventListener("loadedmetadata", once);
+        if (playing && playing.a === a && Math.abs(a.currentTime - start) > 0.35) a.currentTime = start;
+      });
+    }
+  }
+
+  /* ---------- data ---------- */
+  function buildLines(tp){
+    var ranges = TS[tp.src] || [];
+    var out = [];
+    tp.blocks.forEach(function(text, bi){
+      var r = ranges[bi];
+      if (!r || !text) return;
+      var sents = text.split(SPLIT).map(function(s){ return s.trim(); }).filter(Boolean);
+      var total = sents.reduce(function(acc, s){ return acc + s.length; }, 0) || 1;
+      var acc = 0;
+      sents.forEach(function(s){
+        var a = r[0] + (r[1] - r[0]) * (acc / total);
+        acc += s.length;
+        var z = r[0] + (r[1] - r[0]) * (acc / total);
+        out.push({
+          text: s, src: tp.src,
+          start:  Math.max(r[0], a - 0.08),
+          end:    Math.min(r[1], z + 0.10),
+          bStart: r[0], bEnd: r[1]
+        });
+      });
+    });
+    return out;
+  }
+
+  function fillTopics(){
+    var html = '<optgroup label="Part 1 &mdash; Rapid Q&amp;A">';
+    LISTENING_DATA.A.forEach(function(t){
+      html += '<option value="A:' + t.num + '">' + String(t.num).padStart(2, "0") + ' &middot; ' + esc(t.name) + '</option>';
+    });
+    html += '</optgroup><optgroup label="Part 2 &amp; 3 &mdash; Cue Cards">';
+    LISTENING_DATA.B.forEach(function(t){
+      html += '<option value="B:' + t.num + '">' + String(t.num).padStart(2, "0") + ' &middot; ' + esc(t.name) + '</option>';
+    });
+    html += '</optgroup>';
+    $d("dictTopic").innerHTML = html;
+  }
+
+  function loadTopic(val){
+    var parts = String(val).split(":");
+    var mod = parts[0], num = parts[1];
+    var list = mod === "A" ? LISTENING_DATA.A : LISTENING_DATA.B;
+    var tp = null;
+    for (var i = 0; i < list.length; i++){ if (String(list[i].num) === num) { tp = list[i]; break; } }
+    if (!tp) return;
+    lines = buildLines(tp);
+    idx = 0; revealed = false;
+    $d("dictInput").value = "";
+    $d("dictRes").classList.remove("show");
+    $d("dictRes").innerHTML = "";
+    render(); save();
+  }
+
+  function render(){
+    var n = lines.length;
+    $d("dictMeta").textContent = n ? "Sentence " + (idx + 1) + " / " + n : "No sentences";
+    $d("dictPrev").disabled = idx <= 0;
+    $d("dictNext").disabled = idx >= n - 1;
+    $d("dictPlay").disabled = !n;
+    $d("dictFull").disabled = !n;
+    $d("dictCheck").disabled = !n;
+    $d("dictHint").textContent = !n ? "Pick a topic above."
+      : revealed ? "Answer shown — move on, or replay and try again."
+      : "Press Play, then type what you hear.";
+  }
+
+  function play(whole){
+    var L = lines[idx];
+    if (!L) return;
+    playRange(L.src, whole ? L.bStart : L.start, whole ? L.bEnd : L.end);
+  }
+
+  /* ---------- diff ---------- */
+  function align(A, B){
+    var n = A.length, m = B.length, i, j;
+    var dp = [];
+    for (i = 0; i <= n; i++) dp.push(new Int32Array(m + 1));
+    for (i = n - 1; i >= 0; i--){
+      for (j = m - 1; j >= 0; j--){
+        dp[i][j] = A[i] === B[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      }
+    }
+    var ops = [], x = 0, y = 0;
+    while (x < n && y < m){
+      if (A[x] === B[y]) { ops.push({k: "ok", r: x, h: y}); x++; y++; }
+      else if (dp[x + 1][y] >= dp[x][y + 1]) { ops.push({k: "miss", r: x}); x++; }
+      else { ops.push({k: "extra", h: y}); y++; }
+    }
+    while (x < n) ops.push({k: "miss", r: x++});
+    while (y < m) ops.push({k: "extra", h: y++});
+    return ops;
+  }
+
+  /* merge adjacent miss/extra runs into "typed the wrong word" */
+  function pairSubs(ops){
+    var out = [], k = 0;
+    while (k < ops.length){
+      if (ops[k].k !== "miss"){ out.push(ops[k]); k++; continue; }
+      var a = k; while (a < ops.length && ops[a].k === "miss") a++;
+      var b = a; while (b < ops.length && ops[b].k === "extra") b++;
+      var nm = a - k, ne = b - a, p = Math.min(nm, ne), q;
+      for (q = 0; q < p; q++) out.push({k: "bad", r: ops[k + q].r, h: ops[a + q].h});
+      for (q = p; q < nm; q++) out.push({k: "miss", r: ops[k + q].r});
+      for (q = p; q < ne; q++) out.push({k: "extra", h: ops[a + q].h});
+      k = b;
+    }
+    return out;
+  }
+
+  function check(){
+    var L = lines[idx];
+    if (!L) return;
+    var refW = WORDS(L.text), hypW = WORDS($d("dictInput").value);
+    if (!hypW.length){ $d("dictHint").textContent = "Type something first."; return; }
+    var ops = pairSubs(align(refW.map(NORM), hypW.map(NORM)));
+    var ok = 0;
+    ops.forEach(function(o){ if (o.k === "ok") ok++; });
+    var pct = refW.length ? Math.round(ok / refW.length * 100) : 0;
+
+    var body = "";
+    ops.forEach(function(o){
+      if (o.k === "extra") return;
+      var w = esc(refW[o.r]);
+      if (o.k === "ok")       body += '<span class="ok">' + w + '</span> ';
+      else if (o.k === "bad") body += '<span class="bad" title="you typed: ' + esc(hypW[o.h]) + '">' + w + '</span> ';
+      else                    body += '<span class="miss">' + w + '</span> ';
+    });
+
+    var extra = ops.filter(function(o){ return o.k === "extra"; }).map(function(o){ return hypW[o.h]; });
+    var html = '<div class="score"><b>' + ok + '</b> / ' + refW.length + ' words correct &middot; ' + pct + '%</div>';
+    html += '<div class="ans">' + body + '</div>';
+    if (extra.length){
+      html += '<div class="extra">Extra words you typed: <b>' + esc(extra.join(" ")) + '</b></div>';
+    }
+    $d("dictRes").innerHTML = html;
+    $d("dictRes").classList.add("show");
+    revealed = true;
+    render();
+    $d("dictHint").textContent = pct === 100
+      ? "Perfect — every word matched."
+      : "Hover a red word to see what you typed instead.";
+  }
+
+  function reveal(){
+    var L = lines[idx];
+    if (!L) return;
+    $d("dictRes").innerHTML = '<div class="ans">' + esc(L.text) + '</div>';
+    $d("dictRes").classList.add("show");
+    revealed = true;
+    render();
+  }
+
+  function move(step){
+    var next = idx + step;
+    if (next < 0 || next >= lines.length) return;
+    idx = next; revealed = false;
+    $d("dictInput").value = "";
+    $d("dictRes").classList.remove("show");
+    $d("dictRes").innerHTML = "";
+    render(); save();
+    $d("dictInput").focus();
+  }
+
+  function save(){
+    try { localStorage.setItem(DKEY, JSON.stringify({t: $d("dictTopic").value, i: idx})); } catch(e){}
+  }
+
+  function restore(){
+    var st = null;
+    try { st = JSON.parse(localStorage.getItem(DKEY) || "null"); } catch(e){}
+    var sel = $d("dictTopic");
+    if (st && st.t && sel.querySelector('option[value="' + st.t + '"]')){
+      sel.value = st.t;
+      loadTopic(st.t);
+      if (typeof st.i === "number" && st.i >= 0 && st.i < lines.length){ idx = st.i; render(); }
+    } else if (sel.options.length){
+      loadTopic(sel.options[0].value);
+    }
+  }
+
+  fillTopics();
+
+  $d("dictTopic").addEventListener("change", function(e){ loadTopic(e.target.value); });
+  $d("dictPlay").addEventListener("click", function(){ play(false); });
+  $d("dictFull").addEventListener("click", function(){ play(true); });
+  $d("dictSlow").addEventListener("click", function(e){
+    slow = !slow;
+    e.currentTarget.classList.toggle("on", slow);
+  });
+  $d("dictReveal").addEventListener("click", reveal);
+  $d("dictCheck").addEventListener("click", check);
+  $d("dictPrev").addEventListener("click", function(){ move(-1); });
+  $d("dictNext").addEventListener("click", function(){ move(1); });
+  $d("dictInput").addEventListener("keydown", function(e){
+    if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); check(); }
+  });
+
+  restore();
+})();
+</script>
+</body>
+</html>
