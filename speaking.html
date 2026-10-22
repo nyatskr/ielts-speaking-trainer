@@ -199,6 +199,12 @@ body.hide-demo-answers .demo-answer{display:none}
 .evo .ev.after b{color:#8fd8c8}
 .evo .ev p{margin:0;font-size:13px;color:#b6c9d5;line-height:1.55}
 @media (max-width:760px){ .evo{grid-template-columns:1fr} }
+.limits{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.limits .lim{background:#101c27;border:1px solid #1e3443;border-radius:12px;padding:14px 16px}
+.limits .lk{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#e0b887;margin-bottom:6px}
+.limits h4{font-size:14px;margin:0 0 6px;color:#eef5f8;line-height:1.4}
+.limits p{margin:0;font-size:13px;color:#b6c9d5;line-height:1.55}
+@media (max-width:760px){ .limits{grid-template-columns:1fr} }
 
 /* ===== floating control bar ===== */
 .floatbar{position:fixed;right:8px;bottom:12px;z-index:80;display:flex;align-items:center;gap:6px;
@@ -456,6 +462,24 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:34px 0 10px
     <div class="evo">
       <div class="ev before"><b>First version</b><p>Each topic was one long MP3 with a single player. To hear a specific question or answer you had to drag the progress bar &mdash; like reading a PDF with no bookmarks.</p></div>
       <div class="ev after"><b>This version</b><p>Forced speech alignment (Whisper word timestamps &times; sequence matching) maps every question and answer to a timestamp. Click any line to jump there, follow the highlight, repeat a single segment, or hide the answers and quiz yourself.</p></div>
+    </div>
+
+    <div class="limits">
+      <div class="lim">
+        <div class="lk">Limitation 01</div>
+        <h4>Alignment inherits the recogniser's mistakes</h4>
+        <p>The script is known in advance, so a mis-heard word is usually recovered by sequence matching. When it is not, the click target shifts by a second or two &mdash; and it fails quietly. Every topic was spot-checked by ear for exactly this reason.</p>
+      </div>
+      <div class="lim">
+        <div class="lk">Limitation 02</div>
+        <h4>Audio is pre-generated, not on demand</h4>
+        <p>Editing a script means re-synthesising and re-aligning that topic, and a full rebuild takes hours. That trade is worth it for a fixed curriculum, where it buys a page that opens instantly &mdash; and wrong for arbitrary text, which would need synthesis at request time.</p>
+      </div>
+      <div class="lim">
+        <div class="lk">Limitation 03</div>
+        <h4>It plays, but it cannot listen</h4>
+        <p>The page can highlight a line and repeat it, but it cannot hear the learner. Shadowing stays self-assessed. Running the same recogniser over a microphone recording is the obvious next step, and the only one that turns this from playback into feedback.</p>
+      </div>
     </div>
   </div>
 </section>
