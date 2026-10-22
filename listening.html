@@ -32,7 +32,7 @@ a{color:inherit}
 .mod.active{color:#a7e8dd;background:#12222e}
 
 .hero{background:radial-gradient(1100px 460px at 74% -14%, #13303e 0%, #0b141d 60%), #0b141d;
-  color:#dbe7ee;padding:60px 22px 54px}
+  color:#dbe7ee;padding:60px 22px 62px}
 .hero-in{max-width:900px;margin:0 auto}
 .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--teal-bright);
   text-transform:uppercase;margin:0 0 16px}
@@ -41,12 +41,12 @@ a{color:inherit}
 .hero .lead{font-size:16.5px;color:#b6c9d5;max-width:720px;margin:0}
 .hero .lead strong{color:#e2edf3;font-weight:600}
 
-.panel{max-width:900px;margin:0 auto;padding:44px 22px 8px}
+.panel{max-width:900px;margin:0 auto;padding:34px 0 0}
 .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
-.bar label{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
-.bar select{background:#fff;color:var(--text);border:1px solid var(--line);border-radius:8px;
+.bar label{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8fa8b8}
+.bar select{background:#101c27;color:#dbe7ee;border:1px solid #1e3443;border-radius:8px;
   padding:9px 11px;font-size:13.5px;font-family:inherit;max-width:min(380px,74vw)}
-.meta{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--teal-deep);white-space:nowrap}
+.meta{margin-left:auto;font-family:var(--mono);font-size:12px;color:#8fd8c8;white-space:nowrap}
 .card{background:#0b141d;border:1px solid #1b2f3e;border-radius:18px;padding:24px 24px 22px;
   box-shadow:0 12px 34px rgba(16,28,39,.10)}
 .stage{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:16px}
@@ -88,8 +88,8 @@ a{color:inherit}
   font-family:var(--mono);display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between}
 
 @media (max-width:640px){
-  .hero{padding:40px 16px 40px}
-  .panel{padding:32px 16px 8px}
+  .hero{padding:40px 16px 44px}
+  .panel{padding:26px 0 0}
   .card{padding:17px 15px 15px}
   .hint{margin-left:0;width:100%}
   .how{padding:30px 16px 44px}
@@ -116,9 +116,8 @@ a{color:inherit}
     <h1>Listen to one sentence. Type it. See exactly what you missed.</h1>
     <p class="lead">Every line in the speaking trainer already has a known script and a start/end time. That makes a dictation drill cheap to build and <strong>impossible to fake</strong>: the script is the answer key, so checking your attempt is a word-by-word comparison rather than a transcription problem. <strong>No speech recognition anywhere.</strong></p>
   </div>
-</section>
 
-<section class="panel">
+  <div class="panel">
   <div class="bar">
     <label for="dictTopic">Topic</label>
     <select id="dictTopic"></select>
@@ -140,6 +139,7 @@ a{color:inherit}
       <span class="hint" id="dictHint">Press Play, then type what you hear.</span>
     </div>
     <div class="res" id="dictRes"></div>
+  </div>
   </div>
 </section>
 
