@@ -86,6 +86,8 @@ a{color:inherit}
 .how-item p{font-size:13.5px;color:#5a636d;margin:0;line-height:1.75}
 .pagefoot{max-width:900px;margin:0 auto;padding:0 22px 44px;font-size:11.5px;color:#8b8f97;
   font-family:var(--mono);display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between}
+.pagefoot a{color:#0e7490;text-decoration:none}
+.pagefoot a:hover{text-decoration:underline}
 
 @media (max-width:640px){
   .hero{padding:40px 16px 44px}
@@ -166,7 +168,7 @@ a{color:inherit}
 
 <div class="pagefoot">
   <span>64 topics &middot; 436 Part 1 prompts &middot; 28 cue cards</span>
-  <span>Vanilla HTML, CSS and JavaScript &middot; no backend</span>
+  <span><a href="studio.html">Build your own clips in the browser &rarr;</a></span>
 </div>
 
 <script src="listening-data.js"></script>
@@ -185,6 +187,9 @@ a{color:inherit}
 
   var lines = [], idx = 0, slow = false, revealed = false;
   var pool = {}, playing = null;
+  var SEG = null;   /* optional sentence-clip manifest produced by studio.html */
+  var pad = function(n){ n = String(n); return n.length < 2 ? "0" + n : n; };
+  var segKey = function(mod, num){ return mod + pad(num); };
 
   /* ---------- audio ---------- */
   function audioFor(src){
@@ -222,11 +227,21 @@ a{color:inherit}
   }
 
   /* ---------- data ---------- */
-  function buildLines(tp){
-    var ranges = TS[tp.src] || [];
+  function buildLines(tp, mod){
+    /* if the studio has built sentence clips for this topic, use them:
+       one file per sentence, so playback needs no seeking at all */
+    var seg = SEG && SEG[segKey(mod, tp.num)];
+    if (seg && seg.segments && seg.segments.length){
+      var ranges = TS[tp.src] || [];
+      return seg.segments.map(function(s){
+        var r = ranges[s.bi] || [0, 0];
+        return { text: s.text, clip: "seg/" + s.f, bsrc: tp.src, bStart: r[0], bEnd: r[1] };
+      });
+    }
+    var ranges2 = TS[tp.src] || [];
     var out = [];
     tp.blocks.forEach(function(text, bi){
-      var r = ranges[bi];
+      var r = ranges2[bi];
       if (!r || !text) return;
       var sents = text.split(SPLIT).map(function(s){ return s.trim(); }).filter(Boolean);
       var total = sents.reduce(function(acc, s){ return acc + s.length; }, 0) || 1;
@@ -266,7 +281,7 @@ a{color:inherit}
     var tp = null;
     for (var i = 0; i < list.length; i++){ if (String(list[i].num) === num) { tp = list[i]; break; } }
     if (!tp) return;
-    lines = buildLines(tp);
+    lines = buildLines(tp, mod);
     idx = 0; revealed = false;
     $d("dictInput").value = "";
     $d("dictRes").classList.remove("show");
@@ -290,6 +305,11 @@ a{color:inherit}
   function play(whole){
     var L = lines[idx];
     if (!L) return;
+    if (L.clip){
+      if (whole && L.bsrc) playRange(L.bsrc, L.bStart, L.bEnd);
+      else playRange(L.clip, 0, 1e9);
+      return;
+    }
     playRange(L.src, whole ? L.bStart : L.start, whole ? L.bEnd : L.end);
   }
 
@@ -403,6 +423,21 @@ a{color:inherit}
 
   fillTopics();
 
+  /* optional: sentence clips exported from studio.html. Silent no-op when absent. */
+  function loadSegManifest(){
+    fetch("manifest.json", { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){
+        if (!j || !j.topics || !j.topics.length) return;
+        SEG = {};
+        j.topics.forEach(function(t){ SEG[segKey(t.mod, t.num)] = t; });
+        var keep = idx, cur = $d("dictTopic").value;
+        loadTopic(cur);
+        if (keep > 0 && keep < lines.length){ idx = keep; render(); }
+      })
+      .catch(function(){});
+  }
+
   $d("dictTopic").addEventListener("change", function(e){ loadTopic(e.target.value); });
   $d("dictPlay").addEventListener("click", function(){ play(false); });
   $d("dictFull").addEventListener("click", function(){ play(true); });
@@ -419,6 +454,7 @@ a{color:inherit}
   });
 
   restore();
+  loadSegManifest();
 })();
 </script>
 </body>

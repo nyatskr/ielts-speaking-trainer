@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice Studio · build the audio yourself</title>
+<meta name="description" content="A browser-only audio build tool. Every sentence is synthesised as its own clip, so each duration is known at synthesis time and no forced alignment is needed.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e7490'/%3E%3Cpath d='M6 14v4M11 10v12M16 6v20M21 10v12M26 14v4' stroke='white' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f5f3ed; --card:#ffffff; --line:#e6e1d5;
+  --muted:#64707d; --text:#232c38;
+  --teal:#0e7490; --teal-deep:#0a4d63; --teal-bright:#2dd4bf;
+  --mono:"Consolas","Cascadia Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.7;font-size:16px}
+a{color:inherit}
+
+.sitebar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  background:#0b141d;color:#e6f0f4;padding:10px 22px;border-bottom:1px solid #1e3342}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none}
+.brand svg{width:30px;height:30px;flex:0 0 auto}
+.brand-name{font-weight:700;font-size:14.5px;letter-spacing:.2px;line-height:1.25}
+.brand-sub{font-size:10.5px;color:#8fb3c4;font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase;line-height:1.3}
+.modnav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mod{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;border-radius:6px;color:#9fb8c8;
+  text-decoration:none;font-size:12.5px;line-height:1.35;white-space:nowrap;transition:color .15s,background .15s}
+.mod:hover{color:#f2f7fa;background:#12222e}
+.mod.active{color:#a7e8dd;background:#12222e}
+
+.hero{background:radial-gradient(1100px 460px at 74% -14%, #13303e 0%, #0b141d 60%), #0b141d;
+  color:#dbe7ee;padding:60px 22px 62px}
+.hero-in{max-width:900px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--teal-bright);
+  text-transform:uppercase;margin:0 0 16px}
+.hero h1{font-family:Georgia,serif;font-weight:700;font-size:clamp(27px,4.4vw,44px);line-height:1.16;
+  margin:0 0 18px;color:#f2f7fa;max-width:800px}
+.hero .lead{font-size:16.5px;color:#b6c9d5;max-width:740px;margin:0}
+.hero .lead strong{color:#e2edf3;font-weight:600}
+
+.panel{max-width:900px;margin:0 auto;padding:34px 0 0}
+.card{background:#0b141d;border:1px solid #1b2f3e;border-radius:18px;padding:22px 24px 20px;
+  box-shadow:0 12px 34px rgba(16,28,39,.10)}
+.card + .card{margin-top:16px}
+.ck{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+.ck .n{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;color:#0b141d;background:var(--teal-bright);
+  border-radius:4px;padding:2px 7px;font-weight:700}
+.ck h2{font-size:14.5px;margin:0;color:#e6f0f4;font-weight:600;letter-spacing:.2px}
+.ck .sub{font-size:12px;color:#7d94a4;margin-left:auto;font-family:var(--mono)}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field[hidden]{display:none!important}
+.field > span{font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:#8fa8b8}
+.field input,.field select{background:#101c27;color:#dbe7ee;border:1px solid #1e3443;border-radius:8px;
+  padding:9px 11px;font-size:13.5px;font-family:inherit;width:100%}
+.field input:focus,.field select:focus{outline:none;border-color:#2f6b80;box-shadow:0 0 0 3px rgba(14,116,144,.18)}
+.field input::placeholder{color:#5d7484}
+.field.wide{grid-column:1/-1}
+.note{font-size:12px;color:#7d94a4;margin:12px 0 0;line-height:1.65}
+.note code{font-family:var(--mono);font-size:11.5px;background:#12222e;border:1px solid #1e3443;
+  border-radius:4px;padding:1px 5px;color:#9fd8e6}
+.note b{color:#a7e8dd;font-weight:600}
+
+.quotawrap{margin-top:14px}
+.quota{display:flex;align-items:baseline;gap:8px;font-family:var(--mono);font-size:12px;color:#8fa8b8}
+.quota b{color:#a7e8dd;font-size:13.5px}
+.quotabar{height:6px;border-radius:3px;background:#12222e;margin-top:7px;overflow:hidden}
+.quotabar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#0e7490,#2dd4bf);
+  border-radius:3px;transition:width .3s}
+
+.stage{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:16px}
+.dbtn{display:inline-flex;align-items:center;gap:7px;background:#12222e;color:#cfe2ec;border:1px solid #24404f;
+  border-radius:8px;padding:9px 15px;font-size:13px;font-family:inherit;cursor:pointer;
+  transition:background .15s,color .15s,border-color .15s}
+.dbtn:hover:not(:disabled){background:#17303f;color:#f2f7fa}
+.dbtn.primary{background:#0e7490;border-color:#0e7490;color:#fff;font-weight:600}
+.dbtn.primary:hover:not(:disabled){background:#12879f}
+.dbtn:disabled{opacity:.38;cursor:default}
+.dbtn.on{background:#0f2b38;border-color:#1d4a5c;color:#8fd8c8}
+
+.prog{margin-top:16px;display:none}
+.prog.show{display:block}
+.progbar{height:8px;border-radius:4px;background:#12222e;overflow:hidden}
+.progbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#0e7490,#2dd4bf);
+  border-radius:4px;transition:width .2s}
+.pstats{display:flex;flex-wrap:wrap;gap:14px;margin-top:9px;font-family:var(--mono);font-size:12px;color:#8fa8b8}
+.pstats b{color:#a7e8dd}
+.pstats .bad b{color:#e8a0a0}
+
+.log{margin-top:14px;max-height:190px;overflow:auto;font-family:var(--mono);font-size:11.5px;
+  line-height:1.85;color:#7d94a4;background:#0c1620;border:1px solid #1b2f3e;border-radius:10px;
+  padding:10px 12px;display:none}
+.log.show{display:block}
+.log .ok{color:#8fd8c8}
+.log .er{color:#e8a0a0}
+.log .mu{color:#5d7484}
+
+.how{max-width:900px;margin:0 auto;padding:38px 22px 60px}
+.how h2{font-family:Georgia,serif;font-size:23px;color:#1b2530;margin:0 0 18px}
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.how-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.how-item .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;color:#a49d8c;text-transform:uppercase}
+.how-item h3{font-size:15px;margin:6px 0 8px;color:#1e2833}
+.how-item p{font-size:13.5px;color:#5a636d;margin:0;line-height:1.75}
+.how-item code{font-family:var(--mono);font-size:11.5px;background:#f3f0e8;border-radius:4px;padding:1px 5px;color:#3b5a66}
+.pagefoot{max-width:900px;margin:0 auto;padding:0 22px 44px;font-size:11.5px;color:#8b8f97;
+  font-family:var(--mono);display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between}
+.pagefoot a{color:#0e7490}
+
+@media (max-width:640px){
+  .hero{padding:40px 16px 44px}
+  .panel{padding:26px 0 0}
+  .card{padding:17px 15px 15px}
+  .ck .sub{display:none}
+  .how{padding:30px 16px 44px}
+}
+</style>
+</head>
+<body>
+
+<header class="sitebar">
+  <a class="brand" href="index.html">
+    <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="7" fill="#0e7490"/><path d="M6 14v4M11 10v12M16 6v20M21 10v12M26 14v4" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
+    <div><div class="brand-name">Voice Studio</div><div class="brand-sub">Build the audio yourself</div></div>
+  </a>
+  <nav class="modnav" aria-label="Projects">
+    <a class="mod" href="speaking.html">Speaking Trainer</a>
+    <a class="mod" href="listening.html">Listening</a>
+    <a class="mod" href="writing.html">Writing Lab</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-in">
+    <p class="eyebrow">Bring your own key &middot; runs in the tab</p>
+    <h1>One sentence, one clip. The timing problem disappears.</h1>
+    <p class="lead">The speaking trainer needed a speech recogniser to find out when each line began, because the audio was produced as one long file. <strong>Change the unit of synthesis and that step is unnecessary</strong>: synthesise each sentence on its own and its duration is known the moment it arrives. No Whisper, no ffmpeg, no Python &mdash; so the build runs on a phone, a tablet, or any machine with a browser.</p>
+  </div>
+
+  <div class="panel">
+
+    <div class="card">
+      <div class="ck"><span class="n">01</span><h2>Engine</h2><span class="sub" id="engineState">no key</span></div>
+
+      <div class="grid2">
+        <div class="field">
+          <span for="prov">Provider</span>
+          <select id="prov">
+            <option value="azure">Azure Speech &mdash; direct from the browser</option>
+            <option value="doubao">Doubao / Volcengine &mdash; through a proxy</option>
+          </select>
+        </div>
+        <div class="field" id="fRegion">
+          <span for="region">Azure region</span>
+          <select id="region">
+            <option value="eastasia">eastasia</option>
+            <option value="southeastasia">southeastasia</option>
+            <option value="westeurope">westeurope</option>
+            <option value="eastus">eastus</option>
+          </select>
+        </div>
+        <div class="field wide" id="fKey">
+          <span for="key">Azure subscription key</span>
+          <input id="key" type="password" placeholder="paste the key from the Azure portal" spellcheck="false" autocomplete="off">
+        </div>
+
+        <div class="field wide" id="fProxy" hidden>
+          <span for="proxy">Proxy endpoint</span>
+          <input id="proxy" type="url" placeholder="https://your-worker.workers.dev/tts" spellcheck="false" autocomplete="off">
+        </div>
+        <div class="field" id="fDKey" hidden>
+          <span for="dkey">Doubao API key</span>
+          <input id="dkey" type="password" placeholder="X-Api-Key" spellcheck="false" autocomplete="off">
+        </div>
+        <div class="field" id="fDVoice" hidden>
+          <span for="dvoice">Voice type</span>
+          <input id="dvoice" type="text" placeholder="en_male_..." spellcheck="false" autocomplete="off">
+        </div>
+      </div>
+
+      <p class="note" id="provNote">
+        <b>Why this one first.</b> Azure is the only one of the three that answers a browser directly:
+        its token and synthesis endpoints both return <code>Access-Control-Allow-Origin: *</code>, so the
+        request never leaves the tab. The free <b>F0</b> tier covers 500,000 neural characters a month,
+        permanently. The key stays in this browser's <code>localStorage</code> and is never sent anywhere
+        except Microsoft.
+      </p>
+
+      <div class="grid2" style="margin-top:14px">
+        <div class="field">
+          <span for="vExam">Examiner voice</span>
+          <select id="vExam">
+            <option value="en-GB-RyanNeural">en-GB-Ryan &mdash; male, warm</option>
+            <option value="en-GB-ThomasNeural">en-GB-Thomas &mdash; male, formal</option>
+            <option value="en-GB-AlfieNeural">en-GB-Alfie &mdash; male, light</option>
+            <option value="en-US-GuyNeural">en-US-Guy &mdash; male, American</option>
+            <option value="en-US-AriaNeural">en-US-Aria &mdash; female, American</option>
+          </select>
+        </div>
+        <div class="field">
+          <span for="vCand">Candidate voice</span>
+          <select id="vCand">
+            <option value="en-GB-SoniaNeural">en-GB-Sonia &mdash; female, clear</option>
+            <option value="en-GB-MaisieNeural">en-GB-Maisie &mdash; female, young</option>
+            <option value="en-GB-LibbyNeural">en-GB-Libby &mdash; female, bright</option>
+            <option value="en-GB-ElliotNeural">en-GB-Elliot &mdash; male, young</option>
+            <option value="en-US-JennyNeural">en-US-Jenny &mdash; female, American</option>
+          </select>
+        </div>
+        <div class="field">
+          <span for="speed">Pace</span>
+          <select id="speed">
+            <option value="-12">slower &mdash; &minus;12%</option>
+            <option value="-5" selected>slightly slow &mdash; &minus;5%</option>
+            <option value="0">natural</option>
+            <option value="10">faster &mdash; +10%</option>
+          </select>
+        </div>
+        <div class="field">
+          <span for="conc">Parallel requests</span>
+          <select id="conc">
+            <option value="2">2 &mdash; gentle</option>
+            <option value="4" selected>4 &mdash; balanced</option>
+            <option value="6">6 &mdash; fast</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ck"><span class="n">02</span><h2>Scope</h2><span class="sub" id="scopeState">&mdash;</span></div>
+      <div class="grid2">
+        <div class="field wide">
+          <span for="topic">Topic</span>
+          <select id="topic"></select>
+        </div>
+      </div>
+      <div class="stage">
+        <button type="button" class="dbtn" id="btnOne">This topic</button>
+        <button type="button" class="dbtn" id="btnP1">All Part 1</button>
+        <button type="button" class="dbtn" id="btnP23">All Part 2 &amp; 3</button>
+        <button type="button" class="dbtn" id="btnAll">Whole library</button>
+      </div>
+
+      <div class="quotawrap">
+        <div class="quota"><span>Characters in scope</span><b id="qChars">0</b>
+          <span style="margin-left:auto" id="qPct">0% of the 500k monthly free tier</span></div>
+        <div class="quotabar"><i id="qBar"></i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ck"><span class="n">03</span><h2>Build</h2><span class="sub" id="runState">idle</span></div>
+      <div class="stage">
+        <button type="button" class="dbtn primary" id="btnRun">Generate</button>
+        <button type="button" class="dbtn" id="btnPause" disabled>Pause</button>
+        <button type="button" class="dbtn" id="btnPreview" disabled>&#9654; Preview last</button>
+        <button type="button" class="dbtn" id="btnClear">Forget cached clips</button>
+      </div>
+
+      <div class="prog" id="prog">
+        <div class="progbar"><i id="progFill"></i></div>
+        <div class="pstats">
+          <span>done <b id="sDone">0</b></span>
+          <span>cached <b id="sCached">0</b></span>
+          <span class="bad">failed <b id="sFail">0</b></span>
+          <span>of <b id="sTotal">0</b></span>
+          <span>chars <b id="sChars">0</b></span>
+        </div>
+      </div>
+      <div class="log" id="log"></div>
+    </div>
+
+    <div class="card">
+      <div class="ck"><span class="n">04</span><h2>Take it away</h2><span class="sub" id="zipState">&mdash;</span></div>
+      <div class="stage">
+        <button type="button" class="dbtn primary" id="btnZip">Download clips + manifest (.zip)</button>
+        <button type="button" class="dbtn" id="btnManifest">manifest.json only</button>
+      </div>
+      <p class="note">
+        The archive holds one mp3 per sentence under <code>seg/</code>, plus a <code>manifest.json</code>
+        that lists every file with the script it speaks. Drop the folder into the repository and the
+        dictation drill can play a clip instead of seeking inside a long recording &mdash; exact to the
+        first millisecond, because there is nothing to seek to.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<section class="how">
+  <h2>What changed, and why it is cheaper</h2>
+  <div class="how-grid">
+    <div class="how-item">
+      <div class="k">Shift 01</div>
+      <h3>The unit of synthesis</h3>
+      <p>The original pipeline synthesised a whole answer, then ran a speech recogniser over the result to recover where each sentence started. Synthesising sentence by sentence inverts that: the boundary is the request.</p>
+    </div>
+    <div class="how-item">
+      <div class="k">Shift 02</div>
+      <h3>No native dependencies</h3>
+      <p>Forced alignment needed Python, numpy, PyAV and a Whisper checkpoint &mdash; about 1.5&nbsp;GB, and desktop only. The replacement is <code>fetch</code>, <code>Blob</code> and <code>indexedDB</code>, all of which already exist in the tab.</p>
+    </div>
+    <div class="how-item">
+      <div class="k">Shift 03</div>
+      <h3>Rebuilds get cheap</h3>
+      <p>Clips are cached by voice, pace and text. Fix one sentence and only that sentence is paid for again &mdash; the rest come straight out of the local store.</p>
+    </div>
+  </div>
+</section>
+
+<div class="pagefoot">
+  <span>64 topics &middot; 1,024 lines &middot; 2,491 sentences</span>
+  <span><a href="listening.html">Back to the drill</a></span>
+</div>
+
+<script src="listening-data.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var SPLIT = /(?<=[.!?])\s+/;
+  var CFG_KEY = "ielts_studio_cfg";
+  var QUOTA = 500000;
+  var $d = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); };
+  var pad = function(n, w){ n = String(n); while (n.length < (w || 2)) n = "0" + n; return n; };
+
+  /* ---------------- state ---------------- */
+  var cfg = { prov:"azure", region:"eastasia", key:"", proxy:"", dkey:"", dvoice:"",
+              vExam:"en-GB-RyanNeural", vCand:"en-GB-SoniaNeural", speed:"-5", conc:"4" };
+  var plan = [];          /* the current scope, flattened to sentences */
+  var queue = [];         /* items still to synthesise */
+  var running = false;
+  var stats = { total:0, done:0, cached:0, fail:0, chars:0 };
+  var lastBlob = null;
+  var mem = {};           /* key -> blob, front of the cache */
+
+  /* ---------------- config ---------------- */
+  function loadCfg(){
+    try {
+      var raw = JSON.parse(localStorage.getItem(CFG_KEY) || "null");
+      if (raw) Object.keys(cfg).forEach(function(k){ if (raw[k] != null) cfg[k] = raw[k]; });
+    } catch(e){}
+  }
+  function saveCfg(){
+    try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch(e){}
+  }
+  function readCfg(){
+    cfg.prov   = $d("prov").value;
+    cfg.region = $d("region").value;
+    cfg.key    = $d("key").value.trim();
+    cfg.proxy  = $d("proxy").value.trim();
+    cfg.dkey   = $d("dkey").value.trim();
+    cfg.dvoice = $d("dvoice").value.trim();
+    cfg.vExam  = $d("vExam").value;
+    cfg.vCand  = $d("vCand").value;
+    cfg.speed  = $d("speed").value;
+    cfg.conc   = $d("conc").value;
+    saveCfg();
+    paintEngine();
+  }
+  function writeCfg(){
+    $d("prov").value = cfg.prov;
+    $d("region").value = cfg.region;
+    $d("key").value = cfg.key;
+    $d("proxy").value = cfg.proxy;
+    $d("dkey").value = cfg.dkey;
+    $d("dvoice").value = cfg.dvoice;
+    $d("vExam").value = cfg.vExam;
+    $d("vCand").value = cfg.vCand;
+    $d("speed").value = cfg.speed;
+    $d("conc").value = cfg.conc;
+  }
+  function paintEngine(){
+    var az = cfg.prov === "azure";
+    $d("fRegion").hidden = !az;
+    $d("fKey").hidden = !az;
+    $d("fProxy").hidden = az;
+    $d("fDKey").hidden = az;
+    $d("fDVoice").hidden = az;
+    $d("vExam").parentNode.hidden = !az;
+    $d("vCand").parentNode.hidden = !az;
+    $d("provNote").innerHTML = az
+      ? '<b>Why this one first.</b> Azure is the only one of the three that answers a browser directly: its token and synthesis endpoints both return <code>Access-Control-Allow-Origin: *</code>, so the request never leaves the tab. The free <b>F0</b> tier covers 500,000 neural characters a month, permanently. The key stays in this browser\u2019s <code>localStorage</code> and is never sent anywhere except Microsoft.'
+      : '<b>This one needs a proxy, and only because of CORS.</b> The Doubao endpoint answers a browser preflight with <code>404</code> and no <code>Access-Control-Allow-Origin</code> header at all, so the tab cannot call it &mdash; no amount of key juggling changes that. It does not need a VPN; it needs roughly ten lines of forwarding code. Point the field above at any worker that adds <code>X-Api-Key</code> and returns the mp3 body.';
+    var ok = az ? !!cfg.key : (!!cfg.proxy && !!cfg.dkey);
+    $d("engineState").textContent = ok ? (az ? "key set" : "proxy set") : "no key";
+    $d("engineState").style.color = ok ? "#8fd8c8" : "#7d94a4";
+  }
+
+  /* ---------------- indexdb ---------------- */
+  var dbp = null;
+  function db(){
+    if (dbp) return dbp;
+    dbp = new Promise(function(res, rej){
+      var r;
+      try { r = indexedDB.open("voice-studio", 1); } catch(e){ rej(e); return; }
+      r.onupgradeneeded = function(){ r.result.createObjectStore("clips"); };
+      r.onsuccess = function(){ res(r.result); };
+      r.onerror = function(){ rej(r.error); };
+    });
+    return dbp;
+  }
+  function dbGet(key){
+    return db().then(function(d){
+      return new Promise(function(res){
+        var t = d.transaction("clips", "readonly").objectStore("clips").get(key);
+        t.onsuccess = function(){ res(t.result || null); };
+        t.onerror = function(){ res(null); };
+      });
+    }).catch(function(){ return null; });
+  }
+  function dbPut(key, blob){
+    return db().then(function(d){
+      return new Promise(function(res){
+        var t = d.transaction("clips", "readwrite");
+        t.objectStore("clips").put({ blob: blob, at: Date.now() }, key);
+        t.oncomplete = function(){ res(true); };
+        t.onerror = function(){ res(false); };
+      });
+    }).catch(function(){ return false; });
+  }
+  function dbClear(){
+    mem = {};
+    return db().then(function(d){
+      return new Promise(function(res){
+        var t = d.transaction("clips", "readwrite");
+        t.objectStore("clips").clear();
+        t.oncomplete = function(){ res(true); };
+        t.onerror = function(){ res(false); };
+      });
+    }).catch(function(){ return false; });
+  }
+
+  /* ---------------- scope ---------------- */
+  /* Part 1 alternates question and answer, so parity decides the speaker.
+     Part 2 & 3 open with a cue card, then one long turn, then the Part 3
+     questions resume the alternation -- the first block that ends in a
+     question mark marks the boundary. */
+  /* cached per topic so the scan is not repeated for every block */
+  var p3Cache = {};
+  function p3Start(tp){
+    if (p3Cache[tp.num + ":" + tp.blocks.length] != null) return p3Cache[tp.num + ":" + tp.blocks.length];
+    var start = 2;
+    for (var i = 2; i < tp.blocks.length; i++){
+      var t = tp.blocks[i];
+      if (t && /\?\s*$/.test(t.trim())) { start = i; break; }
+    }
+    p3Cache[tp.num + ":" + tp.blocks.length] = start;
+    return start;
+  }
+  function voiceFor(mod, tp, bi){
+    if (mod === "A") return bi % 2 === 0 ? cfg.vExam : cfg.vCand;
+    if (bi === 0) return cfg.vExam;
+    var p3 = p3Start(tp);
+    if (bi < p3) return cfg.vCand;
+    return ((bi - p3) % 2 === 0) ? cfg.vExam : cfg.vCand;
+  }
+
+  function planFor(tp, mod){
+    var out = [];
+    tp.blocks.forEach(function(text, bi){
+      if (!text) return;
+      var v = voiceFor(mod, tp, bi);
+      text.split(SPLIT).map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(s, si){
+        out.push({ mod: mod, num: tp.num, name: tp.name, bi: bi, si: si, text: s, voice: v,
+                   file: mod + pad(tp.num) + "_" + pad(bi) + "_" + pad(si) + ".mp3" });
+      });
+    });
+    return out;
+  }
+
+  function allTopics(){
+    var out = [];
+    LISTENING_DATA.A.forEach(function(t){ out.push({ mod: "A", tp: t }); });
+    LISTENING_DATA.B.forEach(function(t){ out.push({ mod: "B", tp: t }); });
+    return out;
+  }
+
+  function fillTopics(){
+    var html = '<optgroup label="Part 1 &mdash; Rapid Q&amp;A">';
+    LISTENING_DATA.A.forEach(function(t){
+      html += '<option value="A:' + t.num + '">' + pad(t.num) + ' &middot; ' + esc(t.name) + '</option>';
+    });
+    html += '</optgroup><optgroup label="Part 2 &amp; 3 &mdash; Cue Cards">';
+    LISTENING_DATA.B.forEach(function(t){
+      html += '<option value="B:' + t.num + '">' + pad(t.num) + ' &middot; ' + esc(t.name) + '</option>';
+    });
+    html += '</optgroup>';
+    $d("topic").innerHTML = html;
+  }
+
+  function setScope(items, label){
+    plan = items;
+    var chars = 0;
+    items.forEach(function(it){ chars += it.text.length; });
+    $d("qChars").textContent = chars.toLocaleString("en-GB");
+    var pct = chars / QUOTA * 100;
+    $d("qPct").textContent = pct.toFixed(pct < 10 ? 1 : 0) + "% of the 500k monthly free tier";
+    $d("qBar").style.width = Math.min(100, pct) + "%";
+    $d("scopeState").textContent = label + " \u00b7 " + items.length + " clips";
+    $d("btnPreview").disabled = true;
+  }
+
+  function scopeTopic(){
+    var v = String($d("topic").value).split(":");
+    var mod = v[0], num = v[1];
+    var list = mod === "A" ? LISTENING_DATA.A : LISTENING_DATA.B;
+    for (var i = 0; i < list.length; i++){
+      if (String(list[i].num) === num){
+        setScope(planFor(list[i], mod), "topic " + pad(num));
+        return;
+      }
+    }
+  }
+  function scopeModule(mod){
+    var items = [];
+    (mod === "A" ? LISTENING_DATA.A : LISTENING_DATA.B).forEach(function(t){
+      items = items.concat(planFor(t, mod));
+    });
+    setScope(items, mod === "A" ? "all Part 1" : "all Part 2 & 3");
+  }
+  function scopeAll(){
+    var items = [];
+    allTopics().forEach(function(o){ items = items.concat(planFor(o.tp, o.mod)); });
+    setScope(items, "whole library");
+  }
+
+  /* ---------------- synthesis ---------------- */
+  function ssml(text, voice){
+    return "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-GB'>" +
+           "<voice name='" + voice + "'><prosody rate='" + cfg.speed + "%'>" +
+           text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") +
+           "</prosody></voice></speak>";
+  }
+
+  function synthAzure(text, voice, signal){
+    var url = "https://" + cfg.region + ".tts.speech.microsoft.com/cognitiveservices/v1";
+    return fetch(url, {
+      method: "POST",
+      signal: signal,
+      headers: {
+        "Ocp-Apim-Subscription-Key": cfg.key,
+        "Content-Type": "application/ssml+xml",
+        "X-Microsoft-OutputFormat": "audio-24khz-48kbitrate-mono-mp3"
+      },
+      body: ssml(text, voice)
+    }).then(function(r){
+      if (!r.ok) return r.text().then(function(t){ throw new Error("HTTP " + r.status + " " + t.slice(0, 140)); });
+      return r.blob();
+    });
+  }
+
+  function synthDoubao(text, voice, signal){
+    return fetch(cfg.proxy, {
+      method: "POST",
+      signal: signal,
+      headers: { "Content-Type": "application/json", "X-Api-Key": cfg.dkey },
+      body: JSON.stringify({
+        text: text, voice_type: cfg.dvoice || voice, encoding: "mp3",
+        rate: 24000, speed_ratio: 1 + (parseInt(cfg.speed, 10) || 0) / 100
+      })
+    }).then(function(r){
+      if (!r.ok) return r.text().then(function(t){ throw new Error("HTTP " + r.status + " " + t.slice(0, 140)); });
+      var ct = r.headers.get("content-type") || "";
+      if (ct.indexOf("json") >= 0){
+        return r.json().then(function(j){
+          var b64 = j.data || j.audio || (j.result && j.result.data);
+          if (!b64) throw new Error("proxy returned JSON without audio data");
+          var bin = atob(b64), u = new Uint8Array(bin.length);
+          for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+          return new Blob([u], { type: "audio/mpeg" });
+        });
+      }
+      return r.blob();
+    });
+  }
+
+  function synth(text, voice, signal){
+    return cfg.prov === "azure" ? synthAzure(text, voice, signal) : synthDoubao(text, voice, signal);
+  }
+
+  function cacheKey(it){ return cfg.prov + "|" + it.voice + "|" + cfg.speed + "|" + it.text; }
+
+  function logLine(msg, cls){
+    var el = $d("log");
+    el.classList.add("show");
+    var row = document.createElement("div");
+    if (cls) row.className = cls;
+    row.textContent = msg;
+    el.appendChild(row);
+    el.scrollTop = el.scrollHeight;
+    while (el.childNodes.length > 260) el.removeChild(el.firstChild);
+  }
+
+  function paint(){
+    var fin = stats.done + stats.cached + stats.fail;
+    $d("progFill").style.width = (stats.total ? fin / stats.total * 100 : 0) + "%";
+    $d("sDone").textContent = stats.done;
+    $d("sCached").textContent = stats.cached;
+    $d("sFail").textContent = stats.fail;
+    $d("sTotal").textContent = stats.total;
+    $d("sChars").textContent = stats.chars.toLocaleString("en-GB");
+  }
+
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  function one(it){
+    var key = cacheKey(it);
+    if (mem[key]){
+      stats.cached++; paint(); lastBlob = mem[key];
+      return Promise.resolve();
+    }
+    return dbGet(key).then(function(row){
+      if (row && row.blob){
+        mem[key] = row.blob;
+        stats.cached++; paint(); lastBlob = row.blob;
+        return null;
+      }
+      return attempt(it, key, 0);
+    });
+  }
+
+  function attempt(it, key, n){
+    var ctl = new AbortController();
+    return synth(it.text, it.voice, ctl.signal).then(function(blob){
+      if (!blob || !blob.size) throw new Error("empty audio");
+      mem[key] = blob;
+      lastBlob = blob;
+      stats.done++;
+      stats.chars += it.text.length;
+      paint();
+      return dbPut(key, blob);
+    }).catch(function(err){
+      if (n < 2){
+        return sleep(600 * (n + 1)).then(function(){ return attempt(it, key, n + 1); });
+      }
+      stats.fail++; paint();
+      logLine("fail  " + it.file + "  " + (err && err.message ? err.message : err), "er");
+    });
+  }
+
+  function run(){
+    if (running) return;
+    readCfg();
+    if (cfg.prov === "azure" && !cfg.key){ logLine("Set an Azure key first.", "er"); return; }
+    if (cfg.prov === "doubao" && (!cfg.proxy || !cfg.dkey)){ logLine("Set the proxy endpoint and API key first.", "er"); return; }
+
+    if (!plan.length) scopeTopic();
+    if (!plan.length) return;
+
+    queue = plan.slice();
+    stats = { total: queue.length, done: 0, cached: 0, fail: 0, chars: 0 };
+    running = true;
+    $d("prog").classList.add("show");
+    $d("btnRun").disabled = true;
+    $d("btnPause").disabled = false;
+    $d("runState").textContent = "running";
+    paint();
+    logLine("plan " + stats.total + " clips \u00b7 " + cfg.prov + " \u00b7 " +
+            (cfg.prov === "azure" ? cfg.vExam + " / " + cfg.vCand : "doubao"), "mu");
+
+    var width = Math.max(1, Math.min(6, parseInt(cfg.conc, 10) || 4));
+    var workers = [];
+    for (var w = 0; w < width; w++) workers.push(worker());
+    Promise.all(workers).then(function(){
+      running = false;
+      $d("btnRun").disabled = false;
+      $d("btnPause").disabled = true;
+      $d("btnPreview").disabled = !lastBlob;
+      $d("runState").textContent = stats.fail ? "finished with errors" : "finished";
+      logLine("done  " + stats.done + " new \u00b7 " + stats.cached + " cached \u00b7 " +
+              stats.fail + " failed \u00b7 " + stats.chars + " chars billed", stats.fail ? "er" : "ok");
+    });
+  }
+
+  function worker(){
+    if (!running || !queue.length) return Promise.resolve();
+    var it = queue.shift();
+    return one(it).then(worker);
+  }
+
+  function pause(){
+    running = false;
+    $d("runState").textContent = "paused \u00b7 " + queue.length + " left";
+    logLine("paused with " + queue.length + " clips still queued", "mu");
+  }
+
+  function preview(){
+    if (!lastBlob) return;
+    var a = new Audio(URL.createObjectURL(lastBlob));
+    a.play().catch(function(){});
+  }
+
+  /* ---------------- zip ---------------- */
+  var CRC = (function(){
+    var t = new Int32Array(256);
+    for (var n = 0; n < 256; n++){
+      var c = n;
+      for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+      t[n] = c;
+    }
+    return t;
+  })();
+  function crc32(u8){
+    var c = -1;
+    for (var i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+    return (c ^ -1) >>> 0;
+  }
+  function dosTime(d){
+    return {
+      time: ((d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1)) & 0xFFFF,
+      date: (((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()) & 0xFFFF
+    };
+  }
+  function zip(files){
+    var enc = new TextEncoder();
+    var chunks = [], central = [], offset = 0;
+    var dt = dosTime(new Date());
+    files.forEach(function(f){
+      var name = enc.encode(f.name);
+      var data = f.data;
+      var crc = crc32(data);
+      var lh = new Uint8Array(30 + name.length);
+      var dv = new DataView(lh.buffer);
+      dv.setUint32(0, 0x04034b50, true);
+      dv.setUint16(4, 20, true);
+      dv.setUint16(6, 0x0800, true);           /* utf-8 names */
+      dv.setUint16(8, 0, true);                /* stored */
+      dv.setUint16(10, dt.time, true);
+      dv.setUint16(12, dt.date, true);
+      dv.setUint32(14, crc, true);
+      dv.setUint32(18, data.length, true);
+      dv.setUint32(22, data.length, true);
+      dv.setUint16(26, name.length, true);
+      dv.setUint16(28, 0, true);
+      lh.set(name, 30);
+
+      var ch = new Uint8Array(46 + name.length);
+      var cv = new DataView(ch.buffer);
+      cv.setUint32(0, 0x02014b50, true);
+      cv.setUint16(4, 20, true);
+      cv.setUint16(6, 20, true);
+      cv.setUint16(8, 0x0800, true);
+      cv.setUint16(10, 0, true);
+      cv.setUint16(12, dt.time, true);
+      cv.setUint16(14, dt.date, true);
+      cv.setUint32(16, crc, true);
+      cv.setUint32(20, data.length, true);
+      cv.setUint32(24, data.length, true);
+      cv.setUint16(28, name.length, true);
+      cv.setUint16(30, 0, true);
+      cv.setUint16(32, 0, true);
+      cv.setUint16(34, 0, true);
+      cv.setUint16(36, 0, true);
+      cv.setUint32(38, 0, true);
+      cv.setUint32(42, offset, true);
+      ch.set(name, 46);
+
+      chunks.push(lh, data);
+      central.push(ch);
+      offset += lh.length + data.length;
+    });
+    var cdSize = central.reduce(function(a, c){ return a + c.length; }, 0);
+    var eocd = new Uint8Array(22);
+    var ev = new DataView(eocd.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(8, files.length, true);
+    ev.setUint16(10, files.length, true);
+    ev.setUint32(12, cdSize, true);
+    ev.setUint32(16, offset, true);
+    return new Blob(chunks.concat(central, [eocd]), { type: "application/zip" });
+  }
+
+  function download(blob, name){
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+  }
+
+  function manifestFor(items){
+    var topics = {}, order = [];
+    items.forEach(function(it){
+      var k = it.mod + pad(it.num);
+      if (!topics[k]){
+        topics[k] = { mod: it.mod, num: it.num, name: it.name, segments: [] };
+        order.push(k);
+      }
+      topics[k].segments.push({ f: it.file, bi: it.bi, si: it.si, voice: it.voice, text: it.text });
+    });
+    return {
+      generatedAt: new Date().toISOString(),
+      provider: cfg.prov,
+      pace: cfg.speed + "%",
+      unit: "sentence",
+      note: "Each clip is one sentence. Duration is read from the file at play time, so no alignment step exists.",
+      topics: order.map(function(k){ return topics[k]; })
+    };
+  }
+
+  function collect(items){
+    var out = [];
+    var i = 0;
+    function step(){
+      if (i >= items.length) return Promise.resolve(out);
+      var it = items[i++];
+      var key = cacheKey(it);
+      var hit = mem[key];
+      if (hit){ out.push({ name: "seg/" + it.file, data: hit }); return step(); }
+      return dbGet(key).then(function(row){
+        if (row && row.blob) out.push({ name: "seg/" + it.file, data: row.blob });
+        return step();
+      });
+    }
+    return step();
+  }
+
+  function toBytes(blob){
+    return blob.arrayBuffer ? blob.arrayBuffer().then(function(b){ return new Uint8Array(b); })
+                            : new Response(blob).arrayBuffer().then(function(b){ return new Uint8Array(b); });
+  }
+
+  function exportZip(){
+    if (!plan.length) scopeTopic();
+    $d("zipState").textContent = "packing\u2026";
+    var man = manifestFor(plan);
+    collect(plan).then(function(found){
+      if (!found.length){ $d("zipState").textContent = "nothing generated yet"; return; }
+      var files = [];
+      var i = 0;
+      function next(){
+        if (i >= found.length) return Promise.resolve();
+        var f = found[i++];
+        return toBytes(f.data).then(function(u8){ files.push({ name: f.name, data: u8 }); return next(); });
+      }
+      return next().then(function(){
+        files.push({ name: "manifest.json", data: new TextEncoder().encode(JSON.stringify(man, null, 1)) });
+        var blob = zip(files);
+        download(blob, "ielts-clips-" + cfg.prov + "-" + Date.now() + ".zip");
+        $d("zipState").textContent = found.length + " clips \u00b7 " +
+          (blob.size / 1048576).toFixed(1) + " MB";
+      });
+    });
+  }
+
+  function exportManifest(){
+    if (!plan.length) scopeTopic();
+    var man = manifestFor(plan);
+    download(new Blob([JSON.stringify(man, null, 1)], { type: "application/json" }), "manifest.json");
+    $d("zipState").textContent = man.topics.length + " topics";
+  }
+
+  /* ---------------- wiring ---------------- */
+  loadCfg();
+  writeCfg();
+  paintEngine();
+  fillTopics();
+
+  ["prov","region","key","proxy","dkey","dvoice","vExam","vCand","speed","conc"].forEach(function(id){
+    $d(id).addEventListener("change", function(){
+      readCfg();
+      if (id === "prov" || id === "vExam" || id === "vCand"){ p3Cache = {}; scopeTopic(); }
+    });
+    $d(id).addEventListener("input", function(){ readCfg(); });
+  });
+
+  $d("topic").addEventListener("change", function(){ scopeTopic(); });
+  $d("btnOne").addEventListener("click", function(){ scopeTopic(); });
+  $d("btnP1").addEventListener("click", function(){ scopeModule("A"); });
+  $d("btnP23").addEventListener("click", function(){ scopeModule("B"); });
+  $d("btnAll").addEventListener("click", function(){ scopeAll(); });
+  $d("btnRun").addEventListener("click", run);
+  $d("btnPause").addEventListener("click", pause);
+  $d("btnPreview").addEventListener("click", preview);
+  $d("btnZip").addEventListener("click", exportZip);
+  $d("btnManifest").addEventListener("click", exportManifest);
+  $d("btnClear").addEventListener("click", function(){
+    dbClear().then(function(){
+      $d("zipState").textContent = "cache cleared";
+      logLine("local cache cleared", "mu");
+    });
+  });
+
+  /* deep links: #all, #A, #B, #A:12 */
+  (function initScope(){
+    var h = String(location.hash || "").replace(/^#/, "");
+    if (h === "all"){ scopeAll(); return; }
+    if (h === "A" || h === "B"){
+      var list = h === "A" ? LISTENING_DATA.A : LISTENING_DATA.B;
+      if (list.length){ $d("topic").value = h + ":" + list[0].num; }
+      scopeModule(h); return;
+    }
+    if (/^[AB]:\d+$/.test(h)){ $d("topic").value = h; }
+    scopeTopic();
+  })();
+})();
+</script>
+</body>
+</html>
