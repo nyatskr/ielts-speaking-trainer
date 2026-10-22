@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing Lab · IELTS Task 2 Scored Against the Rubric</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e7490'/%3E%3Cpath d='M8 22h16M8 16h11M8 10h14' stroke='white' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --ink:#101823; --bg:#f5f3ed; --card:#ffffff; --line:#e6e1d5;
+  --muted:#64707d; --text:#232c38;
+  --teal:#0e7490; --teal-deep:#0a4d63; --teal-bright:#2dd4bf;
+  --amber:#b45309; --red:#a8332c; --green:#0f6e56;
+  --mono:"Consolas","Cascadia Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Segoe UI",system-ui,-apple-system,"Microsoft YaHei",sans-serif;line-height:1.7;font-size:16px}
+.en{font-family:Georgia,"Times New Roman",serif}
+button{font-family:inherit}
+
+/* ============ site bar ============ */
+.sitebar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:#0b141d;color:#e6f0f4;padding:10px 22px;border-bottom:1px solid #1e3342}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none;color:inherit}
+.brand svg{width:30px;height:30px;flex:0 0 auto}
+.brand-name{font-weight:700;font-size:14.5px;letter-spacing:.2px;line-height:1.25}
+.brand-sub{font-size:10.5px;color:#8fb3c4;font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase;line-height:1.3}
+.modnav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mod{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;border-radius:6px;color:#9fb8c8;
+  text-decoration:none;font-size:12.5px;line-height:1.35;white-space:nowrap;background:transparent;
+  border:0;cursor:pointer;transition:color .15s,background .15s}
+.mod:hover{color:#f2f7fa;background:#12222e}
+.mod.active{color:#a7e8dd;background:#12222e}
+.mod svg{width:13px;height:13px;flex:none;stroke:currentColor;stroke-width:1.7;fill:none;
+  stroke-linecap:round;stroke-linejoin:round}
+.mod-ext{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:6px;
+  color:#a7e8dd;text-decoration:none;font-size:12.5px;font-weight:600;white-space:nowrap;
+  border:1px solid #1d4a5c;background:#0f2b38;cursor:pointer}
+.mod-ext:hover{background:#14405a}
+
+/* ============ hero ============ */
+.hero{background:radial-gradient(1100px 460px at 70% -10%, #13303e 0%, #0b141d 58%), #0b141d;
+  color:#dbe7ee;padding:52px 22px 54px}
+.hero-in{max-width:1180px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--teal-bright);
+  text-transform:uppercase;margin:0 0 14px}
+.hero h1{font-family:Georgia,serif;font-weight:700;font-size:clamp(28px,4.2vw,44px);line-height:1.15;
+  margin:0 0 16px;color:#f2f7fa;max-width:880px}
+.hero .lead{font-size:16px;color:#b6c9d5;max-width:820px;margin:0 0 24px}
+.hero .lead strong{color:#e2edf3;font-weight:600}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 22px}
+.fact{background:#101c27;border:1px solid #1e3443;border-radius:14px;padding:13px 16px}
+.fact b{display:block;font-family:Georgia,serif;font-size:25px;color:#7dd3fc;line-height:1.15}
+.fact span{font-size:12px;color:#8fa8b8}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{font-size:11.5px;color:#9fc0d2;background:#13222e;border:1px solid #234052;border-radius:999px;
+  padding:4px 12px;font-family:var(--mono)}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:10px 18px;border-radius:8px;
+  background:var(--teal);color:#fff;border:0;font-size:13.5px;font-weight:600;cursor:pointer}
+.hero-cta:hover{background:#0b6178}
+.hero-cta.ghost{background:transparent;border:1px solid #2b4f60;color:#a7e8dd;margin-left:10px}
+
+/* ============ layout ============ */
+.lab{display:flex;gap:26px;max-width:1240px;margin:0 auto;padding:26px 20px 80px;align-items:flex-start}
+.picker{width:270px;flex:0 0 270px;position:sticky;top:64px;max-height:calc(100vh - 84px);
+  display:flex;flex-direction:column;gap:12px}
+.picker input[type=search]{width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:8px;
+  font-size:13.5px;background:#fff;color:var(--text);outline:none}
+.picker input[type=search]:focus{border-color:var(--teal)}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.filters button{padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;
+  font-size:11.5px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.filters button.on{background:#e6f3f1;border-color:#b8dcd6;color:var(--teal-deep);font-weight:600}
+.tlist{overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:4px;padding-right:4px}
+.tlist::-webkit-scrollbar{width:7px}
+.tlist::-webkit-scrollbar-thumb{background:#d8d2c4;border-radius:4px}
+.titem{display:flex;gap:9px;align-items:flex-start;padding:8px 10px;border-radius:8px;border:0;
+  background:transparent;cursor:pointer;text-align:left;color:#3f4651;font-size:13px;line-height:1.45;
+  border-left:3px solid transparent}
+.titem:hover{background:#efece2}
+.titem.on{background:#e6f3f1;color:var(--teal-deep);font-weight:600;border-left-color:var(--teal)}
+.titem .n{font-family:Georgia,serif;font-size:11.5px;color:var(--muted);min-width:18px;padding-top:1px}
+.titem .tt{flex:1}
+.titem .ty{display:block;font-size:10.5px;color:#8b8f97;font-weight:400;margin-top:1px}
+.stage{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px}
+
+/* ============ cards ============ */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  box-shadow:0 1px 2px rgba(30,40,50,.04)}
+.taskcard{padding:22px 26px}
+.taskcard .kicker{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.badge{font-family:var(--mono);font-size:11px;letter-spacing:.4px;padding:3px 9px;border-radius:999px;
+  background:#e6f3f1;color:var(--teal-deep);border:1px solid #cfe6e2;white-space:nowrap}
+.badge.core{background:#fdf0e3;color:#8a4b09;border-color:#f2dcc4}
+.taskcard h2{font-family:Georgia,serif;font-size:19px;line-height:1.5;margin:0 0 12px;font-weight:700;color:#1b2530}
+.taskcard .zh{font-size:13px;color:var(--muted);margin:0 0 14px}
+.why{background:#faf8f3;border-left:3px solid #d9d2c0;border-radius:0 8px 8px 0;padding:11px 14px;
+  font-size:13.5px;color:#4a525c;margin:0}
+.why b{color:var(--teal-deep);font-weight:600}
+.model{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+.model summary{cursor:pointer;font-size:13px;color:var(--teal);font-weight:600;list-style:none}
+.model summary::-webkit-details-marker{display:none}
+.model summary::before{content:"▸ ";font-size:11px}
+.model[open] summary::before{content:"▾ "}
+.model .mtxt{font-family:Georgia,serif;font-size:14.5px;line-height:1.85;color:#2c3540;
+  margin:12px 0 0;white-space:pre-wrap}
+.model .msrc{font-size:11.5px;color:#8b8f97;margin-top:10px;font-family:var(--mono)}
+
+/* ============ editor ============ */
+.editor{padding:20px 24px 18px}
+.editor .ehead{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.editor .ehead h3{margin:0;font-size:14px;font-weight:700;color:#2a333e}
+.wc{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:auto}
+.wc.warn{color:var(--red)}
+#essay{width:100%;min-height:300px;padding:16px 18px;border:1px solid var(--line);border-radius:10px;
+  font-family:Georgia,serif;font-size:15.5px;line-height:1.85;color:#242d38;background:#fdfcf8;
+  resize:vertical;outline:none}
+#essay:focus{border-color:var(--teal);background:#fff}
+.etools{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.btn{padding:9px 18px;border-radius:8px;border:1px solid var(--line);background:#fff;color:#2a333e;
+  font-size:13.5px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--teal);color:var(--teal)}
+.btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}
+.btn.primary:hover{background:#0b6178;border-color:#0b6178;color:#fff}
+.btn.ghost{background:transparent;border-color:#d9d2c0;color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hint{font-size:12px;color:#8b8f97}
+.hint a{color:var(--teal);cursor:pointer;text-decoration:underline}
+
+/* ============ progress ============ */
+.progress{padding:26px 24px}
+.pbar{height:4px;background:#eee9dd;border-radius:3px;overflow:hidden;margin-bottom:14px}
+.pbar i{display:block;height:100%;width:12%;background:var(--teal);border-radius:3px;
+  transition:width .5s ease}
+.plog{font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.9}
+.plog .ok::before{content:"✓ ";color:var(--green)}
+.plog .cur::before{content:"▸ ";color:var(--teal)}
+.plog .wait::before{content:"· ";color:#bdb7a8}
+
+/* ============ result ============ */
+.result{display:flex;flex-direction:column;gap:16px}
+.rsec{padding:20px 24px 22px}
+.rsec h3{margin:0 0 14px;font-size:13px;font-family:var(--mono);letter-spacing:1.4px;
+  text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:10px}
+.rsec h3 .idx{font-family:Georgia,serif;font-size:12px;color:#b9b2a2;letter-spacing:0}
+.rsec h3::after{content:"";flex:1;height:1px;background:var(--line)}
+.verdict{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.bandbig{font-family:Georgia,serif;font-size:58px;line-height:1;font-weight:700;color:var(--teal-deep)}
+.bandbig small{font-size:15px;color:var(--muted);font-weight:400;margin-left:6px}
+.vtext{flex:1;min-width:220px;font-size:14.5px;color:#39424d}
+.scoregrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.sc{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fdfcf8}
+.sc .k{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.5px}
+.sc .b{font-family:Georgia,serif;font-size:31px;line-height:1.15;font-weight:700;color:var(--teal-deep)}
+.sc .b.lo{color:var(--red)}
+.sc .b.mid{color:var(--amber)}
+.sc .r{font-size:12px;color:#5b646f;line-height:1.6;margin-top:6px}
+.sc .cn{font-size:11px;color:#9aa0a8}
+.tyline{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px}
+.tyline .lb{font-family:Georgia,serif;font-size:20px;font-weight:700;color:#1b2530}
+.tyline .nm{font-size:12.5px;color:var(--muted);font-family:var(--mono)}
+.keyline{background:#e6f3f1;border-radius:8px;padding:9px 13px;font-size:13px;color:var(--teal-deep);
+  margin:12px 0 0}
+.keyline b{font-weight:600}
+.hardrow{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:9px;background:#fdfcf8}
+.hardrow .p{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:5px}
+.hardrow .s{font-family:Georgia,serif;font-size:14px;color:#2b333d;margin-bottom:8px}
+.hardrow .s em{font-style:normal;background:#fdf1d6;padding:0 2px}
+.hardrow .v{font-size:13px;color:#4a525c;margin-bottom:6px}
+.hardrow .fx{font-size:13px;color:var(--green);font-family:Georgia,serif}
+.tag{display:inline-block;font-size:10.5px;padding:1px 7px;border-radius:4px;margin-left:6px;
+  font-family:var(--mono);vertical-align:1px}
+.tag.ok{background:#e4f2ec;color:var(--green)}
+.tag.no{background:#fbe9e7;color:var(--red)}
+.fatal{border-left:3px solid var(--red);background:#fdf6f5;border-radius:0 10px 10px 0;
+  padding:13px 16px;margin-bottom:10px}
+.fatal b{display:block;font-size:14px;color:#8d2b24;margin-bottom:5px}
+.fatal p{margin:0 0 8px;font-size:13.5px;color:#4a3f3e;line-height:1.75}
+.fatal .ana{font-size:12.5px;color:#7a6a68;font-style:italic;border-top:1px dashed #e8d5d2;padding-top:8px}
+.para{border:1px solid var(--line);border-radius:10px;margin-bottom:9px;overflow:hidden}
+.para summary{cursor:pointer;padding:11px 14px;display:flex;gap:10px;align-items:center;
+  background:#fdfcf8;font-size:13.5px;list-style:none}
+.para summary::-webkit-details-marker{display:none}
+.para summary .nm{font-weight:600;color:#2a333e}
+.para summary .rl{font-size:11.5px;color:var(--muted);margin-left:auto}
+.para .body{padding:4px 16px 16px;border-top:1px solid var(--line)}
+.para .row{margin:10px 0}
+.para .row .rlab{font-family:var(--mono);font-size:10.5px;letter-spacing:.6px;color:#9aa0a8;
+  text-transform:uppercase;display:block;margin-bottom:2px;line-height:1.6}
+.para .row .good{color:#2f5d4c}
+.para .row .fix{color:#8a4b09}
+.para .rw{font-family:Georgia,serif;font-size:14px;line-height:1.8;color:#2b333d;background:#f7f6f0;
+  border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:10px 14px;margin-top:4px}
+table.err{width:100%;border-collapse:collapse;font-size:13px}
+table.err th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.6px;
+  text-transform:uppercase;color:#9aa0a8;font-weight:400;padding:0 10px 8px 0;border-bottom:1px solid var(--line)}
+table.err td{padding:9px 10px 9px 0;border-bottom:1px solid #f0ece1;vertical-align:top;line-height:1.6}
+table.err td.o{color:#8d2b24;text-decoration:line-through;text-decoration-color:#e0b3ae;width:33%}
+table.err td.f{color:var(--green);width:33%;font-family:Georgia,serif}
+table.err td.k{font-size:11px;color:var(--muted);white-space:nowrap;width:12%}
+table.err td.n{font-size:12px;color:#6b737d}
+ul.plain{margin:0;padding:0;list-style:none}
+ul.plain li{position:relative;padding-left:20px;margin:7px 0;font-size:13.5px;color:#3f4750;line-height:1.75}
+ul.plain li::before{content:"";position:absolute;left:2px;top:9px;width:6px;height:6px;
+  border-radius:50%;background:var(--teal-bright)}
+ul.plain.num{counter-reset:c}
+ul.plain.num li::before{counter-increment:c;content:counter(c);background:#e6f3f1;color:var(--teal-deep);
+  width:17px;height:17px;border-radius:50%;font-size:10.5px;font-family:var(--mono);text-align:center;
+  line-height:17px;left:0;top:4px}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.twocol h4{margin:0 0 6px;font-size:12px;font-family:var(--mono);letter-spacing:.8px;color:var(--muted);
+  text-transform:uppercase;font-weight:400}
+.teacher{background:#0b141d;color:#d6e4ec;border-radius:12px;padding:18px 20px;font-size:14px;
+  line-height:1.9;position:relative}
+.teacher::before{content:"EXAMINER NOTE";position:absolute;top:-9px;left:16px;background:var(--teal);
+  color:#fff;font-family:var(--mono);font-size:9.5px;letter-spacing:1.2px;padding:2px 8px;border-radius:3px}
+.teacher p{margin:0}
+.srcnote{font-size:11.5px;color:#9aa0a8;font-family:var(--mono);text-align:right}
+.marked{font-family:Georgia,serif;font-size:14.5px;line-height:1.95;color:#2b333d;white-space:pre-wrap}
+.marked mark{background:#fdeaea;color:#8d2b24;border-bottom:1px solid #e8a9a3;padding:0 1px;
+  cursor:help;text-decoration:none}
+.empty{padding:40px 24px;text-align:center;color:var(--muted);font-size:13.5px}
+.empty b{display:block;color:#2a333e;font-size:15px;margin-bottom:6px;font-family:Georgia,serif}
+
+/* ============ method section ============ */
+.method{max-width:1120px;margin:0 auto;padding:8px 20px 70px}
+.mhead{display:flex;align-items:baseline;gap:14px;margin:34px 0 22px;flex-wrap:wrap}
+.mhead h2{font-family:Georgia,serif;font-size:25px;margin:0;color:#1b2530}
+.mhead .n{font-family:var(--mono);font-size:11px;letter-spacing:1.4px;color:#a49d8c;text-transform:uppercase}
+.mhead::after{content:"";flex:1;height:1px;background:var(--line);min-width:40px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:26px}
+.step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;position:relative}
+.step .sn{font-family:Georgia,serif;font-size:12px;color:var(--teal);letter-spacing:1px}
+.step h3{font-size:14.5px;margin:5px 0 7px;color:#1e2833}
+.step p{font-size:12.5px;color:#5a636d;margin:0;line-height:1.7}
+.mcols{display:grid;grid-template-columns:1.15fr 1fr;gap:26px}
+.mcols h4{font-family:var(--mono);font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;
+  color:#a49d8c;margin:0 0 10px}
+.mcols ul{margin:0;padding:0;list-style:none}
+.mcols li{position:relative;padding-left:18px;margin:8px 0;font-size:13px;color:#4c5560;line-height:1.7}
+.mcols li::before{content:"";position:absolute;left:2px;top:9px;width:5px;height:5px;
+  border-radius:50%;background:var(--teal-bright)}
+.mcols li b{color:#1e2833;font-weight:600}
+.mstack{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.mstack span{font-family:var(--mono);font-size:11px;color:#5b6b74;background:#fff;
+  border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.mnote{font-size:12.5px;color:#6b737d;line-height:1.8;background:#fbf9f3;
+  border-left:3px solid #e2dbc9;border-radius:0 8px 8px 0;padding:11px 14px}
+@media (max-width:860px){ .mcols{grid-template-columns:1fr;gap:20px} }
+
+/* ============ floating ball ============ */
+.fab{position:fixed;right:26px;bottom:26px;width:54px;height:54px;border-radius:50%;border:0;
+  background:linear-gradient(140deg,#0e7490,#0a4d63);color:#fff;font-size:12px;font-weight:700;
+  cursor:pointer;z-index:70;box-shadow:0 6px 20px rgba(10,77,99,.32);display:flex;align-items:center;
+  justify-content:center;flex-direction:column;gap:1px;letter-spacing:.5px;transition:transform .18s}
+.fab:hover{transform:scale(1.06)}
+.fab span{font-size:9px;font-weight:400;opacity:.8;letter-spacing:.8px}
+.fab::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1px solid #0e7490;
+  opacity:.35;animation:pulse 2.6s ease-out infinite}
+@keyframes pulse{0%{transform:scale(1);opacity:.35}70%{transform:scale(1.25);opacity:0}100%{opacity:0}}
+.selbtn{position:absolute;z-index:65;padding:5px 11px;border-radius:7px;background:#0b141d;color:#a7e8dd;
+  border:1px solid #1d4a5c;font-size:11.5px;cursor:pointer;display:none;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:390px;max-width:92vw;background:#fff;z-index:80;
+  border-left:1px solid var(--line);display:flex;flex-direction:column;
+  transform:translateX(102%);transition:transform .28s ease;box-shadow:-8px 0 30px rgba(20,30,40,.12)}
+.drawer.open{transform:none}
+.dhead{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);
+  background:#0b141d;color:#e6f0f4}
+.dhead b{font-size:13.5px}
+.dhead .x{margin-left:auto;background:none;border:0;color:#9fb8c8;font-size:20px;cursor:pointer;line-height:1}
+.dmsgs{flex:1;overflow-y:auto;padding:14px 14px 6px;display:flex;flex-direction:column;gap:10px}
+.msg{font-size:13.5px;line-height:1.75;padding:10px 13px;border-radius:10px;max-width:100%}
+.msg.u{background:#e6f3f1;color:#0a4d63;align-self:flex-end;border-bottom-right-radius:3px}
+.msg.a{background:#f7f6f0;color:#333c46;border-bottom-left-radius:3px}
+.msg.a p{margin:0 0 8px}
+.msg.a p:last-child{margin:0}
+.msg .ctx{font-size:11.5px;color:#8b8f97;font-family:var(--mono);margin-bottom:6px;
+  border-left:2px solid #d9d2c0;padding-left:8px;max-height:54px;overflow:hidden}
+.dsug{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 8px}
+.dsug button{font-size:11.5px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);
+  background:#fff;color:var(--muted);cursor:pointer}
+.dsug button:hover{border-color:var(--teal);color:var(--teal)}
+.dfoot{padding:10px 14px 14px;border-top:1px solid var(--line);display:flex;gap:8px}
+.dfoot textarea{flex:1;resize:none;height:42px;padding:9px 11px;border:1px solid var(--line);
+  border-radius:8px;font-family:inherit;font-size:13px;outline:none}
+.dfoot textarea:focus{border-color:var(--teal)}
+.dfoot button{padding:0 16px;border-radius:8px;border:0;background:var(--teal);color:#fff;
+  font-size:13px;cursor:pointer}
+.dnote{padding:0 14px 10px;font-size:11.5px;color:#9aa0a8;line-height:1.6}
+
+/* ============ modal ============ */
+.modal{position:fixed;inset:0;z-index:90;background:rgba(11,20,29,.55);display:none;
+  align-items:flex-start;justify-content:center;padding:60px 18px;overflow-y:auto}
+.modal.open{display:flex}
+.mbox{background:#fff;border-radius:14px;max-width:720px;width:100%;padding:26px 28px;
+  box-shadow:0 20px 60px rgba(10,20,30,.3)}
+.mbox h3{margin:0 0 4px;font-family:Georgia,serif;font-size:21px}
+.mbox .sub{font-size:12.5px;color:var(--muted);margin:0 0 18px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-family:var(--mono);letter-spacing:.5px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.field input,.field select{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;
+  font-size:13.5px;font-family:inherit;outline:none;color:var(--text)}
+.field input:focus{border-color:var(--teal)}
+.field .tip{font-size:11.5px;color:#9aa0a8;margin-top:5px;line-height:1.6}
+.mfoot{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.rubric{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:18px}
+.rubric th{text-align:left;padding:6px 8px;background:#f7f6f0;font-family:var(--mono);
+  font-size:10.5px;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;font-weight:400}
+.rubric td{padding:8px;border-bottom:1px solid #f0ece1;vertical-align:top;line-height:1.6;color:#4a525c}
+.rubric td.b{font-family:Georgia,serif;font-size:15px;color:var(--teal-deep);font-weight:700;width:38px}
+
+/* ============ responsive ============ */
+@media (max-width:1000px){
+  .facts{grid-template-columns:repeat(2,1fr)}
+  .lab{flex-direction:column;padding:18px 14px 70px}
+  .picker{width:100%;flex:none;position:static;max-height:none}
+  .tlist{flex-direction:row;overflow-x:auto;gap:8px;padding-bottom:6px}
+  .titem{flex:0 0 190px;border-left:0;border-bottom:3px solid transparent}
+  .titem.on{border-left:0;border-bottom-color:var(--teal)}
+  .scoregrid{grid-template-columns:repeat(2,1fr)}
+  .twocol{grid-template-columns:1fr}
+  .hero{padding:38px 18px 40px}
+  .fab{right:16px;bottom:16px;width:48px;height:48px}
+}
+@media (max-width:640px){
+  .taskcard,.editor,.rsec,.progress{padding-left:16px;padding-right:16px}
+  table.err td.o,table.err td.f{width:auto}
+  table.err .hide-sm{display:none}
+  .bandbig{font-size:44px}
+}
+</style>
+</head>
+<body>
+
+<header class="sitebar">
+  <a class="brand" href="index.html">
+    <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="7" fill="#0e7490"/><path d="M6 14v4M11 10v12M16 6v20M21 10v12M26 14v4" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>
+    <div><div class="brand-name">IELTS Writing Lab</div><div class="brand-sub">Task 2 · Rubric Scoring</div></div>
+  </a>
+  <nav class="modnav">
+    <a class="mod" href="index.html"><span>Portfolio</span></a>
+    <a class="mod" href="speaking.html"><span>Speaking Trainer</span></a>
+    <a class="mod active" href="writing.html"><span>Writing Lab</span></a>
+    <button class="mod" id="openRubric" type="button"><span>Band Descriptors</span></button>
+    <button class="mod-ext" id="openSettings" type="button"><span>API Setup</span></button>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-in">
+    <p class="eyebrow">Module C · Writing Task 2</p>
+    <h1>Write it. See the band.<br>Then see exactly why.</h1>
+    <p class="lead">28 real Task 2 prompts, each paired with a band-9 model answer. Submit an essay and it is scored against the public band descriptors on <strong>TR / CC / LR / GRA</strong>, then broken down into <strong>task typing, topic-sentence checks, fatal flaws, paragraph-by-paragraph diagnosis and an error table</strong>. Fully static: bring your own API key and it runs in the browser.</p>
+    <div class="facts">
+      <div class="fact"><b>28</b><span>Task 2 prompts · each with a model</span></div>
+      <div class="fact"><b>4</b><span>Criteria · bands 5–8 descriptors</span></div>
+      <div class="fact"><b>9</b><span>Sections in every report</span></div>
+      <div class="fact"><b>0</b><span>Backend · static hosting</span></div>
+    </div>
+    <div class="chips">
+      <span class="chip">XY / XYZ task typing</span>
+      <span class="chip">PEEL chains</span>
+      <span class="chip">Sentence chaining</span>
+      <span class="chip">Absolute-term checks</span>
+      <span class="chip">BYOK · OpenAI-compatible</span>
+    </div>
+    <div>
+      <button class="hero-cta" id="demoCta" type="button">See a sample report →</button>
+      <button class="hero-cta ghost" id="keyCta" type="button">Connect your model</button>
+    </div>
+  </div>
+</section>
+
+<main class="lab">
+  <aside class="picker">
+    <input type="search" id="search" placeholder="Search prompts or topics…" autocomplete="off">
+    <div class="filters" id="filters"></div>
+    <div class="tlist" id="taskList"></div>
+  </aside>
+
+  <section class="stage">
+    <div class="card taskcard" id="taskCard"></div>
+
+    <div class="card editor" id="editorCard">
+      <div class="ehead">
+        <h3>Your essay</h3>
+        <span class="wc" id="wc">0 words</span>
+      </div>
+      <textarea id="essay" spellcheck="false" placeholder="Paste or type your Task 2 essay here (250+ words). Leave a blank line between paragraphs."></textarea>
+      <div class="etools">
+        <button class="btn primary" id="btnScore" type="button">Mark this essay</button>
+        <button class="btn" id="btnDemo" type="button">See sample report</button>
+        <button class="btn ghost" id="btnClear" type="button">Clear</button>
+        <span class="hint" id="apiHint"></span>
+      </div>
+    </div>
+
+    <div id="result"></div>
+  </section>
+</main>
+
+<section class="method">
+  <div class="mhead">
+    <span class="n">03 / Method</span>
+    <h2>How the scoring works</h2>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="sn">STEP 01</div>
+      <h3>Classify before scoring</h3>
+      <p>The model must first decide whether the prompt proposes an action (XY) or asserts a relationship (XYZ), and justify it with keywords from the question. Scoring is blocked until that step is written.</p>
+    </div>
+    <div class="step">
+      <div class="sn">STEP 02</div>
+      <h3>Apply the descriptors</h3>
+      <p>The four public band descriptors (5&ndash;8) are injected into the prompt verbatim. Each criterion receives an integer band plus the reason it is not the band above, citing the candidate's own text.</p>
+    </div>
+    <div class="step">
+      <div class="sn">STEP 03</div>
+      <h3>Constrain the output</h3>
+      <p>One JSON schema, no prose allowed. That keeps the report machine-readable: the interface renders nine sections from fields, and every error must quote a fragment that exists in the essay.</p>
+    </div>
+    <div class="step">
+      <div class="sn">STEP 04</div>
+      <h3>Degrade gracefully</h3>
+      <p>With no API key the page falls back to a pre-generated report and a local rule-based assistant, so the demonstration never depends on a network call succeeding.</p>
+    </div>
+  </div>
+
+  <div class="mcols">
+    <div>
+      <h4>Design decisions</h4>
+      <ul>
+        <li><b>Static, but not dumb.</b> The scoring engine is a prompt plus a schema, not a service. The whole app is three files on GitHub Pages.</li>
+        <li><b>Bring your own key.</b> Any OpenAI-compatible endpoint works, and the key never leaves localStorage. No proxy, no shared quota, no server to fund.</li>
+        <li><b>Demo mode is first-class.</b> Two complete reports are pre-generated, because a reviewer will not apply for an API key to look at a student project.</li>
+        <li><b>Evidence over verdicts.</b> Every band carries a &ldquo;why not the band above&rdquo; sentence, and every error row quotes the original wording.</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Stack</h4>
+      <div class="mstack">
+        <span>HTML / CSS</span><span>Vanilla JS (ES6)</span><span>Fetch + AbortController</span>
+        <span>localStorage</span><span>JSON schema</span><span>GitHub Pages</span>
+      </div>
+      <h4>Source data</h4>
+      <p class="mnote">28 Task 2 prompts and their band-9 model answers were extracted from a PDF collection of examiner-written essays; the extraction script strips inline annotation and recovers question and essay as separate fields. Rubric text is paraphrased from the public IELTS writing band descriptors.</p>
+    </div>
+  </div>
+</section>
+
+<button class="fab" id="fab" type="button" title="Ask the assistant">AI<span>ASK</span></button>
+<button class="selbtn" id="selbtn" type="button">Ask about this</button>
+
+<aside class="drawer" id="drawer">
+  <div class="dhead">
+    <b>Ask about this essay</b>
+    <button class="x" id="drawerClose" type="button">×</button>
+  </div>
+  <div class="dmsgs" id="dmsgs"></div>
+  <div class="dsug" id="dsug"></div>
+  <div class="dnote" id="dnote"></div>
+  <div class="dfoot">
+    <textarea id="dinput" placeholder="e.g. how should I rewrite the topic sentence in Body 1?"></textarea>
+    <button id="dsend" type="button">Send</button>
+  </div>
+</aside>
+
+<div class="modal" id="settings">
+  <div class="mbox">
+    <h3>Connect your model</h3>
+    <p class="sub">Any OpenAI-compatible endpoint works. The key is stored only in this browser's localStorage and is never sent anywhere except your chosen provider.</p>
+    <div class="field">
+      <label>Base URL</label>
+      <input id="cfgBase" placeholder="https://api.deepseek.com/v1">
+      <div class="tip">Enter the base URL up to <code>/v1</code>; <code>/chat/completions</code> is appended automatically.</div>
+    </div>
+    <div class="field">
+      <label>Model</label>
+      <input id="cfgModel" placeholder="deepseek-chat">
+    </div>
+    <div class="field">
+      <label>API Key</label>
+      <input id="cfgKey" type="password" placeholder="sk-…">
+    </div>
+    <div class="field">
+      <label>Presets</label>
+      <select id="cfgPreset">
+        <option value="">— select to autofill —</option>
+        <option value="https://api.deepseek.com/v1|deepseek-chat">DeepSeek</option>
+        <option value="https://api.moonshot.cn/v1|moonshot-v1-8k">Moonshot / Kimi</option>
+        <option value="https://dashscope.aliyuncs.com/compatible-mode/v1|qwen-plus">Qwen (Alibaba)</option>
+        <option value="https://open.bigmodel.cn/api/paas/v4|glm-4-plus">Zhipu GLM-4</option>
+        <option value="https://api.openai.com/v1|gpt-4o-mini">OpenAI</option>
+      </select>
+    </div>
+    <div class="mfoot">
+      <button class="btn ghost" id="cfgCancel" type="button">Cancel</button>
+      <button class="btn primary" id="cfgSave" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="rubricModal">
+  <div class="mbox" style="max-width:860px">
+    <h3>Public Band Descriptors</h3>
+    <p class="sub">The four Task 2 criteria at bands 5–8, paraphrased from the public IELTS band descriptors. These are the exact descriptors the scoring engine is given.</p>
+    <div id="rubricBody"></div>
+    <div class="mfoot"><button class="btn" id="rubricClose" type="button">Close</button></div>
+  </div>
+</div>
+
+<script src="writing-data.js"></script>
+<script>
+/* =========================================================
+   IELTS Writing Lab — app
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const CFG_KEY = 'wl_cfg_v1';
+const DRAFT_PREFIX = 'wl_draft_';
+
+const S = {
+  taskId: null,
+  correction: null,
+  correctionSrc: null,
+  filter: 'all',
+  q: '',
+  busy: false,
+  selection: '',
+};
+
+/* ---------- config ---------- */
+function getCfg(){
+  try { return JSON.parse(localStorage.getItem(CFG_KEY) || '{}'); } catch(e){ return {}; }
+}
+function hasKey(){ const c = getCfg(); return !!(c.key && c.base && c.model); }
+function saveCfg(c){ localStorage.setItem(CFG_KEY, JSON.stringify(c)); }
+
+/* ---------- task list ---------- */
+const TYPE_ORDER = ['agree','discuss','advdis','mixed','report'];
+const TYPE_LABEL = {agree:'Agree / Disagree', discuss:'Discuss both views', advdis:'Advantages', mixed:'Two-part', report:'Report'};
+
+function renderFilters(){
+  const counts = {};
+  TASKS.forEach(t => counts[t.type] = (counts[t.type]||0)+1);
+  const all = `<button data-f="all" class="${S.filter==='all'?'on':''}">All ${TASKS.length}</button>`;
+  const rest = TYPE_ORDER.filter(k => counts[k]).map(k =>
+    `<button data-f="${k}" class="${S.filter===k?'on':''}">${TYPE_LABEL[k]} ${counts[k]}</button>`).join('');
+  $('#filters').innerHTML = all + rest;
+  $('#filters').querySelectorAll('button').forEach(b => {
+    b.onclick = () => { S.filter = b.dataset.f; renderFilters(); renderList(); };
+  });
+}
+
+function renderList(){
+  const q = S.q.trim().toLowerCase();
+  const items = TASKS.filter(t => {
+    if (S.filter !== 'all' && t.type !== S.filter) return false;
+    if (!q) return true;
+    return (t.title + ' ' + t.q + ' ' + t.typeLabel).toLowerCase().includes(q);
+  });
+  $('#taskList').innerHTML = items.length ? items.map(t => `
+    <button class="titem ${t.id===S.taskId?'on':''}" data-id="${t.id}">
+      <span class="n">${String(t.id).padStart(2,'0')}</span>
+      <span class="tt">${esc(t.title)}<span class="ty">${esc(t.typeLabel)}</span></span>
+    </button>`).join('') : `<div style="padding:16px;font-size:12.5px;color:#8b8f97">No prompts match that search</div>`;
+  $('#taskList').querySelectorAll('.titem').forEach(b => {
+    b.onclick = () => selectTask(+b.dataset.id, true);
+  });
+}
+
+function currentTask(){ return TASKS.find(t => t.id === S.taskId) || TASKS[0]; }
+
+function selectTask(id, scroll){
+  const prev = S.taskId;
+  if (prev && prev !== id) stashDraft(prev);
+  S.taskId = id;
+  S.correction = null; S.correctionSrc = null;
+  $('#result').innerHTML = '';
+  renderList();
+  renderTaskCard();
+  restoreDraft(id);
+  updateWordCount();
+  updateApiHint();
+  if (scroll) $('#taskCard').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderTaskCard(){
+  const t = currentTask();
+  const demo = !!DEMOS[t.id];
+  $('#taskCard').innerHTML = `
+    <div class="kicker">
+      <span class="badge">Task ${String(t.id).padStart(2,'0')}</span>
+      <span class="badge">${esc(t.typeLabel)}</span>
+      ${t.core ? `<span class="badge core">${esc(t.core)}</span>` : ''}
+      <span class="badge" style="background:#f7f6f0;color:#64707d;border-color:#e6e1d5">${t.words} words model</span>
+    </div>
+    <h2 class="en">${esc(t.q)}</h2>
+    <p class="zh">${esc(t.title)}</p>
+    <p class="why"><b>Task typing:</b> ${esc(t.why)}</p>
+    <details class="model">
+      <summary>Model answer · ${esc(t.source)} (${t.words} words)</summary>
+      <p class="mtxt en">${esc(t.model)}</p>
+      <p class="msrc">Source: ${esc(t.source)} · band 9 model answer. Read it for two habits: every sentence picks up the end of the one before it with this / such, and each paragraph develops a single dimension.</p>
+    </details>`;
+  $('#btnDemo').title = demo ? 'A pre-generated report exists for this prompt' : 'No pre-generated report for this prompt; the closest sample will be shown';
+}
+
+/* ---------- draft ---------- */
+function stashDraft(id){ try { localStorage.setItem(DRAFT_PREFIX + id, $('#essay').value); } catch(e){} }
+function restoreDraft(id){
+  let v = '';
+  try { v = localStorage.getItem(DRAFT_PREFIX + id) || ''; } catch(e){}
+  $('#essay').value = v;
+}
+
+/* ---------- word count ---------- */
+function updateWordCount(){
+  const n = $('#essay').value.trim().split(/\s+/).filter(Boolean).length;
+  const el = $('#wc');
+  el.textContent = n + ' words';
+  el.classList.toggle('warn', n > 0 && n < 250);
+}
+
+function updateApiHint(){
+  const h = $('#apiHint');
+  if (hasKey()){
+    const c = getCfg();
+    h.innerHTML = `Connected to <b>${esc(c.model)}</b> · <a id="hintCfg">change</a>`;
+    const a = $('#hintCfg'); if (a) a.onclick = openSettings;
+  } else {
+    h.innerHTML = `No model connected — you can <a id="hintDemo">read a sample report</a> or <a id="hintCfg2">add your own key</a>.`;
+    const a = $('#hintDemo'); if (a) a.onclick = () => runDemo();
+    const b = $('#hintCfg2'); if (b) b.onclick = openSettings;
+  }
+}
+
+/* ---------- scoring ---------- */
+function userPrompt(task, essay){
+  const n = essay.trim().split(/\s+/).filter(Boolean).length;
+  return `PROMPT:\n${task.q}\n\nTYPE HINT (the final judgement is yours): ${task.typeLabel}${task.core ? ' / ' + task.core : ''}\n\nCANDIDATE ESSAY (${n} words):\n${essay}`;
+}
+
+async function runAI(){
+  if (S.busy) return;
+  const essay = $('#essay').value.trim();
+  if (essay.split(/\s+/).filter(Boolean).length < 40){
+    alert('Write at least one paragraph before submitting — 250 words or more is recommended.');
+    return;
+  }
+  if (!hasKey()){ openSettings(); return; }
+  const c = getCfg();
+  S.busy = true;
+  $('#btnScore').disabled = true;
+  showProgress();
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), 240000);
+  try {
+    const res = await fetch(c.base.replace(/\/+$/,'') + '/chat/completions', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'Authorization':'Bearer ' + c.key},
+      signal: ac.signal,
+      body: JSON.stringify({
+        model: c.model,
+        temperature: 0.25,
+        messages: [
+          {role:'system', content: SYS_PROMPT},
+          {role:'user', content: userPrompt(currentTask(), essay)}
+        ]
+      })
+    });
+    if (!res.ok){
+      const txt = await res.text();
+      throw new Error('HTTP ' + res.status + ' · ' + txt.slice(0, 300));
+    }
+    const j = await res.json();
+    const raw = (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '';
+    const data = parseJSON(raw);
+    if (!data || !data.scores) throw new Error('The model did not return the expected JSON structure');
+    S.correction = data; S.correctionSrc = 'ai';
+    renderResult(data, 'ai', essay);
+  } catch(err){
+    $('#result').innerHTML = `
+      <div class="card rsec">
+        <h3>Request failed</h3>
+        <p style="font-size:13.5px;color:#8d2b24">${esc(err.message)}</p>
+        <p class="hint" style="margin-top:10px">Check that the base URL ends with <code>/v1</code> and that the model name matches your key. Some providers also need cross-origin access enabled. You can <a id="failDemo">read a sample report</a> to confirm the interface itself works.</p>
+      </div>`;
+    const a = $('#failDemo'); if (a) a.onclick = () => runDemo();
+  } finally {
+    clearTimeout(timer);
+    S.busy = false;
+    $('#btnScore').disabled = false;
+  }
+}
+
+function parseJSON(raw){
+  let s = String(raw).trim();
+  s = s.replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();
+  const i = s.indexOf('{'), j = s.lastIndexOf('}');
+  if (i < 0 || j < 0) return null;
+  try { return JSON.parse(s.slice(i, j+1)); } catch(e){ return null; }
+}
+
+const STAGES = [
+  'Typing the task (XY / XYZ / Discuss / two-part)',
+  'Scoring against the band descriptors',
+  'Checking each topic sentence',
+  'Tracing the argument paragraph by paragraph',
+  'Extracting vocabulary and grammar errors',
+  'Building the action plan',
+];
+let progTimer = null;
+function showProgress(){
+  $('#result').innerHTML = `
+    <div class="card progress">
+      <div class="pbar"><i id="pfill"></i></div>
+      <div class="plog" id="plog"></div>
+    </div>`;
+  let step = 0;
+  const paint = () => {
+    const log = STAGES.map((s, i) =>
+      `<div class="${i < step ? 'ok' : i === step ? 'cur' : 'wait'}">${s}</div>`).join('');
+    const el = $('#plog'); if (el) el.innerHTML = log;
+    const f = $('#pfill'); if (f) f.style.width = Math.min(92, 12 + step * 15) + '%';
+  };
+  paint();
+  progTimer = setInterval(() => { step = Math.min(STAGES.length - 1, step + 1); paint(); }, 2600);
+}
+
+function runDemo(){
+  const asked = currentTask();
+  let d = DEMOS[asked.id], fellBack = false;
+  if (!d){
+    const first = TASKS.find(t => DEMOS[t.id]);
+    if (!first) return;
+    fellBack = true;
+    selectTask(first.id, false);
+    d = DEMOS[first.id];
+  }
+  $('#essay').value = d.studentEssay;
+  updateWordCount();
+  S.correction = d.correction; S.correctionSrc = 'demo';
+  renderResult(d.correction, 'demo', d.studentEssay);
+  if (fellBack){
+    const note = document.createElement('div');
+    note.className = 'card rsec';
+    note.style.cssText = 'border-left:3px solid #b45309;padding:12px 18px;font-size:13px;color:#7a5312';
+    note.innerHTML = 'No pre-generated report exists for Task ' + String(asked.id).padStart(2,'0')
+      + '. The report below is the full sample for <b>Task ' + String(d.taskId).padStart(2,'0')
+      + '</b>. Connect an API key to mark any prompt live.';
+    $('#result').prepend(note);
+  }
+  $('#result').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ---------- result rendering ---------- */
+function bandClass(b){
+  if (b >= 7) return '';
+  if (b >= 6) return 'mid';
+  return 'lo';
+}
+
+function markEssay(text, errors){
+  let parts = [{t: text, mark: false}];
+  (errors || []).slice().sort((a,b) => (b.original||'').length - (a.original||'').length).forEach(e => {
+    const o = e.original; if (!o || o.length < 3) return;
+    const idx = parts.findIndex(p => !p.mark && p.t.indexOf(o) >= 0);
+    if (idx < 0) return;
+    const p = parts[idx], i = p.t.indexOf(o);
+    parts.splice(idx, 1,
+      {t: p.t.slice(0, i), mark: false},
+      {t: o, mark: true, note: e},
+      {t: p.t.slice(i + o.length), mark: false});
+  });
+  return parts.map(p => p.mark
+    ? `<mark title="${esc(p.note.fix + ' — ' + (p.note.note||''))}">${esc(p.t)}</mark>`
+    : esc(p.t)).join('');
+}
+
+const SHORT = {TR:'Task Response', CC:'Coherence', LR:'Lexical Resource', GRA:'Grammar'};
+
+function renderResult(d, src, essay){
+  const sc = d.scores || {};
+  const overall = (sc.overall != null) ? sc.overall : avgBand(sc);
+  const cards = ['TR','CC','LR','GRA'].map(k => {
+    const o = sc[k] || {band:'-', reason:''};
+    return `<div class="sc">
+      <div class="k">${k} · ${esc(SHORT[k]||'')}</div>
+      <div class="b ${bandClass(+o.band)}">${esc(o.band)}</div>
+      <div class="r">${esc(o.reason || '')}</div>
+    </div>`;
+  }).join('');
+
+  const hard = (d.hard||[]).map(h => `
+    <div class="hardrow">
+      <div class="p">${esc(h.para||'')} <span class="tag ${h.echo?'ok':'no'}">${h.echo?'Subject echoes the prompt':'Subject drifts'}</span></div>
+      <div class="s en">${esc(h.sentence||'')}</div>
+      ${h.idea ? `<div class="v"><b>Controlling idea：</b>${esc(h.idea)}</div>` : ''}
+      ${h.verdict ? `<div class="v"><b>Verdict:</b> ${esc(h.verdict)}</div>` : ''}
+      ${h.fix ? `<div class="fx en">→ ${esc(h.fix)}</div>` : ''}
+    </div>`).join('');
+
+  const fatal = (d.fatal||[]).map(f => `
+    <div class="fatal">
+      <b>${esc(f.title||'')}</b>
+      <p>${esc(f.detail||'')}</p>
+      ${f.analogy ? `<div class="ana">${esc(f.analogy)}</div>` : ''}
+    </div>`).join('');
+
+  const paras = (d.paragraphs||[]).map((p,i) => `
+    <details class="para" open>
+      <summary><span class="nm">${esc(p.name||'')}</span><span class="rl">${esc(p.role||'')}</span></summary>
+      <div class="body">
+        ${p.good ? `<div class="row"><span class="rlab">What works</span><div class="good">${esc(p.good)}</div></div>` : ''}
+        ${p.fix ? `<div class="row"><span class="rlab">What to change</span><div class="fix">${esc(p.fix)}</div></div>` : ''}
+        ${p.rewrite ? `<div class="row"><span class="rlab">Rewritten</span><div class="rw en">${esc(p.rewrite)}</div></div>` : ''}
+      </div>
+    </details>`).join('');
+
+  const errs = (d.errors||[]).map(e => `
+    <tr>
+      <td class="o en">${esc(e.original||'')}</td>
+      <td class="k">${esc(e.kind||'')}</td>
+      <td class="f en">${esc(e.fix||'')}</td>
+      <td class="n hide-sm">${esc(e.note||'')}</td>
+    </tr>`).join('');
+
+  const li = arr => (arr||[]).map(x => `<li>${esc(x)}</li>`).join('');
+
+  $('#result').innerHTML = `
+  <div class="result">
+
+    <div class="card rsec">
+      <h3><span class="idx">01</span> Overall band</h3>
+      <div class="verdict">
+        <div class="bandbig">${esc(overall)}<small>band</small></div>
+        <div class="vtext">${esc((d.meta||{}).verdict || '')}</div>
+      </div>
+      <div class="scoregrid">${cards}</div>
+      <p class="srcnote" style="margin-top:12px">${src==='demo' ? 'demo · pre-generated report' : 'live · ' + esc((getCfg().model||''))}</p>
+    </div>
+
+    <div class="card rsec">
+      <h3><span class="idx">02</span> Task typing</h3>
+      <div class="tyline">
+        <span class="lb en">${esc((d.type||{}).label||'')}</span>
+        <span class="nm">${esc((d.type||{}).name||'')}</span>
+      </div>
+      <p style="font-size:13.5px;color:#4a525c;margin:0">${esc((d.type||{}).why||'')}</p>
+      ${(d.type||{}).key ? `<div class="keyline"><b>The real target:</b> ${esc(d.type.key)}</div>` : ''}
+    </div>
+
+    ${hard ? `<div class="card rsec"><h3><span class="idx">03</span> Topic-sentence checks</h3>${hard}</div>` : ''}
+
+    ${fatal ? `<div class="card rsec"><h3><span class="idx">04</span> Fatal flaws</h3>${fatal}</div>` : ''}
+
+    ${paras ? `<div class="card rsec"><h3><span class="idx">05</span> Paragraph by paragraph</h3>${paras}</div>` : ''}
+
+    ${errs ? `<div class="card rsec"><h3><span class="idx">06</span> Vocabulary and grammar</h3>
+      <table class="err"><thead><tr><th>Original</th><th>Type</th><th>Fix</th><th class="hide-sm">Note</th></tr></thead>
+      <tbody>${errs}</tbody></table></div>` : ''}
+
+    <div class="card rsec">
+      <h3><span class="idx">07</span> Your text, marked</h3>
+      <div class="marked">${markEssay(essay || '', d.errors)}</div>
+      <p class="hint" style="margin-top:12px">Hover any highlighted phrase to see the correction.</p>
+    </div>
+
+    <div class="card rsec">
+      <h3><span class="idx">08</span> What to keep · what to fix next</h3>
+      <div class="twocol">
+        <div><h4>Keep</h4><ul class="plain">${li(d.strengths)}</ul></div>
+        <div><h4>Fix next</h4><ul class="plain num">${li(d.actions)}</ul></div>
+      </div>
+    </div>
+
+    <div class="card rsec">
+      <h3><span class="idx">09</span> Examiner summary</h3>
+      <div class="teacher"><p>${esc(d.summary||'')}</p></div>
+    </div>
+  </div>`;
+  if (progTimer){ clearInterval(progTimer); progTimer = null; }
+}
+
+function avgBand(sc){
+  const v = ['TR','CC','LR','GRA'].map(k => +(sc[k]||{}).band).filter(n => !isNaN(n));
+  if (!v.length) return '-';
+  const a = v.reduce((x,y)=>x+y,0) / v.length;
+  return (Math.round(a*2)/2).toFixed(1);
+}
+
+/* ---------- floating assistant ---------- */
+const drawer = $('#drawer');
+let chat = [];
+
+function openDrawer(){
+  drawer.classList.add('open');
+  if (!chat.length) seedChat();
+  setTimeout(() => $('#dinput').focus(), 260);
+}
+function closeDrawer(){ drawer.classList.remove('open'); }
+
+function seedChat(){
+  const t = currentTask();
+  const has = !!S.correction;
+  addMsg('a', has
+    ? 'I have read the report on this essay. Select any sentence in the text, or ask me why a particular paragraph lost marks.'
+    : 'Pick a prompt and submit an essay (or open a sample report) and you can then ask about specific sentences.');
+  renderSug();
+}
+
+function addMsg(role, text, ctx){
+  chat.push({role, text, ctx});
+  const el = document.createElement('div');
+  el.className = 'msg ' + (role === 'u' ? 'u' : 'a');
+  el.innerHTML = (ctx ? `<div class="ctx">${esc(ctx)}</div>` : '') +
+    String(text).split(/\n{2,}/).map(p => `<p>${esc(p)}</p>`).join('');
+  $('#dmsgs').appendChild(el);
+  $('#dmsgs').scrollTop = $('#dmsgs').scrollHeight;
+}
+
+function renderSug(){
+  const sug = S.correction
+    ? ['Why is Task Response only band 6?','How do I get Body 1 to band 7?','Rewrite my conclusion','What should I fix first?']
+    : ['How should I read this prompt?','What is the fastest way to improve at Task 2?'];
+  $('#dsug').innerHTML = sug.map(s => `<button>${esc(s)}</button>`).join('');
+  $('#dsug').querySelectorAll('button').forEach(b => {
+    b.onclick = () => { $('#dinput').value = b.textContent; sendChat(); };
+  });
+}
+
+function localAnswer(q){
+  const d = S.correction;
+  if (!d) return 'There is no report yet. Submit an essay, or open a sample report, and I can answer questions about specific paragraphs.';
+  const sc = d.scores || {};
+  const ql = q.toLowerCase();
+  const pick = (k) => `${k} — band ${sc[k].band}: ${sc[k].reason}`;
+  if (/tr\b|task response|off.?topic|address/.test(ql)) return pick('TR');
+  if (/cc\b|coheren|cohes|logic/.test(ql)) return pick('CC');
+  if (/lr\b|vocab|word choice|lexis/.test(ql)) return pick('LR');
+  if (/gra\b|grammar|sentence form/.test(ql)) return pick('GRA');
+  if (/first|priority|priorit|start with/.test(ql)) return 'In priority order:\n\n1. ' + (d.actions||[]).slice(0,2).join('\n2. ');
+  if (/rewrite|reword|how do i fix|how to fix/.test(ql)){
+    const p = (d.paragraphs||[])[0];
+    return p && p.rewrite ? `Taking ${p.name} as an example, you could write:\n\n${p.rewrite}` : (d.actions||[]).join('\n');
+  }
+  if (/band|score|mark/.test(ql)) return `Overall ${(d.scores||{}).overall}. ${(d.meta||{}).verdict}\n\nThe four criteria are TR ${sc.TR.band} / CC ${sc.CC.band} / LR ${sc.LR.band} / GRA ${sc.GRA.band}.`;
+  return (d.summary || '') + '\n\nThe single highest-priority change: ' + ((d.actions||[])[0] || '');
+}
+
+async function sendChat(){
+  const q = $('#dinput').value.trim();
+  if (!q) return;
+  $('#dinput').value = '';
+  const ctx = S.selection || '';
+  S.selection = '';
+  $('#selbtn').style.display = 'none';
+  addMsg('u', q, ctx);
+  $('#dsug').innerHTML = '';
+
+  if (!hasKey()){
+    setTimeout(() => {
+      addMsg('a', localAnswer(q));
+      renderSug();
+    }, 320);
+    return;
+  }
+
+  const c = getCfg();
+  const task = currentTask();
+  const essay = $('#essay').value.trim();
+  const sys = `You are an IELTS writing tutor answering a student's follow-up question about their own essay. Answer in under 120 words, lead with the conclusion, give one actionable change, and add a short rewritten sentence in English when useful. Do not repeat the whole report. Write in English only.`;
+  const ctxBlock = [
+    `PROMPT: ${task.q}`,
+    essay ? `ESSAY: ${essay}` : '',
+    S.correction ? `EXISTING REPORT: ${JSON.stringify({scores:S.correction.scores, type:S.correction.type, fatal:S.correction.fatal}).slice(0,2600)}` : '',
+    ctx ? `SELECTED SENTENCE: ${ctx}` : '',
+  ].filter(Boolean).join('\n');
+
+  const holder = document.createElement('div');
+  holder.className = 'msg a'; holder.textContent = 'Thinking…';
+  $('#dmsgs').appendChild(holder);
+
+  try {
+    const res = await fetch(c.base.replace(/\/+$/,'') + '/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + c.key},
+      body: JSON.stringify({
+        model: c.model, temperature: 0.4,
+        messages: [{role:'system', content: sys}, {role:'user', content: ctxBlock + '\n\nQUESTION: ' + q}]
+      })
+    });
+    const j = await res.json();
+    const txt = j.choices && j.choices[0] && j.choices[0].message.content;
+    holder.remove();
+    addMsg('a', txt || '(empty response)');
+  } catch(e){
+    holder.remove();
+    addMsg('a', 'Request failed: ' + e.message);
+  }
+  renderSug();
+}
+
+/* ---------- selection → ask about this ---------- */
+document.addEventListener('mouseup', e => {
+  if (e.target.closest('#drawer') || e.target.closest('.modal')) return;
+  const sel = window.getSelection();
+  const txt = sel ? String(sel).trim() : '';
+  const btn = $('#selbtn');
+  if (txt.length > 6 && txt.length < 400 && sel.rangeCount){
+    const r = sel.getRangeAt(0).getBoundingClientRect();
+    S.selection = txt;
+    btn.style.display = 'block';
+    btn.style.top = (window.scrollY + r.bottom + 8) + 'px';
+    btn.style.left = Math.min(window.innerWidth - 100, window.scrollX + r.left) + 'px';
+  } else if (!txt){
+    btn.style.display = 'none';
+  }
+});
+$('#selbtn').onclick = () => { openDrawer(); $('#selbtn').style.display = 'none'; };
+
+/* ---------- settings ---------- */
+function openSettings(){
+  const c = getCfg();
+  $('#cfgBase').value = c.base || '';
+  $('#cfgModel').value = c.model || '';
+  $('#cfgKey').value = c.key || '';
+  $('#settings').classList.add('open');
+}
+$('#openSettings').onclick = openSettings;
+$('#keyCta').onclick = openSettings;
+$('#cfgCancel').onclick = () => $('#settings').classList.remove('open');
+$('#cfgSave').onclick = () => {
+  saveCfg({
+    base: $('#cfgBase').value.trim() || 'https://api.deepseek.com/v1',
+    model: $('#cfgModel').value.trim() || 'deepseek-chat',
+    key: $('#cfgKey').value.trim(),
+  });
+  $('#settings').classList.remove('open');
+  updateApiHint();
+};
+$('#cfgPreset').onchange = e => {
+  if (!e.target.value) return;
+  const [base, model] = e.target.value.split('|');
+  $('#cfgBase').value = base;
+  $('#cfgModel').value = model;
+};
+
+/* ---------- rubric modal ---------- */
+$('#openRubric').onclick = () => {
+  const body = ['TR','CC','LR','GRA'].map(k => {
+    const r = RUBRIC[k];
+    const rows = ['8','7','6','5'].map(b =>
+      `<tr><td class="b">${b}</td><td>${esc(r.bands[b])}</td></tr>`).join('');
+    return `<h4 style="margin:16px 0 8px;font-size:13.5px">${k} · ${esc(r.name)} · ${esc(r.cn)}</h4>
+      <table class="rubric"><thead><tr><th>Band</th><th>Descriptor</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }).join('');
+  $('#rubricBody').innerHTML = body + `<p class="hint">Descriptors paraphrased from the public IELTS Task 2 writing band descriptors (bands 5–8). The overall band is the mean of the four criteria, rounded to the nearest half band.</p>`;
+  $('#rubricModal').classList.add('open');
+};
+$('#rubricClose').onclick = () => $('#rubricModal').classList.remove('open');
+$('#settings').onclick = e => { if (e.target.id === 'settings') $('#settings').classList.remove('open'); };
+$('#rubricModal').onclick = e => { if (e.target.id === 'rubricModal') $('#rubricModal').classList.remove('open'); };
+
+/* ---------- wiring ---------- */
+$('#search').oninput = e => { S.q = e.target.value; renderList(); };
+$('#essay').oninput = () => { updateWordCount(); stashDraft(S.taskId); };
+$('#btnScore').onclick = runAI;
+$('#btnDemo').onclick = runDemo;
+$('#btnClear').onclick = () => {
+  if (!confirm('Clear this essay?')) return;
+  $('#essay').value = '';
+  updateWordCount(); stashDraft(S.taskId);
+  $('#result').innerHTML = '';
+  S.correction = null;
+};
+$('#demoCta').onclick = () => runDemo();
+$('#fab').onclick = openDrawer;
+$('#drawerClose').onclick = closeDrawer;
+$('#dsend').onclick = sendChat;
+$('#dinput').onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendChat(); } };
+
+/* ---------- boot ---------- */
+(function boot(){
+  renderFilters();
+  selectTask(TASKS[0].id, false);
+  updateApiHint();
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape'){ closeDrawer(); $('#settings').classList.remove('open'); $('#rubricModal').classList.remove('open'); }
+  });
+})();
+</script>
+</body>
+</html>
