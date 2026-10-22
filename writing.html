@@ -105,7 +105,8 @@ button{font-family:inherit}
 .model summary::before{content:"▸ ";font-size:11px}
 .model[open] summary::before{content:"▾ "}
 .model .mtxt{font-family:Georgia,serif;font-size:14.5px;line-height:1.85;color:#2c3540;
-  margin:12px 0 0;white-space:pre-wrap}
+  margin:0 0 20px;white-space:pre-wrap}
+.model .mtxt + .mtxt{margin-top:0}
 .model .msrc{font-size:11.5px;color:#8b8f97;margin-top:10px;font-family:var(--mono)}
 
 /* ============ editor ============ */
@@ -594,6 +595,11 @@ function selectTask(id, scroll){
 function renderTaskCard(){
   const t = currentTask();
   const demo = !!DEMOS[t.id];
+  const modelHTML = String(t.model || '')
+    .split(/\n\s*\n/)
+    .map(p => p.trim()).filter(Boolean)
+    .map((p, i) => `<p class="mtxt en" data-para="${i + 1}">${esc(p)}</p>`)
+    .join('');
   $('#taskCard').innerHTML = `
     <div class="kicker">
       <span class="badge">Task ${String(t.id).padStart(2,'0')}</span>
@@ -606,7 +612,7 @@ function renderTaskCard(){
     <p class="why"><b>Task typing:</b> ${esc(t.why)}</p>
     <details class="model">
       <summary>Model answer · ${esc(t.source)} (${t.words} words)</summary>
-      <p class="mtxt en">${esc(t.model)}</p>
+      ${modelHTML}
       <p class="msrc">Source: ${esc(t.source)} · band 9 model answer. Read it for two habits: every sentence picks up the end of the one before it with this / such, and each paragraph develops a single dimension.</p>
     </details>`;
   $('#btnDemo').title = demo ? 'A pre-generated report exists for this prompt' : 'No pre-generated report for this prompt; the closest sample will be shown';
