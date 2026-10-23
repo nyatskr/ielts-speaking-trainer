@@ -131,14 +131,15 @@ a{color:inherit}
     <a class="mod" href="speaking.html">Speaking Trainer</a>
     <a class="mod" href="listening.html">Listening</a>
     <a class="mod" href="writing.html">Writing Lab</a>
+    <a class="mod active" href="studio.html">Voice Studio</a>
   </nav>
 </header>
 
 <section class="hero">
   <div class="hero-in">
-    <p class="eyebrow">Bring your own key &middot; runs in the tab</p>
+    <p class="eyebrow">Browser voices &middot; BYOK cloud &middot; runs in the tab</p>
     <h1>One sentence, one clip. The timing problem disappears.</h1>
-    <p class="lead">The speaking trainer needed a speech recogniser to find out when each line began, because the audio was produced as one long file. <strong>Change the unit of synthesis and that step is unnecessary</strong>: synthesise each sentence on its own and its duration is known the moment it arrives. No Whisper, no ffmpeg, no Python &mdash; so the build runs on a phone, a tablet, or any machine with a browser.</p>
+    <p class="lead">The speaking trainer needed a speech recogniser to find out when each line began, because the audio was produced as one long file. <strong>Change the unit of synthesis and that step is unnecessary</strong>: synthesise each sentence on its own and its duration is known the moment it arrives. No Whisper, no ffmpeg, no Python &mdash; so the build runs on a phone, a tablet, or any machine with a browser. <strong>Or skip the cloud entirely</strong>: the browser already ships with the same neural voices, free and instant.</p>
   </div>
 
   <div class="panel">
@@ -150,6 +151,7 @@ a{color:inherit}
         <div class="field">
           <span for="prov">Provider</span>
           <select id="prov">
+            <option value="local">Browser built-in &mdash; free, instant, no key</option>
             <option value="azure">Azure Speech &mdash; direct from the browser</option>
             <option value="doubao">Doubao / Volcengine &mdash; through a proxy</option>
           </select>
@@ -220,6 +222,14 @@ a{color:inherit}
             <option value="10">faster &mdash; +10%</option>
           </select>
         </div>
+        <div class="field" id="fLocalVoices" hidden>
+          <span for="localVoice">Browser voices (en-GB)</span>
+          <select id="localExamVoice"></select>
+        </div>
+        <div class="field" id="fLocalCand" hidden>
+          <span for="localCandVoice">Browser voice (candidate)</span>
+          <select id="localCandVoice"></select>
+        </div>
         <div class="field">
           <span for="conc">Parallel requests</span>
           <select id="conc">
@@ -256,8 +266,8 @@ a{color:inherit}
     <div class="card">
       <div class="ck"><span class="n">03</span><h2>Build</h2><span class="sub" id="runState">idle</span></div>
       <div class="stage">
-        <button type="button" class="dbtn primary" id="btnRun">Generate</button>
-        <button type="button" class="dbtn" id="btnPause" disabled>Pause</button>
+        <button type="button" class="dbtn primary" id="btnRun">Play</button>
+        <button type="button" class="dbtn" id="btnPause" disabled>Stop</button>
         <button type="button" class="dbtn" id="btnPreview" disabled>&#9654; Preview last</button>
         <button type="button" class="dbtn" id="btnClear">Forget cached clips</button>
       </div>
@@ -332,8 +342,9 @@ a{color:inherit}
   var pad = function(n, w){ n = String(n); while (n.length < (w || 2)) n = "0" + n; return n; };
 
   /* ---------------- state ---------------- */
-  var cfg = { prov:"azure", region:"eastasia", key:"", proxy:"", dkey:"", dvoice:"",
-              vExam:"en-GB-RyanNeural", vCand:"en-GB-SoniaNeural", speed:"-5", conc:"4" };
+  var cfg = { prov:"local", region:"eastasia", key:"", proxy:"", dkey:"", dvoice:"",
+              vExam:"en-GB-RyanNeural", vCand:"en-GB-SoniaNeural", speed:"-5", conc:"4",
+              localExam:"", localCand:"" };
   var plan = [];          /* the current scope, flattened to sentences */
   var queue = [];         /* items still to synthesise */
   var running = false;
@@ -362,6 +373,8 @@ a{color:inherit}
     cfg.vCand  = $d("vCand").value;
     cfg.speed  = $d("speed").value;
     cfg.conc   = $d("conc").value;
+    cfg.localExam  = $d("localExamVoice").value;
+    cfg.localCand  = $d("localCandVoice").value;
     saveCfg();
     paintEngine();
   }
@@ -377,20 +390,71 @@ a{color:inherit}
     $d("speed").value = cfg.speed;
     $d("conc").value = cfg.conc;
   }
+
+  /* ---------------- browser voices ---------------- */
+  var browserVoices = [];
+  function loadBrowserVoices(){
+    if (typeof speechSynthesis === "undefined") return;
+    browserVoices = speechSynthesis.getVoices().filter(function(v){
+      return v.lang && v.lang.indexOf("en-GB") === 0;
+    });
+    if (!browserVoices.length){
+      browserVoices = speechSynthesis.getVoices().filter(function(v){
+        return v.lang && v.lang.indexOf("en") === 0;
+      });
+    }
+    var fillSelect = function(sel, pickName){
+      sel.innerHTML = "";
+      browserVoices.forEach(function(v){
+        var o = document.createElement("option");
+        o.value = v.name; o.textContent = v.name + "  (" + v.lang + ")";
+        if (pickName && v.name === pickName) o.selected = true;
+        sel.appendChild(o);
+      });
+      if (!browserVoices.length){
+        var o = document.createElement("option");
+        o.textContent = "No en-GB voices found. Use Microsoft Edge.";
+        o.value = ""; sel.appendChild(o);
+      }
+    };
+    fillSelect($d("localExamVoice"), cfg.localExam);
+    fillSelect($d("localCandVoice"), cfg.localCand);
+    if (!cfg.localExam && browserVoices.length){
+      var male = pickVoice(/Ryan|Thomas|Alfie|George|Daniel|Oliver|Arthur| Male/i);
+      $d("localExamVoice").value = male;
+      cfg.localExam = male;
+    }
+    if (!cfg.localCand && browserVoices.length){
+      var fem = pickVoice(/Sonia|Maisie|Libby|Olivia|Emma|Amy| Female/i);
+      $d("localCandVoice").value = fem === $d("localExamVoice").value && browserVoices.length > 1
+        ? browserVoices.filter(function(v){ return v.name !== fem; })[0].name : fem;
+      cfg.localCand = $d("localCandVoice").value;
+    }
+    saveCfg();
+  }
+  /* prefer a voice whose name matches, otherwise fall back to index 1 */
+  function pickVoice(re){
+    var hit = browserVoices.find(function(v){ return re.test(v.name); });
+    return (hit || browserVoices[1] || browserVoices[0]).name;
+  }
   function paintEngine(){
-    var az = cfg.prov === "azure";
+    var az = cfg.prov === "azure", lc = cfg.prov === "local";
     $d("fRegion").hidden = !az;
     $d("fKey").hidden = !az;
-    $d("fProxy").hidden = az;
-    $d("fDKey").hidden = az;
-    $d("fDVoice").hidden = az;
+    $d("fProxy").hidden = az || lc;
+    $d("fDKey").hidden = az || lc;
+    $d("fDVoice").hidden = az || lc;
     $d("vExam").parentNode.hidden = !az;
     $d("vCand").parentNode.hidden = !az;
-    $d("provNote").innerHTML = az
+    $d("fLocalVoices").hidden = !lc;
+    $d("fLocalCand").hidden = !lc;
+    $d("provNote").innerHTML = lc
+      ? '<b>Zero setup.</b> The browser already ships with neural voices &mdash; in Microsoft Edge these are the same <code>en-GB-Sonia</code> and <code>en-GB-Ryan</code> engines that Azure serves. They play instantly through the <code>speechSynthesis</code> API and never leave the machine, so no key, no account, no card, and no proxy are needed. The trade-off: the audio cannot be captured to a file in JavaScript (the output bypasses the Web Audio node graph), so this mode is for <b>listening on the page</b> rather than exporting clips. Use Azure or Doubao when you need downloadable mp3s.'
+      : az
       ? '<b>Why this one first.</b> Azure is the only one of the three that answers a browser directly: its token and synthesis endpoints both return <code>Access-Control-Allow-Origin: *</code>, so the request never leaves the tab. The free <b>F0</b> tier covers 500,000 neural characters a month, permanently. The key stays in this browser\u2019s <code>localStorage</code> and is never sent anywhere except Microsoft.'
       : '<b>This one needs a proxy, and only because of CORS.</b> The Doubao endpoint answers a browser preflight with <code>404</code> and no <code>Access-Control-Allow-Origin</code> header at all, so the tab cannot call it &mdash; no amount of key juggling changes that. It does not need a VPN; it needs roughly ten lines of forwarding code. Point the field above at any worker that adds <code>X-Api-Key</code> and returns the mp3 body.';
-    var ok = az ? !!cfg.key : (!!cfg.proxy && !!cfg.dkey);
-    $d("engineState").textContent = ok ? (az ? "key set" : "proxy set") : "no key";
+    var ok = lc ? true : (az ? !!cfg.key : (!!cfg.proxy && !!cfg.dkey));
+    $d("engineState").textContent = ok ? (lc ? "ready" : az ? "key set" : "proxy set") : "no key";
     $d("engineState").style.color = ok ? "#8fd8c8" : "#7d94a4";
   }
 
@@ -502,8 +566,10 @@ a{color:inherit}
     items.forEach(function(it){ chars += it.text.length; });
     $d("qChars").textContent = chars.toLocaleString("en-GB");
     var pct = chars / QUOTA * 100;
-    $d("qPct").textContent = pct.toFixed(pct < 10 ? 1 : 0) + "% of the 500k monthly free tier";
-    $d("qBar").style.width = Math.min(100, pct) + "%";
+    $d("qPct").textContent = cfg.prov === "local"
+      ? chars.toLocaleString("en-GB") + " chars \u00b7 free (browser voices)"
+      : pct.toFixed(pct < 10 ? 1 : 0) + "% of the 500k monthly free tier";
+    $d("qBar").style.width = cfg.prov === "local" ? "100%" : Math.min(100, pct) + "%";
     $d("scopeState").textContent = label + " \u00b7 " + items.length + " clips";
     $d("btnPreview").disabled = true;
   }
@@ -586,6 +652,71 @@ a{color:inherit}
     return cfg.prov === "azure" ? synthAzure(text, voice, signal) : synthDoubao(text, voice, signal);
   }
 
+  /* ---------------- local playback ---------------- */
+  /* speechSynthesis output bypasses Web Audio, so it cannot be captured to
+     a blob. This mode is for listening on the page, not exporting clips. */
+  var localPlaying = false;
+  var localQueue = [];
+  function localVoiceFor(it){
+    var name = it.voice === cfg.vExam ? cfg.localExam : cfg.localCand;
+    /* For local mode the voice field was set by voiceFor() using Azure names,
+       so we need to map: if the examiner voice name was used, pick localExam. */
+    return browserVoices.find(function(v){ return v.name === name; })
+        || browserVoices[0];
+  }
+  function localSpeakOne(it){
+    return new Promise(function(res){
+      var u = new SpeechSynthesisUtterance(it.text);
+      var v = localVoiceFor(it);
+      if (v) u.voice = v;
+      u.lang = "en-GB";
+      u.rate = 1 + (parseInt(cfg.speed, 10) || 0) / 100;
+      u.onend = function(){ res(); };
+      u.onerror = function(){ res(); };
+      speechSynthesis.speak(u);
+    });
+  }
+  function localPlay(){
+    if (localPlaying){ localStop(); return; }
+    if (!plan.length) scopeTopic();
+    if (!plan.length) return;
+    localPlaying = true;
+    localQueue = plan.slice();
+    stats = { total: localQueue.length, done: 0, cached: 0, fail: 0, chars: 0 };
+    $d("prog").classList.add("show");
+    $d("btnRun").disabled = true;
+    $d("btnPause").disabled = false;
+    $d("runState").textContent = "playing";
+    $d("sTotal").textContent = stats.total;
+    $d("sDone").textContent = 0;
+    speechSynthesis.cancel();
+    logLine("local playback " + stats.total + " sentences", "mu");
+    function next(){
+      if (!localPlaying || !localQueue.length){
+        localPlaying = false;
+        $d("btnRun").disabled = false;
+        $d("btnPause").disabled = true;
+        $d("runState").textContent = localQueue.length ? "stopped" : "finished";
+        speechSynthesis.cancel();
+        return;
+      }
+      var it = localQueue.shift();
+      $d("sDone").textContent = stats.total - localQueue.length;
+      stats.chars += it.text.length;
+      $d("sChars").textContent = stats.chars.toLocaleString("en-GB");
+      $d("progFill").style.width = ((stats.total - localQueue.length) / stats.total * 100) + "%";
+      localSpeakOne(it).then(next);
+    }
+    next();
+  }
+  function localStop(){
+    localPlaying = false;
+    speechSynthesis.cancel();
+    $d("btnRun").disabled = false;
+    $d("btnPause").disabled = true;
+    $d("runState").textContent = "stopped";
+  }
+
   function cacheKey(it){ return cfg.prov + "|" + it.voice + "|" + cfg.speed + "|" + it.text; }
 
   function logLine(msg, cls){
@@ -647,6 +778,7 @@ a{color:inherit}
   }
 
   function run(){
+    if (cfg.prov === "local"){ localPlay(); return; }
     if (running) return;
     readCfg();
     if (cfg.prov === "azure" && !cfg.key){ logLine("Set an Azure key first.", "er"); return; }
@@ -687,6 +819,7 @@ a{color:inherit}
   }
 
   function pause(){
+    if (cfg.prov === "local"){ localStop(); return; }
     running = false;
     $d("runState").textContent = "paused \u00b7 " + queue.length + " left";
     logLine("paused with " + queue.length + " clips still queued", "mu");
@@ -864,11 +997,39 @@ a{color:inherit}
   writeCfg();
   paintEngine();
   fillTopics();
+  loadBrowserVoices();
+  if (typeof speechSynthesis !== "undefined"){
+    speechSynthesis.onvoiceschanged = function(){ loadBrowserVoices(); };
+  }
+  paintLocalMode();
 
-  ["prov","region","key","proxy","dkey","dvoice","vExam","vCand","speed","conc"].forEach(function(id){
+  function paintLocalMode(){
+    var lc = cfg.prov === "local";
+    $d("btnRun").textContent = lc ? "Play" : "Generate";
+    $d("btnPause").textContent = lc ? "Stop" : "Pause";
+    $d("btnPreview").style.display = lc ? "none" : "";
+    $d("btnClear").style.display = lc ? "none" : "";
+    var zipCard = $d("btnZip").parentNode;
+    var manCard = $d("btnManifest").parentNode;
+    if (lc){
+      $d("btnZip").textContent = "Not available in browser mode";
+      $d("btnZip").disabled = true;
+      $d("btnManifest").textContent = "Not available in browser mode";
+      $d("btnManifest").disabled = true;
+    } else {
+      $d("btnZip").textContent = "Download clips + manifest (.zip)";
+      $d("btnZip").disabled = false;
+      $d("btnManifest").textContent = "manifest.json only";
+      $d("btnManifest").disabled = false;
+    }
+  }
+
+  ["prov","region","key","proxy","dkey","dvoice","vExam","vCand","speed","conc",
+   "localExamVoice","localCandVoice"].forEach(function(id){
     $d(id).addEventListener("change", function(){
       readCfg();
       if (id === "prov" || id === "vExam" || id === "vCand"){ p3Cache = {}; scopeTopic(); }
+      if (id === "prov") paintLocalMode();
     });
     $d(id).addEventListener("input", function(){ readCfg(); });
   });
