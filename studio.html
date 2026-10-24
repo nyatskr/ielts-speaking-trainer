@@ -223,12 +223,21 @@ a{color:inherit}
           </select>
         </div>
         <div class="field" id="fLocalVoices" hidden>
-          <span for="localVoice">Browser voices (en-GB)</span>
+          <span for="localVoice">Examiner voice (en-GB)</span>
           <select id="localExamVoice"></select>
         </div>
         <div class="field" id="fLocalCand" hidden>
-          <span for="localCandVoice">Browser voice (candidate)</span>
+          <span for="localCandVoice">Candidate voice</span>
           <select id="localCandVoice"></select>
+        </div>
+        <div class="field wide" id="fLocalStatus" hidden>
+          <span for="localStatus">Voice status</span>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span id="localStatusText" style="font-size:12px;color:#8fa8b8;font-family:var(--mono);min-width:200px">initialising voices...</span>
+            <button type="button" class="dbtn" id="btnReloadVoices" style="font-size:11px;padding:6px 12px">Reload voices</button>
+            <button type="button" class="dbtn" id="btnTestExam" style="font-size:11px;padding:6px 12px">Test examiner</button>
+            <button type="button" class="dbtn" id="btnTestCand" style="font-size:11px;padding:6px 12px">Test candidate</button>
+          </div>
         </div>
         <div class="field">
           <span for="conc">Parallel requests</span>
@@ -373,8 +382,10 @@ a{color:inherit}
     cfg.vCand  = $d("vCand").value;
     cfg.speed  = $d("speed").value;
     cfg.conc   = $d("conc").value;
-    cfg.localExam  = $d("localExamVoice").value;
-    cfg.localCand  = $d("localCandVoice").value;
+    var le = $d("localExamVoice").value;
+    var lc = $d("localCandVoice").value;
+    if (le) cfg.localExam = le;
+    if (lc) cfg.localCand = lc;
     saveCfg();
     paintEngine();
   }
@@ -392,50 +403,147 @@ a{color:inherit}
   }
 
   /* ---------------- browser voices ---------------- */
+  /* getVoices() is asynchronous in Chromium: it returns [] at parse time
+     and populates ~1s later, signalled by voiceschanged.  We poll for the
+     first several seconds, listen for the event, and -- critically -- we
+     also re-read getVoices() live at playback time so we never use a stale
+     empty array.  Voices are ranked so neural/online-natural ones come first,
+     avoiding the robotic legacy SAPI5 batch. */
   var browserVoices = [];
+  var voicePollHandle = null;
+
+  /* rank: neural/online-natural first, then en-GB, then any en-* */
+  function rankVoices(list){
+    return list.slice().sort(function(a, b){
+      var an = /online\s*\(natural\)|natural|neural/i.test(a.name) ? 0 : 1;
+      var bn = /online\s*\(natural\)|natural|neural/i.test(b.name) ? 0 : 1;
+      if (an !== bn) return an - bn;
+      var ag = a.lang.indexOf("en-GB") === 0 ? 0 : 1;
+      var bg = b.lang.indexOf("en-GB") === 0 ? 0 : 1;
+      if (ag !== bg) return ag - bg;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
   function loadBrowserVoices(){
     if (typeof speechSynthesis === "undefined") return;
-    browserVoices = speechSynthesis.getVoices().filter(function(v){
-      return v.lang && v.lang.indexOf("en-GB") === 0;
-    });
-    if (!browserVoices.length){
-      browserVoices = speechSynthesis.getVoices().filter(function(v){
-        return v.lang && v.lang.indexOf("en") === 0;
-      });
-    }
+    var all = speechSynthesis.getVoices();
+    if (!all.length) return;               /* too early -- poll will retry */
+
+    /* filter to en-GB first, fall back to any en-* */
+    var enGB = all.filter(function(v){ return v.lang && v.lang.indexOf("en-GB") === 0; });
+    var enAny = all.filter(function(v){ return v.lang && v.lang.indexOf("en") === 0; });
+    browserVoices = rankVoices(enGB.length ? enGB : enAny);
+
     var fillSelect = function(sel, pickName){
       sel.innerHTML = "";
       browserVoices.forEach(function(v){
         var o = document.createElement("option");
-        o.value = v.name; o.textContent = v.name + "  (" + v.lang + ")";
+        o.value = v.name;
+        var tag = /online\s*\(natural\)|natural|neural/i.test(v.name) ? " [natural]" : "";
+        o.textContent = v.name + "  (" + v.lang + ")" + tag;
         if (pickName && v.name === pickName) o.selected = true;
         sel.appendChild(o);
       });
       if (!browserVoices.length){
         var o = document.createElement("option");
-        o.textContent = "No en-GB voices found. Use Microsoft Edge.";
+        o.textContent = "No en-GB voices found. Open this page in Microsoft Edge for neural en-GB voices.";
         o.value = ""; sel.appendChild(o);
       }
     };
     fillSelect($d("localExamVoice"), cfg.localExam);
     fillSelect($d("localCandVoice"), cfg.localCand);
+
+    /* auto-pick defaults if the user has not chosen yet */
     if (!cfg.localExam && browserVoices.length){
-      var male = pickVoice(/Ryan|Thomas|Alfie|George|Daniel|Oliver|Arthur| Male/i);
+      var male = pickVoice(/Ryan|Thomas|Alfie|George|Daniel|Oliver|Arthur|\bMale\b/i, true);
       $d("localExamVoice").value = male;
       cfg.localExam = male;
     }
     if (!cfg.localCand && browserVoices.length){
-      var fem = pickVoice(/Sonia|Maisie|Libby|Olivia|Emma|Amy| Female/i);
-      $d("localCandVoice").value = fem === $d("localExamVoice").value && browserVoices.length > 1
-        ? browserVoices.filter(function(v){ return v.name !== fem; })[0].name : fem;
-      cfg.localCand = $d("localCandVoice").value;
+      var fem = pickVoice(/Sonia|Maisie|Libby|Olivia|Emma|Amy|Hazel|\bFemale\b/i, false);
+      /* make sure candidate differs from examiner */
+      if (fem === $d("localExamVoice").value && browserVoices.length > 1){
+        var alt = browserVoices.filter(function(v){ return v.name !== fem; });
+        fem = alt[0].name;
+      }
+      $d("localCandVoice").value = fem;
+      cfg.localCand = fem;
     }
     saveCfg();
+    paintVoiceStatus();
   }
-  /* prefer a voice whose name matches, otherwise fall back to index 1 */
-  function pickVoice(re){
+
+  function paintVoiceStatus(){
+    var el = $d("localStatusText");
+    if (!el) return;
+    if (!browserVoices.length){
+      el.textContent = "No en-GB voices loaded. Use Microsoft Edge for neural voices.";
+      el.style.color = "#e8a0a0";
+      return;
+    }
+    var neural = browserVoices.filter(function(v){
+      return /online\s*\(natural\)|natural|neural/i.test(v.name);
+    }).length;
+    el.textContent = browserVoices.length + " voice" + (browserVoices.length > 1 ? "s" : "") +
+      " loaded" + (neural ? " (" + neural + " natural)" : "") + ". " +
+      "Exam: " + (cfg.localExam || "(none)") + "  Candidate: " + (cfg.localCand || "(none)");
+    el.style.color = neural ? "#8fd8c8" : "#e8c87a";
+  }
+
+  /* pick a voice by regex, preferring neural ones; maleWanted for gender hint */
+  function pickVoice(re, maleWanted){
     var hit = browserVoices.find(function(v){ return re.test(v.name); });
-    return (hit || browserVoices[1] || browserVoices[0]).name;
+    if (hit) return hit.name;
+    /* gender fallback: try to find by gender keyword in name */
+    var gRe = maleWanted ? /\bMale\b/i : /\bFemale\b/i;
+    var gHit = browserVoices.find(function(v){ return gRe.test(v.name); });
+    return (gHit || browserVoices[1] || browserVoices[0]).name;
+  }
+
+  /* poll until voices arrive, then stop polling (with a slow safety net) */
+  function startVoicePolling(){
+    if (typeof speechSynthesis === "undefined") return;
+    var tries = 0;
+    var maxTries = 20;  /* 20 x 500ms = 10s of active polling */
+    function tick(){
+      var v = speechSynthesis.getVoices();
+      if (v.length){
+        loadBrowserVoices();
+        return;                       /* got them -- stop active poll */
+      }
+      tries++;
+      if (tries < maxTries){
+        voicePollHandle = setTimeout(tick, 500);
+      } else {
+        /* slow safety net: check every 3s for the lifetime of the page */
+        voicePollHandle = setTimeout(function slowTick(){
+          if (speechSynthesis.getVoices().length) loadBrowserVoices();
+          else voicePollHandle = setTimeout(slowTick, 3000);
+        }, 3000);
+      }
+    }
+    tick();
+  }
+
+  /* live read at playback time -- never trust the cached array */
+  function liveVoiceFor(name){
+    if (typeof speechSynthesis === "undefined") return null;
+    var fresh = speechSynthesis.getVoices();
+    if (!fresh.length && browserVoices.length) fresh = browserVoices;
+    if (!fresh.length) return null;
+    /* exact match first */
+    var hit = fresh.find(function(v){ return v.name === name; });
+    if (hit) return hit;
+    /* fuzzy: name appears as substring */
+    hit = fresh.find(function(v){ return v.name.indexOf(name) > -1 || name.indexOf(v.name) > -1; });
+    if (hit) return hit;
+    /* fall back to any en-GB, then any en */
+    var enGB = fresh.filter(function(v){ return v.lang && v.lang.indexOf("en-GB") === 0; });
+    if (enGB.length) return enGB[0];
+    var enAny = fresh.filter(function(v){ return v.lang && v.lang.indexOf("en") === 0; });
+    if (enAny.length) return enAny[0];
+    return null;
   }
   function paintEngine(){
     var az = cfg.prov === "azure", lc = cfg.prov === "local";
@@ -448,6 +556,8 @@ a{color:inherit}
     $d("vCand").parentNode.hidden = !az;
     $d("fLocalVoices").hidden = !lc;
     $d("fLocalCand").hidden = !lc;
+    $d("fLocalStatus").hidden = !lc;
+    if (lc) paintVoiceStatus();
     $d("provNote").innerHTML = lc
       ? '<b>Zero setup.</b> The browser already ships with neural voices &mdash; in Microsoft Edge these are the same <code>en-GB-Sonia</code> and <code>en-GB-Ryan</code> engines that Azure serves. They play instantly through the <code>speechSynthesis</code> API and never leave the machine, so no key, no account, no card, and no proxy are needed. The trade-off: the audio cannot be captured to a file in JavaScript (the output bypasses the Web Audio node graph), so this mode is for <b>listening on the page</b> rather than exporting clips. Use Azure or Doubao when you need downloadable mp3s.'
       : az
@@ -658,17 +768,28 @@ a{color:inherit}
   var localPlaying = false;
   var localQueue = [];
   function localVoiceFor(it){
+    /* Resolve the saved browser-voice name for this role, then look it
+       up in a FRESH getVoices() call -- never the stale cached array. */
     var name = it.voice === cfg.vExam ? cfg.localExam : cfg.localCand;
-    /* For local mode the voice field was set by voiceFor() using Azure names,
-       so we need to map: if the examiner voice name was used, pick localExam. */
-    return browserVoices.find(function(v){ return v.name === name; })
-        || browserVoices[0];
+    var v = liveVoiceFor(name);
+    if (!v){
+      /* last resort: any en-GB voice at all */
+      var fresh = typeof speechSynthesis !== "undefined" ? speechSynthesis.getVoices() : [];
+      var enGB = fresh.filter(function(x){ return x.lang && x.lang.indexOf("en-GB") === 0; });
+      if (enGB.length) v = enGB[0];
+      else if (browserVoices.length) v = browserVoices[0];
+    }
+    return v || null;
   }
   function localSpeakOne(it){
     return new Promise(function(res){
       var u = new SpeechSynthesisUtterance(it.text);
       var v = localVoiceFor(it);
       if (v) u.voice = v;
+      else {
+        logLine("no en-GB voice available -- open this page in Microsoft Edge for neural voices", "er");
+        res(); return;
+      }
       u.lang = "en-GB";
       u.rate = 1 + (parseInt(cfg.speed, 10) || 0) / 100;
       u.onend = function(){ res(); };
@@ -998,7 +1119,11 @@ a{color:inherit}
   paintEngine();
   fillTopics();
   loadBrowserVoices();
+  startVoicePolling();
   if (typeof speechSynthesis !== "undefined"){
+    if (speechSynthesis.addEventListener){
+      speechSynthesis.addEventListener("voiceschanged", function(){ loadBrowserVoices(); });
+    }
     speechSynthesis.onvoiceschanged = function(){ loadBrowserVoices(); };
   }
   paintLocalMode();
@@ -1049,6 +1174,38 @@ a{color:inherit}
       $d("zipState").textContent = "cache cleared";
       logLine("local cache cleared", "mu");
     });
+  });
+
+  $d("btnReloadVoices").addEventListener("click", function(){
+    if (voicePollHandle){ clearTimeout(voicePollHandle); voicePollHandle = null; }
+    browserVoices = [];
+    $d("localStatusText").textContent = "reloading voices...";
+    $d("localStatusText").style.color = "#8fa8b8";
+    if (typeof speechSynthesis !== "undefined"){
+      speechSynthesis.cancel();
+      /* force a re-scan: some browsers only refresh on resume after cancel */
+      speechSynthesis.resume();
+    }
+    loadBrowserVoices();
+    startVoicePolling();
+  });
+  $d("btnTestExam").addEventListener("click", function(){
+    var name = $d("localExamVoice").value || cfg.localExam;
+    var v = liveVoiceFor(name);
+    if (!v){ logLine("No voice for examiner -- reload voices first", "er"); return; }
+    var u = new SpeechSynthesisUtterance("Good morning, my name is Ryan. Can you tell me your full name, please?");
+    u.voice = v; u.lang = "en-GB"; u.rate = 1 + (parseInt(cfg.speed, 10) || 0) / 100;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  });
+  $d("btnTestCand").addEventListener("click", function(){
+    var name = $d("localCandVoice").value || cfg.localCand;
+    var v = liveVoiceFor(name);
+    if (!v){ logLine("No voice for candidate -- reload voices first", "er"); return; }
+    var u = new SpeechSynthesisUtterance("Hello, my name is Sonia. I am from London and I work as a teacher.");
+    u.voice = v; u.lang = "en-GB"; u.rate = 1 + (parseInt(cfg.speed, 10) || 0) / 100;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
   });
 
   /* deep links: #all, #A, #B, #A:12 */
