@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speaking Builder · turn scripts into practice pages</title>
+<meta name="description" content="Paste an IELTS speaking script, assign examiner and candidate voices, generate audio with timestamps, and download a ready-to-use practice page.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%237b2d8e'/%3E%3Cpath d='M4 10h24v3H4zm0 5h18v3H4zm0 5h22v3H4z' fill='white'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f5f3ed; --card:#ffffff; --line:#e6e1d5;
+  --muted:#64707d; --text:#232c38;
+  --purple:#7b2d8e; --purple-deep:#5a1f68; --purple-bright:#c084d0;
+  --mono:"Consolas","Cascadia Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.7;font-size:16px}
+a{color:inherit}
+
+.sitebar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  background:#0b141d;color:#e6f0f4;padding:10px 22px;border-bottom:1px solid #1e3342}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none}
+.brand svg{width:30px;height:30px;flex:0 0 auto}
+.brand-name{font-weight:700;font-size:14.5px;letter-spacing:.2px;line-height:1.25}
+.brand-sub{font-size:10.5px;color:#8fb3c4;font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase;line-height:1.3}
+.modnav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mod{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;border-radius:6px;color:#9fb8c8;
+  text-decoration:none;font-size:12.5px;line-height:1.35;white-space:nowrap;transition:color .15s,background .15s}
+.mod:hover{color:#f2f7fa;background:#12222e}
+.mod.active{color:#c084d0;background:#12222e}
+
+.hero{background:radial-gradient(1100px 460px at 74% -14%, #2a1040 0%, #0b141d 60%), #0b141d;
+  color:#dbe7ee;padding:60px 22px 62px}
+.hero-in{max-width:900px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--purple-bright);
+  text-transform:uppercase;margin:0 0 16px}
+.hero h1{font-family:Georgia,serif;font-weight:700;font-size:clamp(27px,4.4vw,44px);line-height:1.16;
+  margin:0 0 18px;color:#f2f7fa;max-width:800px}
+.hero .lead{font-size:16.5px;color:#b6c9d5;max-width:740px;margin:0}
+.hero .lead strong{color:#e2edf3;font-weight:600}
+
+.panel{max-width:900px;margin:0 auto;padding:34px 0 0}
+.card{background:#0b141d;border:1px solid #1b2f3e;border-radius:18px;padding:22px 24px 20px;
+  box-shadow:0 12px 34px rgba(16,28,39,.10)}
+.card + .card{margin-top:16px}
+.ck{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+.ck .n{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;color:#0b141d;background:var(--purple-bright);
+  border-radius:4px;padding:2px 7px;font-weight:700}
+.ck h2{font-size:14.5px;margin:0;color:#e6f0f4;font-weight:600;letter-spacing:.2px}
+.ck .sub{font-size:12px;color:#7d94a4;margin-left:auto;font-family:var(--mono)}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field[hidden]{display:none!important}
+.field > span{font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:#8fa8b8}
+.field input,.field select,.field textarea{background:#101c27;color:#dbe7ee;border:1px solid #1e3443;border-radius:8px;
+  padding:9px 11px;font-size:13.5px;font-family:inherit;width:100%}
+.field textarea{min-height:200px;resize:vertical;line-height:1.6}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:#7b2d8e;box-shadow:0 0 0 3px rgba(123,45,142,.18)}
+.field input::placeholder,.field textarea::placeholder{color:#5d7484}
+.field.wide{grid-column:1/-1}
+.note{font-size:12px;color:#7d94a4;margin:12px 0 0;line-height:1.65}
+.note code{font-family:var(--mono);font-size:11.5px;background:#12222e;border:1px solid #1e3443;
+  border-radius:4px;padding:1px 5px;color:#c084d0}
+.note b{color:#c084d0;font-weight:600}
+
+.stage{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:16px}
+.dbtn{display:inline-flex;align-items:center;gap:7px;background:#12222e;color:#cfe2ec;border:1px solid #24404f;
+  border-radius:8px;padding:9px 15px;font-size:13px;font-family:inherit;cursor:pointer;
+  transition:background .15s,color .15s,border-color .15s}
+.dbtn:hover:not(:disabled){background:#17303f;color:#f2f7fa}
+.dbtn.primary{background:#7b2d8e;border-color:#7b2d8e;color:#fff;font-weight:600}
+.dbtn.primary:hover:not(:disabled){background:#8e36a3}
+.dbtn:disabled{opacity:.38;cursor:default}
+
+.prog{margin-top:16px;display:none}
+.prog.show{display:block}
+.progbar{height:8px;border-radius:4px;background:#12222e;overflow:hidden}
+.progbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7b2d8e,#c084d0);
+  border-radius:4px;transition:width .2s}
+.pstats{display:flex;flex-wrap:wrap;gap:14px;margin-top:9px;font-family:var(--mono);font-size:12px;color:#8fa8b8}
+.pstats b{color:#c084d0}
+.pstats .bad b{color:#e8a0a0}
+
+.log{margin-top:14px;max-height:190px;overflow:auto;font-family:var(--mono);font-size:11.5px;
+  line-height:1.85;color:#7d94a4;background:#0c1620;border:1px solid #1b2f3e;border-radius:10px;
+  padding:10px 12px;display:none}
+.log.show{display:block}
+.log .ok{color:#8fd8c8}
+.log .er{color:#e8a0a0}
+.log .mu{color:#5d7484}
+
+.turns-preview{margin-top:16px}
+.turns-preview table{width:100%;border-collapse:collapse;font-size:13px}
+.turns-preview th{text-align:left;padding:8px 10px;border-bottom:1px solid #1e3443;color:#8fa8b8;
+  font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:1px}
+.turns-preview td{padding:8px 10px;border-bottom:1px solid #14222e;vertical-align:top}
+.turns-preview .role-e{color:#c084d0;font-weight:600}
+.turns-preview .role-c{color:#8fd8c8;font-weight:600}
+.turns-preview .turn-text{color:#cfe2ec;max-width:500px}
+
+.audio-preview{margin-top:16px}
+.audio-preview audio{width:100%;border-radius:8px}
+
+.conn-status{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;padding:4px 10px;
+  border-radius:6px;border:1px solid #1e3443;background:#101c27;color:#8fa8b8}
+.conn-status .dot{width:8px;height:8px;border-radius:50%}
+.conn-status .dot.on{background:#2dd4bf}
+.conn-status .dot.off{background:#e8a0a0}
+</style>
+</head>
+<body>
+
+<nav class="sitebar">
+  <a class="brand" href="index.html">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="7" fill="#7b2d8e"/>
+      <path d="M4 10h24v3H4zm0 5h18v3H4zm0 5h22v3H4z" fill="white"/>
+    </svg>
+    <div>
+      <div class="brand-name">Speaking Builder</div>
+      <div class="brand-sub">scripts to practice pages</div>
+    </div>
+  </a>
+  <div class="modnav">
+    <a class="mod" href="index.html">Portfolio</a>
+    <a class="mod" href="speaking.html">Speaking</a>
+    <a class="mod" href="listening.html">Listening</a>
+    <a class="mod" href="writing.html">Writing</a>
+    <a class="mod active" href="studio.html">Studio</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-in">
+    <p class="eyebrow">Kokoro TTS x multi-role dialogue x zero alignment</p>
+    <h1>Turn any IELTS script into a click-to-play practice page</h1>
+    <p class="lead">Paste your Part 1 / 2 / 3 script. The builder parses examiner and candidate turns, assigns British voices from <strong>Kokoro</strong>, generates a single audio file with per-block timestamps, and packages everything into a downloadable practice page. No Whisper, no forced alignment -- the timestamps come from synthesis.</p>
+  </div>
+</section>
+
+<div class="panel">
+
+  <div class="card">
+    <div class="ck">
+      <span class="n">01</span>
+      <h2>Engine status</h2>
+      <span class="sub" id="engineSub">checking...</span>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <span for="serverUrl">Kokoro server URL</span>
+        <input id="serverUrl" type="text" value="http://localhost:8880" placeholder="http://localhost:8880">
+      </div>
+      <div class="field" style="justify-content:center;align-items:flex-start;padding-top:4px">
+        <span>&nbsp;</span>
+        <div id="connStatus" class="conn-status"><span class="dot off"></span> Not connected</div>
+      </div>
+    </div>
+    <div class="stage">
+      <button type="button" class="dbtn" id="btnCheck">Check connection</button>
+    </div>
+    <p class="note">Start the server: <code>python _build/kokoro_server.py</code> then click Check connection. The server runs locally on your machine and uses your GPU for fast generation. No API key, no cloud, no data leaves your computer.</p>
+  </div>
+
+  <div class="card">
+    <div class="ck">
+      <span class="n">02</span>
+      <h2>Paste your IELTS script</h2>
+      <span class="sub" id="parseSub">not parsed yet</span>
+    </div>
+    <div class="field wide">
+      <span for="script">Script (plain text)</span>
+      <textarea id="script" placeholder="Paste your IELTS speaking script here.
+
+Format:
+- Lines starting with E: = examiner
+- Lines starting with C: = candidate
+- A line with only --- = topic boundary
+- Part headers: Part 1, Part 2, Part 3
+
+Example:
+Part 1
+E: Good morning. Can you tell me your full name?
+C: My name is Emma Johnson.
+E: Can I see your identification?
+C: Sure, here you are.
+---
+E: Let's talk about your hometown. Where is it?
+C: I'm from Manchester, in the north of England.">E: Good morning. Can you tell me your full name, please?
+C: My name is Emma Johnson.
+E: Can I see your identification?
+C: Sure, here you are.
+---
+E: Let's talk about your hometown. Where is it?
+C: I'm from Manchester, in the north of England.
+E: Do you like living there?
+C: Yes, I do. It's a vibrant city with lots of things to do.
+---
+E: Now I'd like to move on to Part 2. I'd like you to describe a place you visited recently. You should say: where it was, when you went there, what you did there, and explain why you enjoyed it.
+C: I'd like to talk about a trip I made to the Lake District last summer. It's a beautiful national park in the north-west of England. I went there with two friends for a weekend. We stayed in a small cottage near a lake. During the day, we went hiking and took lots of photographs. In the evenings, we cooked together and played board games. I really enjoyed it because it was a complete change from city life.
+---
+E: We've been talking about a place you visited. I'd like to ask you some more questions about travel. Do you prefer travelling alone or with others?
+C: I usually prefer travelling with friends because it's more fun and we can share experiences.
+E: What are the benefits of travelling to new places?
+C: I think the main benefit is learning about different cultures and widening your perspective.</textarea>
+    </div>
+    <div class="stage">
+      <button type="button" class="dbtn" id="btnParse">Parse script</button>
+      <button type="button" class="dbtn" id="btnClearScript">Clear</button>
+    </div>
+    <p class="note">Use <code>E:</code> for examiner lines and <code>C:</code> for candidate lines. Use <code>---</code> to separate topics. The parser automatically detects Part boundaries from long examiner prompts (Part 2 cue card) and question-style Part 3 follow-ups.</p>
+  </div>
+
+  <div class="card" id="parsedCard" style="display:none">
+    <div class="ck">
+      <span class="n">03</span>
+      <h2>Parsed turns</h2>
+      <span class="sub" id="turnsSub">0 topics</span>
+    </div>
+    <div class="turns-preview" id="turnsPreview"></div>
+  </div>
+
+  <div class="card" id="voicesCard" style="display:none">
+    <div class="ck">
+      <span class="n">04</span>
+      <h2>Voice assignment</h2>
+      <span class="sub">Kokoro en-GB voices</span>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <span for="examVoice">Examiner voice (male)</span>
+        <select id="examVoice">
+          <option value="bm_george" selected>bm_george</option>
+          <option value="bm_fable">bm_fable</option>
+          <option value="bm_daniel">bm_daniel</option>
+          <option value="bm_lewis">bm_lewis</option>
+        </select>
+      </div>
+      <div class="field">
+        <span for="candVoice">Candidate voice (female)</span>
+        <select id="candVoice">
+          <option value="bf_emma" selected>bf_emma</option>
+          <option value="bf_isabella">bf_isabella</option>
+          <option value="bf_lily">bf_lily</option>
+          <option value="bf_alice">bf_alice</option>
+        </select>
+      </div>
+      <div class="field">
+        <span for="pause">Pause between turns (seconds)</span>
+        <input id="pause" type="number" value="0.4" step="0.1" min="0" max="2">
+      </div>
+      <div class="field">
+        <span for="speed">Speech speed (1.0 = normal)</span>
+        <input id="speed" type="number" value="1.0" step="0.05" min="0.5" max="2">
+      </div>
+    </div>
+    <div class="stage">
+      <button type="button" class="dbtn" id="btnTestExam">Test examiner voice</button>
+      <button type="button" class="dbtn" id="btnTestCand">Test candidate voice</button>
+    </div>
+  </div>
+
+  <div class="card" id="genCard" style="display:none">
+    <div class="ck">
+      <span class="n">05</span>
+      <h2>Generate audio</h2>
+      <span class="sub" id="genSub">ready</span>
+    </div>
+    <div class="stage">
+      <button type="button" class="dbtn primary" id="btnGenerate">Generate all topics</button>
+      <button type="button" class="dbtn" id="btnStop" disabled>Stop</button>
+    </div>
+    <div class="prog" id="prog">
+      <div class="progbar"><i id="progBar"></i></div>
+      <div class="pstats">
+        <span>Topic: <b id="statTopic">0/0</b></span>
+        <span>Turns: <b id="statTurns">0/0</b></span>
+        <span>Duration: <b id="statDur">0.0s</b></span>
+        <span class="bad" id="statErrWrap" style="display:none">Errors: <b id="statErr">0</b></span>
+      </div>
+    </div>
+    <div class="log" id="logBox"></div>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none">
+    <div class="ck">
+      <span class="n">06</span>
+      <h2>Preview & download</h2>
+      <span class="sub" id="resultSub">0 topics generated</span>
+    </div>
+    <div class="audio-preview" id="previewArea"></div>
+    <div class="stage">
+      <button type="button" class="dbtn primary" id="btnZip">Download practice page (.zip)</button>
+      <button type="button" class="dbtn" id="btnPreview">Open preview in new tab</button>
+    </div>
+    <p class="note">The ZIP contains: <code>practice.html</code> (click-to-play page), <code>project.json</code> (metadata), <code>timestamps.json</code> (per-block timing), and <code>audio/</code> (one mp3 per topic). Unzip and double-click <code>practice.html</code> to use.</p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var $ = function(id){ return document.getElementById(id); };
+  var topics = [];   /* [{num, turns:[{role, text}]}] */
+  var results = [];  /* [{num, audio(WAV base64), duration, timestamps}] */
+  var abort = false;
+
+  /* ---- connection ---- */
+  function serverUrl(){ return $("serverUrl").value.replace(/\/$/,""); }
+
+  function setConn(ok, msg){
+    var el = $("connStatus");
+    el.innerHTML = '<span class="dot ' + (ok?"on":"off") + '"></span> ' + msg;
+    el.style.borderColor = ok ? "#2dd4bf" : "#1e3443";
+  }
+
+  function checkConn(){
+    var url = serverUrl() + "/health";
+    logLine("checking " + url + " ...", "mu");
+    fetch(url).then(function(r){ return r.json(); }).then(function(d){
+      if (d.status === "ok"){
+        setConn(true, "Connected");
+        $("engineSub").textContent = "Kokoro engine ready";
+        logLine("engine connected", "ok");
+      } else {
+        setConn(false, "Bad response");
+        logLine("unexpected response: " + JSON.stringify(d), "er");
+      }
+    }).catch(function(e){
+      setConn(false, "Not reachable");
+      logLine("cannot reach server: " + e.message, "er");
+      logLine("start it: python _build/kokoro_server.py", "mu");
+      $("engineSub").textContent = "offline";
+    });
+  }
+
+  /* ---- script parser ---- */
+  function parseScript(){
+    var raw = $("script").value;
+    if (!raw.trim()){ $("parseSub").textContent = "empty"; return; }
+
+    topics = [];
+    var current = { num: 0, turns: [] };
+    var lines = raw.split(/\r?\n/);
+
+    for (var i = 0; i < lines.length; i++){
+      var line = lines[i].trim();
+      if (!line) continue;
+
+      if (line === "---"){
+        if (current.turns.length){
+          current.num = topics.length + 1;
+          topics.push(current);
+        }
+        current = { num: 0, turns: [] };
+        continue;
+      }
+
+      var m = line.match(/^([EC]):\s*(.*)$/i);
+      if (m){
+        var role = m[1].toUpperCase() === "E" ? "examiner" : "candidate";
+        current.turns.push({ role: role, text: m[2] });
+      } else {
+        /* continuation of previous turn, or standalone */
+        if (current.turns.length){
+          current.turns[current.turns.length - 1].text += " " + line;
+        }
+      }
+    }
+    if (current.turns.length){
+      current.num = topics.length + 1;
+      topics.push(current);
+    }
+
+    $("parseSub").textContent = topics.length + " topic" + (topics.length !== 1 ? "s" : "") +
+      " / " + topics.reduce(function(s,t){ return s + t.turns.length; }, 0) + " turns";
+
+    renderParsed();
+    $("parsedCard").style.display = "";
+    $("voicesCard").style.display = "";
+    $("genCard").style.display = "";
+    logLine("parsed " + topics.length + " topics, " +
+      topics.reduce(function(s,t){ return s + t.turns.length; }, 0) + " turns", "ok");
+  }
+
+  function renderParsed(){
+    var html = "<table><thead><tr><th>#</th><th>Role</th><th>Text</th></tr></thead><tbody>";
+    topics.forEach(function(t){
+      t.turns.forEach(function(turn, idx){
+        html += '<tr>' +
+          (idx === 0 ? '<td rowspan="' + t.turns.length + '" style="vertical-align:top;font-weight:600;color:#c084d0">' + t.num + '</td>' : '') +
+          '<td class="role-' + (turn.role === "examiner" ? "e" : "c") + '">' +
+            (turn.role === "examiner" ? "E" : "C") + '</td>' +
+          '<td class="turn-text">' + esc(turn.text.slice(0, 120)) + (turn.text.length > 120 ? "..." : "") + '</td>' +
+        '</tr>';
+      });
+    });
+    html += "</tbody></table>";
+    $("turnsPreview").innerHTML = html;
+    $("turnsSub").textContent = topics.length + " topic" + (topics.length !== 1 ? "s" : "");
+  }
+
+  /* ---- voice test ---- */
+  function testVoice(voice){
+    var url = serverUrl() + "/generate";
+    var sample = voice.indexOf("bf") === 0
+      ? "Hello, my name is Emma. I am from London and I work as a teacher."
+      : "Good morning. My name is George. Can you tell me your full name, please?";
+    logLine("testing " + voice + " ...", "mu");
+
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ turns: [{ voice: voice, text: sample }], pause: 0 })
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if (d.error){ logLine("test error: " + d.error, "er"); return; }
+      var audio = new Audio("data:audio/wav;base64," + d.audio);
+      audio.play();
+      logLine("test played (" + d.duration.toFixed(2) + "s)", "ok");
+    }).catch(function(e){
+      logLine("test failed: " + e.message, "er");
+    });
+  }
+
+  /* ---- generate all ---- */
+  function generate(){
+    if (!topics.length){ logLine("no topics to generate", "er"); return; }
+    if (!navigator.onLine !== false && $("connStatus").textContent.indexOf("Connected") === -1){
+      logLine("warning: engine not connected, will try anyway", "mu");
+    }
+
+    abort = false;
+    results = [];
+    $("btnGenerate").disabled = true;
+    $("btnStop").disabled = false;
+    $("prog").classList.add("show");
+    $("logBox").classList.add("show");
+
+    var examV = $("examVoice").value;
+    var candV = $("candVoice").value;
+    var pauseV = parseFloat($("pause").value) || 0.4;
+    var totalTopics = topics.length;
+    var totalTurns = topics.reduce(function(s,t){ return s + t.turns.length; }, 0);
+    var doneTurns = 0;
+    var errors = 0;
+
+    function step(ti){
+      if (abort || ti >= topics.length){
+        $("btnGenerate").disabled = false;
+        $("btnStop").disabled = true;
+        $("statTopic").textContent = results.length + "/" + totalTopics;
+        if (results.length){
+          $("resultCard").style.display = "";
+          $("resultSub").textContent = results.length + " topic" + (results.length !== 1 ? "s" : "") + " generated";
+          renderPreview();
+          logLine("generation complete: " + results.length + " topics, " + errors + " errors", "ok");
+        }
+        return;
+      }
+
+      var topic = topics[ti];
+      $("statTopic").textContent = (ti+1) + "/" + totalTopics;
+      $("genSub").textContent = "topic " + (ti+1) + "/" + totalTopics;
+
+      var turns = topic.turns.map(function(t){
+        return { voice: t.role === "examiner" ? examV : candV, text: t.text };
+      });
+
+      logLine("generating topic " + (ti+1) + " (" + turns.length + " turns)...", "mu");
+
+      fetch(serverUrl() + "/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ turns: turns, pause: pauseV })
+      }).then(function(r){ return r.json(); }).then(function(d){
+        if (d.error){
+          logLine("topic " + (ti+1) + " error: " + d.error, "er");
+          errors++;
+          $("statErrWrap").style.display = "";
+          $("statErr").textContent = errors;
+        } else {
+          results.push({
+            num: topic.num,
+            audio: d.audio,
+            duration: d.duration,
+            timestamps: d.timestamps,
+            turns: topic.turns
+          });
+          doneTurns += topic.turns.length;
+          $("statTurns").textContent = doneTurns + "/" + totalTurns;
+          $("statDur").textContent = d.duration.toFixed(1) + "s";
+          logLine("topic " + (ti+1) + " done: " + d.duration.toFixed(1) + "s, " +
+            d.timestamps.length + " timestamps", "ok");
+        }
+        var pct = ((ti+1) / totalTopics) * 100;
+        $("progBar").style.width = pct + "%";
+        step(ti + 1);
+      }).catch(function(e){
+        logLine("topic " + (ti+1) + " failed: " + e.message, "er");
+        errors++;
+        $("statErrWrap").style.display = "";
+        $("statErr").textContent = errors;
+        step(ti + 1);
+      });
+    }
+
+    step(0);
+  }
+
+  /* ---- preview ---- */
+  function renderPreview(){
+    var html = "";
+    results.forEach(function(r){
+      html += '<div style="margin-bottom:16px">' +
+        '<div style="font-family:var(--mono);font-size:12px;color:#8fa8b8;margin-bottom:6px">' +
+        'Topic ' + r.num + ' &middot; ' + r.duration.toFixed(1) + 's &middot; ' +
+        r.timestamps.length + ' blocks</div>' +
+        '<audio controls src="data:audio/wav;base64,' + r.audio + '"></audio>' +
+        '</div>';
+    });
+    $("previewArea").innerHTML = html;
+  }
+
+  /* ---- download ZIP ---- */
+  function downloadZip(){
+    if (!results.length){ logLine("nothing to download", "er"); return; }
+    logLine("packing ZIP...", "mu");
+
+    var files = [];
+
+    /* project.json */
+    var project = {
+      title: "IELTS Speaking Practice",
+      generated: new Date().toISOString(),
+      topics: results.map(function(r){
+        return {
+          num: r.num,
+          blocks: r.turns.map(function(t){ return t.text; }),
+          roles: r.turns.map(function(t){ return t.role; }),
+          src: "audio/topic_" + pad(r.num) + ".wav",
+          duration: r.duration
+        };
+      })
+    };
+    files.push({ name: "project.json", data: new TextEncoder().encode(JSON.stringify(project, null, 2)) });
+
+    /* timestamps.json */
+    var ts = {};
+    results.forEach(function(r){
+      ts["topic_" + pad(r.num) + ".wav"] = r.timestamps;
+    });
+    files.push({ name: "timestamps.json", data: new TextEncoder().encode(JSON.stringify(ts, null, 2)) });
+
+    /* audio files (WAV from base64) */
+    results.forEach(function(r){
+      var bytes = atob(r.audio);
+      var u8 = new Uint8Array(bytes.length);
+      for (var i = 0; i < bytes.length; i++) u8[i] = bytes.charCodeAt(i);
+      files.push({ name: "audio/topic_" + pad(r.num) + ".wav", data: u8 });
+    });
+
+    /* practice.html -- a self-contained click-to-play page */
+    files.push({ name: "practice.html", data: new TextEncoder().encode(buildPracticeHtml(results)) });
+
+    var blob = zipFiles(files);
+    saveBlob(blob, "ielts-practice-" + Date.now() + ".zip");
+    logLine("ZIP ready: " + files.length + " files, " + (blob.size/1048576).toFixed(1) + " MB", "ok");
+  }
+
+  function buildPracticeHtml(res){
+    var ts = {};
+    res.forEach(function(r){ ts["topic_" + pad(r.num) + ".wav"] = r.timestamps; });
+    var blocks = {};
+    res.forEach(function(r){
+      blocks["topic_" + pad(r.num)] = r.turns.map(function(t){ return t.text; });
+    });
+    var roles = {};
+    res.forEach(function(r){
+      roles["topic_" + pad(r.num)] = r.turns.map(function(t){ return t.role; });
+    });
+
+    var css = [
+      "body{font-family:system-ui,sans-serif;margin:0;background:#f5f3ed;color:#232c38;line-height:1.7}",
+      ".nav{background:#0b141d;color:#e6f0f4;padding:12px 22px}",
+      ".main{max-width:800px;margin:0 auto;padding:24px}",
+      ".topic{background:#fff;border:1px solid #e6e1d5;border-radius:12px;padding:20px;margin-bottom:16px}",
+      ".topic h3{margin:0 0 12px;font-size:16px}",
+      ".block{cursor:pointer;padding:8px 12px;border-radius:6px;margin:4px 0;transition:background .15s}",
+      ".block:hover{background:#eef0ea}",
+      ".block.playing{background:#d4eadb}",
+      ".block .role{font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#7b2d8e;font-weight:700;margin-right:8px}",
+      ".block .role.c{color:#0e7490}",
+      ".block .text{font-size:15px}",
+      "audio{width:100%;margin-top:12px}"
+    ].join("");
+
+    var js = [
+      "var TS=" + JSON.stringify(ts) + ";",
+      "var BLOCKS=" + JSON.stringify(blocks) + ";",
+      "var ROLES=" + JSON.stringify(roles) + ";",
+      "function pad(n){return String(n).padStart(2,'0')}",
+      "Object.keys(BLOCKS).forEach(function(key){",
+      "  var div=document.createElement('div');div.className='topic';",
+      "  var h3=document.createElement('h3');h3.textContent='Topic '+key.replace('topic_','');div.appendChild(h3);",
+      "  BLOCKS[key].forEach(function(text,bi){",
+      "    var b=document.createElement('div');b.className='block';b.dataset.topic=key;b.dataset.idx=bi;",
+      "    var role=ROLES[key][bi];",
+      "    var rs=document.createElement('span');rs.className='role'+(role==='candidate'?' c':'');rs.textContent=role==='examiner'?'E':'C';",
+      "    var ts=document.createElement('span');ts.className='text';ts.textContent=text;",
+      "    b.appendChild(rs);b.appendChild(ts);",
+      "    b.onclick=function(){playBlock(key,bi)};",
+      "    div.appendChild(b);",
+      "  });",
+      "  var au=document.createElement('audio');au.controls=true;au.src='audio/'+key+'.wav';div.appendChild(au);",
+      "  document.getElementById('app').appendChild(div);",
+      "});",
+      "function playBlock(topic,bi){",
+      "  var tsArr=TS[topic+'.wav'][bi];if(!tsArr)return;",
+      "  var au=document.querySelector('.topic audio');",
+      "  document.querySelectorAll('.block.playing').forEach(function(b){b.classList.remove('playing')});",
+      "  var blocks=document.querySelectorAll('[data-topic=\"'+topic+'\"]');",
+      "  blocks[bi].classList.add('playing');",
+      "  au.currentTime=tsArr[0];au.play();",
+      "  au.ontimeupdate=function(){",
+      "    if(au.currentTime>=tsArr[1]){",
+      "      au.pause();",
+      "      if(bi+1<blocks.length){blocks[bi].classList.remove('playing');playBlock(topic,bi+1)}",
+      "    }",
+      "  };",
+      "}"
+    ].join("\n");
+
+    return "<!DOCTYPE html>\n<html lang=\"en\"><head><meta charset=\"UTF-8\">" +
+      "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\">" +
+      "<title>IELTS Speaking Practice</title>" +
+      "<style>" + css + "</style></head><body>" +
+      "<div class=\"nav\"><strong>IELTS Speaking Practice</strong></div>" +
+      "<div class=\"main\" id=\"app\"></div>" +
+      "<scr" + "ipt>\n" + js + "\n</scr" + "ipt>\n" +
+      "</body></html>";
+  }
+
+  /* ---- ZIP writer (store-only, from studio.html) ---- */
+  function zipFiles(files){
+    var CRC = (function(){
+      var t = new Uint32Array(256);
+      for (var n = 0; n < 256; n++){
+        var c = n;
+        for (var k = 0; k < 8; k++){
+          c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        }
+        t[n] = c;
+      }
+      return function(buf){
+        var c = 0xFFFFFFFF;
+        for (var i = 0; i < buf.length; i++){
+          c = t[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+        }
+        return (c ^ 0xFFFFFFFF) >>> 0;
+      };
+    })();
+
+    var enc = new TextEncoder();
+    var chunks = [];
+    var central = [];
+    var offset = 0;
+
+    files.forEach(function(f){
+      var nameBytes = enc.encode(f.name);
+      var crc = CRC(f.data);
+      var size = f.data.length;
+
+      /* local header */
+      var lh = new Uint8Array(30 + nameBytes.length);
+      var dv = new DataView(lh.buffer);
+      dv.setUint32(0, 0x04034b50, true);
+      dv.setUint16(4, 20, true);
+      dv.setUint16(6, 0x0800, true);
+      dv.setUint16(8, 0, true);
+      dv.setUint16(10, 0, true);
+      dv.setUint16(12, 0, true);
+      dv.setUint32(14, crc, true);
+      dv.setUint32(18, size, true);
+      dv.setUint32(22, size, true);
+      dv.setUint16(26, nameBytes.length, true);
+      dv.setUint16(28, 0, true);
+      lh.set(nameBytes, 30);
+
+      chunks.push(lh);
+      chunks.push(f.data);
+
+      /* central directory entry */
+      var cd = new Uint8Array(46 + nameBytes.length);
+      var dv2 = new DataView(cd.buffer);
+      dv2.setUint32(0, 0x02014b50, true);
+      dv2.setUint16(4, 20, true);
+      dv2.setUint16(6, 20, true);
+      dv2.setUint16(8, 0x0800, true);
+      dv2.setUint16(10, 0, true);
+      dv2.setUint16(12, 0, true);
+      dv2.setUint32(16, crc, true);
+      dv2.setUint32(20, size, true);
+      dv2.setUint32(24, size, true);
+      dv2.setUint16(28, nameBytes.length, true);
+      dv2.setUint16(30, 0, true);
+      dv2.setUint16(32, 0, true);
+      dv2.setUint16(34, 0, true);
+      dv2.setUint16(36, 0, true);
+      dv2.setUint32(38, 0, true);
+      dv2.setUint32(42, offset, true);
+      cd.set(nameBytes, 46);
+      central.push(cd);
+
+      offset += lh.length + f.data.length;
+    });
+
+    /* EOCD */
+    var cdSize = central.reduce(function(s, c){ return s + c.length; }, 0);
+    var cdOffset = offset;
+    var eocd = new Uint8Array(22);
+    var dv3 = new DataView(eocd.buffer);
+    dv3.setUint32(0, 0x06054b50, true);
+    dv3.setUint16(4, 0, true);
+    dv3.setUint16(6, 0, true);
+    dv3.setUint16(8, files.length, true);
+    dv3.setUint16(10, files.length, true);
+    dv3.setUint32(12, cdSize, true);
+    dv3.setUint32(16, cdOffset, true);
+    dv3.setUint16(20, 0, true);
+
+    return new Blob(chunks.concat(central).concat([eocd]), { type: "application/zip" });
+  }
+
+  /* ---- utils ---- */
+  function pad(n){ return String(n).padStart(2, "0"); }
+  function esc(s){ var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+  function saveBlob(blob, name){
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  }
+  function logLine(msg, cls){
+    var box = $("logBox");
+    var line = document.createElement("div");
+    line.className = cls || "";
+    line.textContent = new Date().toLocaleTimeString() + "  " + msg;
+    box.appendChild(line);
+    box.scrollTop = box.scrollHeight;
+    box.classList.add("show");
+  }
+
+  /* ---- wiring ---- */
+  $("btnCheck").addEventListener("click", checkConn);
+  $("btnParse").addEventListener("click", parseScript);
+  $("btnClearScript").addEventListener("click", function(){
+    $("script").value = "";
+    $("parseSub").textContent = "not parsed yet";
+    $("parsedCard").style.display = "none";
+    $("voicesCard").style.display = "none";
+    $("genCard").style.display = "none";
+    $("resultCard").style.display = "none";
+    topics = [];
+    results = [];
+  });
+  $("btnTestExam").addEventListener("click", function(){ testVoice($("examVoice").value); });
+  $("btnTestCand").addEventListener("click", function(){ testVoice($("candVoice").value); });
+  $("btnGenerate").addEventListener("click", generate);
+  $("btnStop").addEventListener("click", function(){ abort = true; logLine("stopping after current topic...", "mu"); });
+  $("btnZip").addEventListener("click", downloadZip);
+  $("btnPreview").addEventListener("click", function(){
+    if (!results.length) return;
+    var r = results[0];
+    var w = window.open();
+    w.document.write(buildPracticeHtml(results));
+    w.document.close();
+  });
+
+  /* auto-check on load */
+  setTimeout(checkConn, 500);
+
+})();
+</script>
+</body>
+</html>
