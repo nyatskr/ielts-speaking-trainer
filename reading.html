@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reading Vocabulary · IELTS Speaking Trainer</title>
+<meta name="description" content="A vocabulary learning module built on the IELTS Reading corpus (Cambridge 10-20). Upload, screen, memorize, and review words from 132 passages.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e7490'/%3E%3Cpath d='M6 6h9a3 3 0 013 3v17a2 2 0 00-2-2H6zM26 6h-9a3 3 0 00-3 3v17a2 2 0 012-2h10z' stroke='white' stroke-width='1.8' fill='none' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f5f3ed; --card:#ffffff; --line:#e6e1d5;
+  --muted:#64707d; --text:#232c38;
+  --teal:#0e7490; --teal-deep:#0a4d63; --teal-bright:#2dd4bf;
+  --amber:#d97706; --amber-light:#fef3c7;
+  --red:#dc2626; --red-light:#fee2e2;
+  --green:#16a34a; --green-light:#dcfce7;
+  --mono:"Consolas","Cascadia Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.7;font-size:16px}
+a{color:inherit}
+
+.sitebar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  background:#0b141d;color:#e6f0f4;padding:10px 22px;border-bottom:1px solid #1e3342}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none}
+.brand svg{width:30px;height:30px;flex:0 0 auto}
+.brand-name{font-weight:700;font-size:14.5px;letter-spacing:.2px;line-height:1.25}
+.brand-sub{font-size:10.5px;color:#8fb3c4;font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase;line-height:1.3}
+.modnav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mod{display:inline-flex;align-items:center;gap:7px;padding:8px 10px;border-radius:6px;color:#9fb8c8;
+  text-decoration:none;font-size:12.5px;line-height:1.35;white-space:nowrap;transition:color .15s,background .15s}
+.mod:hover{color:#f2f7fa;background:#12222e}
+.mod.active{color:#a7e8dd;background:#12222e}
+
+.hero{background:radial-gradient(1100px 460px at 74% -14%, #13303e 0%, #0b141d 60%), #0b141d;
+  color:#dbe7ee;padding:50px 22px 52px}
+.hero-in{max-width:1000px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--teal-bright);
+  text-transform:uppercase;margin:0 0 14px}
+.hero h1{font-family:Georgia,serif;font-weight:700;font-size:clamp(26px,4.2vw,42px);line-height:1.16;
+  margin:0 0 16px;color:#f2f7fa;max-width:800px}
+.hero .lead{font-size:16px;color:#b6c9d5;max-width:720px;margin:0 0 18px}
+.hero .lead strong{color:#e2edf3;font-weight:600}
+
+.tabs{display:flex;gap:2px;flex-wrap:wrap;margin-bottom:0}
+.tab{display:inline-flex;align-items:center;gap:8px;background:#101c27;color:#9fb8c8;
+  border:1px solid #1e3443;border-bottom:none;border-radius:8px 8px 0 0;
+  padding:10px 18px;font-size:13.5px;font-family:inherit;cursor:pointer;
+  transition:background .15s,color .15s}
+.tab:hover{color:#dbe7ee;background:#142532}
+.tab.active{background:var(--bg);color:var(--teal-deep);font-weight:600;border-color:#e6e1d5}
+.tab .num{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.tab.active .num{color:var(--teal)}
+.tab .badge{background:var(--teal);color:#fff;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:700}
+
+.panel{max-width:1000px;margin:0 auto;padding:0}
+.stage-panel{display:none;background:var(--card);border:1px solid var(--line);border-top:none;
+  border-radius:0 0 14px 14px;padding:28px 28px 30px;min-height:400px}
+.stage-panel.active{display:block}
+
+/* Stage 1: Upload */
+.s1-hero{text-align:center;padding:20px 0 10px}
+.s1-hero h2{font-family:Georgia,serif;font-size:24px;margin:0 0 8px;color:var(--teal-deep)}
+.s1-hero p{font-size:14px;color:var(--muted);margin:0 0 24px;max-width:560px;margin-left:auto;margin-right:auto}
+.s1-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-bottom:24px}
+.s1-card{background:#f8f6f0;border:1px solid var(--line);border-radius:14px;padding:22px;text-align:center}
+.s1-card h3{font-family:Georgia,serif;font-size:18px;margin:0 0 8px;color:var(--teal-deep)}
+.s1-card p{font-size:13px;color:var(--muted);margin:0 0 14px}
+.s1-card .btn{display:inline-block;background:var(--teal);color:#fff;border:none;border-radius:8px;
+  padding:10px 20px;font-size:13px;font-family:inherit;cursor:pointer;transition:background .15s}
+.s1-card .btn:hover{background:var(--teal-deep)}
+.s1-card .btn.secondary{background:#e6e1d5;color:var(--text)}
+.s1-card .btn.secondary:hover{background:#d5cfc0}
+
+.corpus-browser{background:#f8f6f0;border:1px solid var(--line);border-radius:14px;padding:22px}
+.corpus-browser h3{font-family:Georgia,serif;font-size:18px;margin:0 0 6px;color:var(--teal-deep)}
+.corpus-browser .desc{font-size:13px;color:var(--muted);margin:0 0 16px}
+.corpus-filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.corpus-filters select{background:#fff;color:var(--text);border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;font-size:13px;font-family:inherit}
+.corpus-stats{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.passage-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;max-height:320px;overflow-y:auto}
+.passage-item{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;
+  font-size:12.5px;cursor:pointer;transition:border-color .15s,background .15s}
+.passage-item:hover{border-color:var(--teal);background:#f0fdfa}
+.passage-item.selected{border-color:var(--teal);background:#ecfeff}
+.passage-item .pl{font-weight:600;color:var(--text)}
+.passage-item .ps{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px}
+
+/* Stage 2: Screen */
+.s2-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px;padding-bottom:14px;
+  border-bottom:1px solid var(--line)}
+.s2-toolbar .group{display:flex;align-items:center;gap:6px}
+.s2-toolbar label{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.s2-toolbar select,.s2-toolbar input{background:#fff;border:1px solid var(--line);border-radius:8px;
+  padding:7px 10px;font-size:13px;font-family:inherit}
+.s2-toolbar .btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 14px;
+  font-size:12.5px;font-family:inherit;cursor:pointer;transition:background .15s}
+.s2-toolbar .btn:hover{background:var(--teal-deep)}
+.s2-toolbar .btn.outline{background:#fff;border:1px solid var(--line);color:var(--text)}
+.s2-toolbar .btn.outline:hover{background:#f0ede5}
+.s2-toolbar .spacer{flex:1}
+.s2-stats{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+.word-table{width:100%;border-collapse:collapse}
+.word-table th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:2px solid var(--line);
+  position:sticky;top:0;background:var(--card)}
+.word-table td{padding:10px;border-bottom:1px solid #f0ede5;font-size:14px;vertical-align:top}
+.word-table tr:hover{background:#f8f6f0}
+.word-table .w-word{font-weight:600;color:var(--teal-deep);min-width:120px}
+.word-table .w-phon{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.word-table .w-pos{font-size:11px;color:var(--amber);font-weight:600;white-space:nowrap}
+.word-table .w-meaning{color:var(--text)}
+.word-table .w-source{font-family:var(--mono);font-size:10.5px;color:var(--muted);white-space:nowrap}
+.word-table .w-tier{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.word-table .tier1{color:var(--red)}
+.word-table .tier2{color:var(--teal)}
+.word-table .tier3{color:var(--amber)}
+.word-table .w-action{text-align:center;white-space:nowrap}
+.word-table .w-btn{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);
+  background:#fff;cursor:pointer;font-family:inherit;transition:background .12s}
+.word-table .w-btn:hover{background:#f0ede5}
+.word-table .w-btn.known{color:var(--green);border-color:var(--green)}
+.word-table .w-btn.known:hover{background:var(--green-light)}
+.word-table .w-btn.unknown{color:var(--red);border-color:var(--red)}
+.word-table .w-btn.unknown:hover{background:var(--red-light)}
+.word-table .w-btn.active.known{background:var(--green);color:#fff}
+.word-table .w-btn.active.unknown{background:var(--red);color:#fff}
+
+/* Stage 3: Memorize */
+.s3-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px;padding-bottom:14px;
+  border-bottom:1px solid var(--line)}
+.s3-controls .group{display:flex;align-items:center;gap:6px}
+.s3-controls label{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.s3-controls select{background:#fff;border:1px solid var(--line);border-radius:8px;
+  padding:7px 10px;font-size:13px;font-family:inherit}
+.s3-controls .btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 14px;
+  font-size:12.5px;font-family:inherit;cursor:pointer;transition:background .15s}
+.s3-controls .btn:hover{background:var(--teal-deep)}
+.s3-controls .spacer{flex:1}
+.s3-progress{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+.flashcard{background:var(--card);border:1px solid var(--line);border-radius:18px;
+  padding:40px 32px;text-align:center;max-width:600px;margin:0 auto 20px;min-height:240px;
+  display:flex;flex-direction:column;justify-content:center;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.flashcard:hover{border-color:var(--teal);box-shadow:0 8px 24px rgba(14,116,144,.08)}
+.flashcard .fc-word{font-family:Georgia,serif;font-size:32px;font-weight:700;color:var(--teal-deep);margin-bottom:8px}
+.flashcard .fc-phon{font-family:var(--mono);font-size:14px;color:var(--muted);margin-bottom:4px}
+.flashcard .fc-pos{font-size:13px;color:var(--amber);font-weight:600;margin-bottom:16px}
+.flashcard .fc-meaning{font-size:18px;color:var(--text);line-height:1.6}
+.flashcard .fc-meaning.hidden{color:transparent;background:#f0ede5;border-radius:8px;padding:6px 12px}
+.flashcard .fc-hint{font-size:12px;color:var(--muted);margin-top:16px;font-family:var(--mono)}
+.flashcard .fc-source{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:14px}
+
+.fc-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.fc-btn{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 20px;
+  font-size:13px;font-family:inherit;cursor:pointer;transition:background .15s,border-color .15s}
+.fc-btn:hover{background:#f8f6f0}
+.fc-btn.easy{color:var(--green);border-color:var(--green)}
+.fc-btn.easy:hover{background:var(--green-light)}
+.fc-btn.hard{color:var(--red);border-color:var(--red)}
+.fc-btn.hard:hover{background:var(--red-light)}
+.fc-btn.show{background:var(--teal);color:#fff;border-color:var(--teal)}
+.fc-btn.show:hover{background:var(--teal-deep)}
+
+.s3-empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.s3-empty h3{font-family:Georgia,serif;font-size:20px;color:var(--text);margin:0 0 8px}
+.s3-empty p{font-size:14px;margin:0}
+
+/* Stage 4: Library */
+.s4-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px;padding-bottom:14px;
+  border-bottom:1px solid var(--line)}
+.s4-toolbar .group{display:flex;align-items:center;gap:6px}
+.s4-toolbar label{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.s4-toolbar select{background:#fff;border:1px solid var(--line);border-radius:8px;
+  padding:7px 10px;font-size:13px;font-family:inherit}
+.s4-toolbar .btn{background:#fff;border:1px solid var(--line);color:var(--text);border-radius:8px;
+  padding:8px 14px;font-size:12.5px;font-family:inherit;cursor:pointer;transition:background .15s}
+.s4-toolbar .btn:hover{background:#f8f6f0}
+.s4-toolbar .btn.primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+.s4-toolbar .btn.primary:hover{background:var(--teal-deep)}
+.s4-toolbar .spacer{flex:1}
+
+.s4-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.s4-stat{background:#f8f6f0;border:1px solid var(--line);border-radius:12px;padding:14px 16px;text-align:center}
+.s4-stat .v{font-family:Georgia,serif;font-size:24px;font-weight:700;color:var(--teal-deep)}
+.s4-stat .l{font-family:var(--mono);font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-top:2px}
+
+.lib-table{width:100%;border-collapse:collapse}
+.lib-table th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:2px solid var(--line)}
+.lib-table td{padding:8px 10px;border-bottom:1px solid #f0ede5;font-size:13.5px;vertical-align:top}
+.lib-table tr:hover{background:#f8f6f0}
+.lib-table .l-word{font-weight:600;color:var(--teal-deep)}
+.lib-table .l-meaning{color:var(--text)}
+.lib-table .l-source{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.lib-table .l-date{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+.lib-table .l-diff{font-size:11px;font-weight:700}
+.diff-easy{color:var(--green)}
+.diff-medium{color:var(--amber)}
+.diff-hard{color:var(--red)}
+.lib-table .l-review{font-family:var(--mono);font-size:10.5px;color:var(--muted);white-space:nowrap}
+.review-due{color:var(--red);font-weight:600}
+
+.s4-empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.s4-empty h3{font-family:Georgia,serif;font-size:20px;color:var(--text);margin:0 0 8px}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0b141d;color:#dbe7ee;
+  border:1px solid #1e3443;border-radius:10px;padding:10px 20px;font-size:13px;z-index:100;
+  opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+@media(max-width:640px){
+  .hero{padding:36px 18px 38px}
+  .panel{padding:0}
+  .stage-panel{padding:20px 16px}
+  .passage-grid{grid-template-columns:1fr}
+  .word-table .w-phon,.word-table .w-source{display:none}
+  .flashcard .fc-word{font-size:26px}
+}
+</style>
+</head>
+<body>
+
+<header class="sitebar">
+  <a class="brand" href="index.html">
+    <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="7" fill="#0e7490"/><path d="M6 6h9a3 3 0 013 3v17a2 2 0 00-2-2H6zM26 6h-9a3 3 0 00-3 3v17a2 2 0 012-2h10z" stroke="white" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>
+    <div><div class="brand-name">nyatskr</div><div class="brand-sub">Technical Portfolio</div></div>
+  </a>
+  <nav class="modnav">
+    <a class="mod" href="index.html">Work</a>
+    <a class="mod" href="speaking.html">Speaking</a>
+    <a class="mod" href="listening.html">Listening</a>
+    <a class="mod" href="writing.html">Writing</a>
+    <a class="mod" href="studio.html">Studio</a>
+    <a class="mod" href="builder.html">Builder</a>
+    <a class="mod active" href="reading.html">Reading</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-in">
+    <p class="eyebrow">Vocabulary from Cambridge IELTS 10-20</p>
+    <h1>Reading Vocabulary Trainer</h1>
+    <p class="lead">132 passages, 10,712 entries. Screen what you don't know, memorize with flashcards, and review on a spaced schedule. <strong>All data lives in your browser via IndexedDB.</strong></p>
+  </div>
+</section>
+
+<div class="panel">
+  <div class="tabs">
+    <button class="tab active" data-stage="1"><span class="num">01</span> Upload</button>
+    <button class="tab" data-stage="2"><span class="num">02</span> Screen</button>
+    <button class="tab" data-stage="3"><span class="num">03</span> Memorize</button>
+    <button class="tab" data-stage="4"><span class="num">04</span> Library</button>
+  </div>
+
+  <!-- Stage 1: Upload / Source Selection -->
+  <div class="stage-panel active" id="stage1">
+    <div class="s1-hero">
+      <h2>Choose Your Vocabulary Source</h2>
+      <p>Pick passages from the built-in corpus, or upload your own word list. The corpus covers all 132 reading passages from Cambridge IELTS 10-20, organized into three tiers: essential words, comprehension words, and collocations.</p>
+    </div>
+    <div class="s1-cards">
+      <div class="s1-card">
+        <h3>From Corpus</h3>
+        <p>Select passages from the 132-item Cambridge IELTS corpus. Each passage has 40-100 entries across three difficulty tiers.</p>
+        <button class="btn" id="btnBrowseCorpus">Browse Passages</button>
+      </div>
+      <div class="s1-card">
+        <h3>Upload List</h3>
+        <p>Upload a TXT or JSON file with your own word list. Format: one word per line, or JSON array of word objects.</p>
+        <input type="file" id="fileUpload" accept=".txt,.json" style="display:none">
+        <button class="btn secondary" id="btnUpload">Choose File</button>
+      </div>
+      <div class="s1-card">
+        <h3>Import Progress</h3>
+        <p>Restore a previously exported JSON backup of your learning data, including known words and review history.</p>
+        <input type="file" id="fileImport" accept=".json" style="display:none">
+        <button class="btn secondary" id="btnImport">Import Backup</button>
+      </div>
+    </div>
+
+    <div class="corpus-browser" id="corpusBrowser" style="display:none">
+      <h3>Corpus Browser</h3>
+      <p class="desc">Select one or more passages. Words from all selected passages will be combined for screening.</p>
+      <div class="corpus-filters">
+        <label>Cambridge</label>
+        <select id="filterCam"><option value="">All</option></select>
+        <label>Test</label>
+        <select id="filterTest"><option value="">All</option></select>
+        <button class="btn" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer" id="btnSelectAll">Select All Filtered</button>
+        <button class="btn" style="background:#fff;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer" id="btnClearAll">Clear</button>
+        <span class="corpus-stats" id="corpusStats">0 passages selected</span>
+      </div>
+      <div class="passage-grid" id="passageGrid"></div>
+      <div style="margin-top:14px;text-align:right">
+        <button class="btn" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:14px;cursor:pointer" id="btnLoadPassages">Load Selected Passages &rarr; Screen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage 2: Screen -->
+  <div class="stage-panel" id="stage2">
+    <div class="s2-toolbar">
+      <div class="group">
+        <label>Source</label>
+        <select id="screenSource"><option value="">All</option></select>
+      </div>
+      <div class="group">
+        <label>Tier</label>
+        <select id="screenTier">
+          <option value="">All</option>
+          <option value="1">Part 1: Essential</option>
+          <option value="2">Part 2: Comprehension</option>
+          <option value="3">Part 3: Collocations</option>
+        </select>
+      </div>
+      <div class="group">
+        <label>Status</label>
+        <select id="screenStatus">
+          <option value="">All</option>
+          <option value="unmarked">Unmarked</option>
+          <option value="known">Known</option>
+          <option value="unknown">Unknown</option>
+        </select>
+      </div>
+      <div class="group">
+        <label>Search</label>
+        <input type="text" id="screenSearch" placeholder="word or meaning..." style="width:160px">
+      </div>
+      <div class="spacer"></div>
+      <span class="s2-stats" id="screenStats">0 words</span>
+    </div>
+    <div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn outline" style="background:#fff;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer" id="btnMarkAllKnown">Mark All Known</button>
+      <button class="btn outline" style="background:#fff;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer" id="btnMarkAllUnknown">Mark All Unknown</button>
+      <div style="flex:1"></div>
+      <button class="btn" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer" id="btnToMemorize">Send Unknown to Memorize &rarr;</button>
+    </div>
+    <div style="max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:10px">
+      <table class="word-table">
+        <thead>
+          <tr>
+            <th>Word</th><th>Phonetic</th><th>POS</th><th>Meaning</th><th>Source</th><th>Tier</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="wordTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Stage 3: Memorize -->
+  <div class="stage-panel" id="stage3">
+    <div class="s3-controls">
+      <div class="group">
+        <label>Mode</label>
+        <select id="memoMode">
+          <option value="show">Show/Hide</option>
+          <option value="test">Test (type answer)</option>
+        </select>
+      </div>
+      <div class="group">
+        <label>Order</label>
+        <select id="memoOrder">
+          <option value="original">Original</option>
+          <option value="random">Random</option>
+          <option value="difficulty">By Difficulty</option>
+        </select>
+      </div>
+      <div class="group">
+        <label>Direction</label>
+        <select id="memoDir">
+          <option value="en-zh">EN &rarr; ZH</option>
+          <option value="zh-en">ZH &rarr; EN</option>
+        </select>
+      </div>
+      <div class="spacer"></div>
+      <span class="s3-progress" id="memoProgress">0 / 0</span>
+    </div>
+    <div id="flashcardArea"></div>
+  </div>
+
+  <!-- Stage 4: Library -->
+  <div class="stage-panel" id="stage4">
+    <div class="s4-stats" id="libStats"></div>
+    <div class="s4-toolbar">
+      <div class="group">
+        <label>Filter</label>
+        <select id="libFilter">
+          <option value="all">All Learned</option>
+          <option value="unknown">Unknown</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+          <option value="due">Review Due</option>
+        </select>
+      </div>
+      <div class="group">
+        <label>Source</label>
+        <select id="libSource"><option value="">All</option></select>
+      </div>
+      <div class="group">
+        <label>Search</label>
+        <input type="text" id="libSearch" placeholder="word..." style="width:140px">
+      </div>
+      <div class="spacer"></div>
+      <button class="btn" id="btnExport">Export Backup</button>
+      <button class="btn primary" id="btnClearData">Clear All Data</button>
+    </div>
+    <div style="max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:10px">
+      <table class="lib-table">
+        <thead>
+          <tr><th>Word</th><th>Meaning</th><th>Source</th><th>First Seen</th><th>Difficulty</th><th>Reviews</th><th>Next Review</th></tr>
+        </thead>
+        <tbody id="libTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   READING VOCABULARY MODULE
+   IndexedDB-based vocabulary trainer for IELTS Reading corpus
+   ============================================================ */
+
+/* --- IndexedDB Layer --- */
+var DB_NAME = "ielts-reading-vocab";
+var DB_VERSION = 1;
+var db = null;
+
+function dbOpen(){
+  return new Promise(function(resolve, reject){
+    var req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = function(e){
+      var d = e.target.result;
+      if(!d.objectStoreNames.contains("words")){
+        var s = d.createObjectStore("words", {keyPath: "id"});
+        s.createIndex("word", "word", {unique: false});
+        s.createIndex("source", "source", {unique: false});
+        s.createIndex("status", "status", {unique: false});
+        s.createIndex("difficulty", "difficulty", {unique: false});
+        s.createIndex("nextReview", "nextReview", {unique: false});
+      }
+      if(!d.objectStoreNames.contains("meta")){
+        d.createObjectStore("meta", {keyPath: "key"});
+      }
+    };
+    req.onsuccess = function(e){ db = e.target.result; resolve(db); };
+    req.onerror = function(e){ reject(e.target.error); };
+  });
+}
+
+function dbPut(store, value){
+  return new Promise(function(resolve, reject){
+    var tx = db.transaction(store, "readwrite");
+    var req = tx.objectStore(store).put(value);
+    req.onsuccess = function(){ resolve(value); };
+    req.onerror = function(e){ reject(e.target.error); };
+  });
+}
+
+function dbGet(store, key){
+  return new Promise(function(resolve, reject){
+    var tx = db.transaction(store, "readonly");
+    var req = tx.objectStore(store).get(key);
+    req.onsuccess = function(){ resolve(req.result); };
+    req.onerror = function(e){ reject(e.target.error); };
+  });
+}
+
+function dbGetAll(store){
+  return new Promise(function(resolve, reject){
+    var tx = db.transaction(store, "readonly");
+    var req = tx.objectStore(store).getAll();
+    req.onsuccess = function(){ resolve(req.result); };
+    req.onerror = function(e){ reject(e.target.error); };
+  });
+}
+
+function dbClear(store){
+  return new Promise(function(resolve, reject){
+    var tx = db.transaction(store, "readwrite");
+    var req = tx.objectStore(store).clear();
+    req.onsuccess = function(){ resolve(); };
+    req.onerror = function(e){ reject(e.target.error); };
+  });
+}
+
+function dbBulkPut(store, values){
+  return new Promise(function(resolve, reject){
+    var tx = db.transaction(store, "readwrite");
+    var os = tx.objectStore(store);
+    var count = 0;
+    values.forEach(function(v){
+      var r = os.put(v);
+      r.onsuccess = function(){ count++; if(count === values.length) resolve(count); };
+    });
+    tx.onerror = function(e){ reject(e.target.error); };
+  });
+}
+
+/* --- Corpus Data --- */
+var corpus = null;
+var selectedPassages = new Set();
+var currentWordList = [];
+var memoQueue = [];
+var memoIndex = 0;
+
+/* --- Utilities --- */
+function $(id){ return document.getElementById(id); }
+function el(tag, cls, html){
+  var e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(html !== undefined) e.innerHTML = html;
+  return e;
+}
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function toast(msg){
+  var t = $("toast"); t.textContent = msg; t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); }, 2500);
+}
+
+function wordId(word, source){
+  return source + "::" + word.toLowerCase().replace(/\s+/g, "-");
+}
+
+function tierLabel(tier){
+  return tier === 1 ? "Essential" : tier === 2 ? "Comprehension" : "Collocation";
+}
+
+function formatDate(ts){
+  if(!ts) return "-";
+  var d = new Date(ts);
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+
+function daysFromNow(days){
+  return Date.now() + days * 86400000;
+}
+
+/* SM-2-like spaced repetition */
+var SRS_INTERVALS = [1, 2, 4, 7, 14, 30, 60];
+function srsNext(currentLevel, quality){
+  /* quality: 0=hard, 1=medium, 2=easy */
+  if(quality === 0) return {level: Math.max(0, currentLevel), interval: 1, difficulty: "hard"};
+  if(quality === 1) return {level: Math.min(SRS_INTERVALS.length-1, currentLevel + 1), interval: SRS_INTERVALS[Math.min(SRS_INTERVALS.length-1, currentLevel + 1)], difficulty: "medium"};
+  return {level: Math.min(SRS_INTERVALS.length-1, currentLevel + 2), interval: SRS_INTERVALS[Math.min(SRS_INTERVALS.length-1, currentLevel + 2)], difficulty: "easy"};
+}
+
+/* --- Stage Navigation --- */
+function showStage(n){
+  document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+  document.querySelectorAll(".stage-panel").forEach(function(p){ p.classList.remove("active"); });
+  var tab = document.querySelector('.tab[data-stage="'+n+'"]');
+  var panel = $("stage" + n);
+  if(tab) tab.classList.add("active");
+  if(panel) panel.classList.add("active");
+  if(n === 2) renderWordTable();
+  if(n === 3) initMemorize();
+  if(n === 4) renderLibrary();
+}
+
+document.querySelectorAll(".tab").forEach(function(t){
+  t.addEventListener("click", function(){ showStage(parseInt(t.dataset.stage)); });
+});
+
+/* --- Stage 1: Upload / Corpus Browser --- */
+function initStage1(){
+  $("btnBrowseCorpus").addEventListener("click", function(){
+    $("corpusBrowser").style.display = "block";
+    if(corpus) renderPassageGrid();
+    else loadCorpus();
+  });
+  $("btnUpload").addEventListener("click", function(){ $("fileUpload").click(); });
+  $("fileUpload").addEventListener("change", handleFileUpload);
+  $("btnImport").addEventListener("click", function(){ $("fileImport").click(); });
+  $("fileImport").addEventListener("change", handleImportBackup);
+  $("btnSelectAll").addEventListener("click", selectAllFiltered);
+  $("btnClearAll").addEventListener("click", function(){ selectedPassages.clear(); renderPassageGrid(); });
+  $("btnLoadPassages").addEventListener("click", loadSelectedPassages);
+  $("filterCam").addEventListener("change", updateTestFilter);
+}
+
+function loadCorpus(){
+  fetch("reading-corpus.json").then(function(r){ return r.json(); }).then(function(data){
+    corpus = data;
+    renderPassageGrid();
+    populateCamFilter();
+  }).catch(function(e){
+    toast("Failed to load corpus: " + e.message);
+  });
+}
+
+function populateCamFilter(){
+  var cams = {};
+  corpus.passages.forEach(function(p){
+    cams[p.source.cambridge] = true;
+  });
+  var sel = $("filterCam");
+  Object.keys(cams).sort(function(a,b){ return parseInt(a) - parseInt(b); }).forEach(function(c){
+    var opt = document.createElement("option");
+    opt.value = c; opt.textContent = "Cam " + c;
+    sel.appendChild(opt);
+  });
+}
+
+function updateTestFilter(){
+  var cam = $("filterCam").value;
+  var sel = $("filterTest");
+  sel.innerHTML = '<option value="">All</option>';
+  if(!cam) return;
+  var tests = {};
+  corpus.passages.forEach(function(p){
+    if(String(p.source.cambridge) === cam) tests[p.source.test] = true;
+  });
+  Object.keys(tests).sort(function(a,b){ return parseInt(a) - parseInt(b); }).forEach(function(t){
+    var opt = document.createElement("option");
+    opt.value = t; opt.textContent = "Test " + t;
+    sel.appendChild(opt);
+  });
+}
+
+function renderPassageGrid(){
+  var grid = $("passageGrid");
+  grid.innerHTML = "";
+  var cam = $("filterCam").value;
+  var test = $("filterTest").value;
+
+  var filtered = corpus.passages.filter(function(p){
+    if(cam && String(p.source.cambridge) !== cam) return false;
+    if(test && String(p.source.test) !== test) return false;
+    return true;
+  });
+
+  filtered.forEach(function(p){
+    var item = el("div", "passage-item" + (selectedPassages.has(p.id) ? " selected" : ""));
+    item.innerHTML = '<div class="pl">' + esc(p.source.label) + '</div>' +
+      '<div class="ps">' + p.wordCount + ' words / ' + p.phraseCount + ' phrases</div>';
+    item.addEventListener("click", function(){
+      if(selectedPassages.has(p.id)) selectedPassages.delete(p.id);
+      else selectedPassages.add(p.id);
+      renderPassageGrid();
+    });
+    grid.appendChild(item);
+  });
+
+  $("corpusStats").textContent = selectedPassages.size + " passage" + (selectedPassages.size !== 1 ? "s" : "") + " selected";
+}
+
+function selectAllFiltered(){
+  var cam = $("filterCam").value;
+  var test = $("filterTest").value;
+  corpus.passages.forEach(function(p){
+    if((!cam || String(p.source.cambridge) === cam) && (!test || String(p.source.test) === test)){
+      selectedPassages.add(p.id);
+    }
+  });
+  renderPassageGrid();
+}
+
+async function loadSelectedPassages(){
+  if(selectedPassages.size === 0){ toast("Select at least one passage"); return; }
+
+  var allEntries = [];
+  selectedPassages.forEach(function(pid){
+    var p = corpus.passages.find(function(x){ return x.id === pid; });
+    if(!p) return;
+    p.part1.forEach(function(w){
+      allEntries.push(makeEntry(w, p, 1, "word"));
+    });
+    p.part2.forEach(function(w){
+      allEntries.push(makeEntry(w, p, 2, "word"));
+    });
+    p.part3.forEach(function(ph){
+      allEntries.push(makeEntry(ph, p, 3, "phrase"));
+    });
+  });
+
+  /* Merge into DB: only add new words, don't overwrite existing status */
+  var existing = await dbGetAll("words");
+  var existingMap = {};
+  existing.forEach(function(w){ existingMap[w.id] = w; });
+
+  var toPut = [];
+  allEntries.forEach(function(e){
+    if(!existingMap[e.id]){
+      toPut.push(e);
+    }
+  });
+
+  if(toPut.length > 0) await dbBulkPut("words", toPut);
+  currentWordList = allEntries;
+  toast("Loaded " + allEntries.length + " entries (" + toPut.length + " new)");
+  showStage(2);
+}
+
+function makeEntry(w, passage, tier, type){
+  var word = w.word || w.phrase || "";
+  var id = wordId(word, passage.id);
+  return {
+    id: id,
+    word: word,
+    phonetic: w.phonetic || "",
+    pos: w.pos || "",
+    meaning: w.meaning || "",
+    source: passage.id,
+    sourceLabel: passage.source.label,
+    cambridge: passage.source.cambridge,
+    test: passage.source.test,
+    passage: passage.source.passage,
+    tier: tier,
+    type: type,
+    status: "unmarked",
+    difficulty: "",
+    srsLevel: 0,
+    reviewCount: 0,
+    firstSeen: Date.now(),
+    lastReviewed: null,
+    nextReview: null
+  };
+}
+
+function handleFileUpload(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    var entries = [];
+    try {
+      if(file.name.endsWith(".json")){
+        var data = JSON.parse(reader.result);
+        if(Array.isArray(data)){
+          data.forEach(function(w){
+            entries.push({
+              id: wordId(w.word || w.phrase || "", "upload"),
+              word: w.word || w.phrase || "",
+              phonetic: w.phonetic || "",
+              pos: w.pos || "",
+              meaning: w.meaning || "",
+              source: "upload",
+              sourceLabel: "Uploaded",
+              cambridge: 0, test: 0, passage: 0,
+              tier: w.tier || 1,
+              type: w.type || "word",
+              status: "unmarked", difficulty: "", srsLevel: 0,
+              reviewCount: 0, firstSeen: Date.now(),
+              lastReviewed: null, nextReview: null
+            });
+          });
+        }
+      } else {
+        var lines = reader.result.trim().split("\n");
+        lines.forEach(function(line, i){
+          line = line.trim();
+          if(!line) return;
+          entries.push({
+            id: wordId(line, "upload"),
+            word: line,
+            phonetic: "", pos: "", meaning: "",
+            source: "upload", sourceLabel: "Uploaded",
+            cambridge: 0, test: 0, passage: 0,
+            tier: 1, type: "word",
+            status: "unmarked", difficulty: "", srsLevel: 0,
+            reviewCount: 0, firstSeen: Date.now(),
+            lastReviewed: null, nextReview: null
+          });
+        });
+      }
+      dbBulkPut("words", entries).then(function(){
+        toast("Imported " + entries.length + " words");
+        currentWordList = entries;
+        showStage(2);
+      });
+    } catch(err){
+      toast("Error: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+}
+
+async function handleImportBackup(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    try {
+      var data = JSON.parse(reader.result);
+      if(data.words && Array.isArray(data.words)){
+        dbBulkPut("words", data.words).then(function(){
+          toast("Restored " + data.words.length + " word records");
+        });
+      } else {
+        toast("Invalid backup format");
+      }
+    } catch(err){ toast("Error: " + err.message); }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+}
+
+/* --- Stage 2: Screen --- */
+function getFilteredWords(){
+  return dbGetAll("words").then(function(all){
+    var src = $("screenSource").value;
+    var tier = $("screenTier").value;
+    var status = $("screenStatus").value;
+    var search = $("screenSearch").value.toLowerCase().trim();
+
+    return all.filter(function(w){
+      if(src && w.source !== src) return false;
+      if(tier && String(w.tier) !== tier) return false;
+      if(status === "known" && w.status !== "known") return false;
+      if(status === "unknown" && w.status !== "unknown") return false;
+      if(status === "unmarked" && w.status !== "unmarked" && w.status) return false;
+      if(search){
+        if(w.word.toLowerCase().indexOf(search) < 0 && (w.meaning || "").toLowerCase().indexOf(search) < 0) return false;
+      }
+      return true;
+    }).sort(function(a,b){
+      if(a.tier !== b.tier) return a.tier - b.tier;
+      return a.word.localeCompare(b.word);
+    });
+  });
+}
+
+async function renderWordTable(){
+  var words = await getFilteredWords();
+  var tbody = $("wordTableBody");
+  tbody.innerHTML = "";
+
+  if(words.length === 0){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No words to display. Load passages from the Upload tab first.</td></tr>';
+  } else {
+    words.forEach(function(w){
+      var tr = el("tr");
+      var tierCls = "tier" + w.tier;
+      var knownActive = w.status === "known" ? " active" : "";
+      var unknownActive = w.status === "unknown" ? " active" : "";
+
+      tr.innerHTML =
+        '<td class="w-word">' + esc(w.word) + '</td>' +
+        '<td class="w-phon">' + esc(w.phonetic) + '</td>' +
+        '<td class="w-pos">' + esc(w.pos) + '</td>' +
+        '<td class="w-meaning">' + esc(w.meaning) + '</td>' +
+        '<td class="w-source">' + esc(w.sourceLabel) + '</td>' +
+        '<td class="w-tier ' + tierCls + '">' + tierLabel(w.tier) + '</td>' +
+        '<td class="w-action">' +
+          '<button class="w-btn known' + knownActive + '" data-id="' + esc(w.id) + '" data-status="known">Known</button> ' +
+          '<button class="w-btn unknown' + unknownActive + '" data-id="' + esc(w.id) + '" data-status="unknown">Unknown</button>' +
+        '</td>';
+      tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll(".w-btn").forEach(function(btn){
+      btn.addEventListener("click", async function(){
+        var id = btn.dataset.id;
+        var status = btn.dataset.status;
+        var w = await dbGet("words", id);
+        if(w){
+          w.status = status;
+          await dbPut("words", w);
+          renderWordTable();
+        }
+      });
+    });
+  }
+
+  $("screenStats").textContent = words.length + " words";
+  populateScreenSourceFilter();
+}
+
+function populateScreenSourceFilter(){
+  dbGetAll("words").then(function(all){
+    var sources = {};
+    all.forEach(function(w){ sources[w.source] = w.sourceLabel; });
+    var sel = $("screenSource");
+    var current = sel.value;
+    sel.innerHTML = '<option value="">All</option>';
+    Object.keys(sources).sort().forEach(function(s){
+      var opt = document.createElement("option");
+      opt.value = s; opt.textContent = sources[s];
+      sel.appendChild(opt);
+    });
+    sel.value = current;
+  });
+}
+
+$("screenSource").addEventListener("change", renderWordTable);
+$("screenTier").addEventListener("change", renderWordTable);
+$("screenStatus").addEventListener("change", renderWordTable);
+$("screenSearch").addEventListener("input", renderWordTable);
+
+$("btnMarkAllKnown").addEventListener("click", async function(){
+  var words = await getFilteredWords();
+  var updates = words.map(function(w){ w.status = "known"; return w; });
+  if(updates.length > 0) await dbBulkPut("words", updates);
+  toast("Marked " + updates.length + " words as known");
+  renderWordTable();
+});
+
+$("btnMarkAllUnknown").addEventListener("click", async function(){
+  var words = await getFilteredWords();
+  var updates = words.map(function(w){ w.status = "unknown"; return w; });
+  if(updates.length > 0) await dbBulkPut("words", updates);
+  toast("Marked " + updates.length + " words as unknown");
+  renderWordTable();
+});
+
+$("btnToMemorize").addEventListener("click", async function(){
+  var all = await dbGetAll("words");
+  memoQueue = all.filter(function(w){ return w.status === "unknown"; });
+  if(memoQueue.length === 0){ toast("No unknown words to memorize. Mark some words as Unknown first."); return; }
+  toast("Loaded " + memoQueue.length + " unknown words");
+  showStage(3);
+});
+
+/* --- Stage 3: Memorize --- */
+function initMemorize(){
+  if(memoQueue.length === 0){
+    $("flashcardArea").innerHTML = '<div class="s3-empty"><h3>No words in queue</h3><p>Go to Screen tab and mark words as Unknown to add them to your memorize queue.</p></div>';
+    $("memoProgress").textContent = "0 / 0";
+    return;
+  }
+  memoIndex = 0;
+  var order = $("memoOrder").value;
+  if(order === "random"){
+    memoQueue.sort(function(){ return Math.random() - 0.5; });
+  } else if(order === "difficulty"){
+    var orderMap = {"hard": 0, "medium": 1, "easy": 2, "": 3};
+    memoQueue.sort(function(a,b){ return (orderMap[a.difficulty] || 3) - (orderMap[b.difficulty] || 3); });
+  }
+  renderFlashcard();
+}
+
+function renderFlashcard(){
+  if(memoIndex >= memoQueue.length){
+    $("flashcardArea").innerHTML = '<div class="s3-empty"><h3>All done!</h3><p>You reviewed all ' + memoQueue.length + ' words in this session. Great work.</p></div>';
+    $("memoProgress").textContent = memoQueue.length + " / " + memoQueue.length;
+    return;
+  }
+
+  var w = memoQueue[memoIndex];
+  $("memoProgress").textContent = (memoIndex + 1) + " / " + memoQueue.length;
+
+  var mode = $("memoMode").value;
+  var dir = $("memoDir").value;
+
+  var front, back;
+  if(dir === "en-zh"){ front = w.word; back = w.meaning; }
+  else { front = w.meaning; back = w.word; }
+
+  var area = $("flashcardArea");
+  area.innerHTML = "";
+
+  var card = el("div", "flashcard");
+  card.id = "flashcard";
+
+  if(mode === "show"){
+    card.innerHTML =
+      '<div class="fc-word">' + esc(front) + '</div>' +
+      (w.phonetic && dir === "en-zh" ? '<div class="fc-phon">' + esc(w.phonetic) + '</div>' : '') +
+      '<div class="fc-pos">' + esc(w.pos) + '</div>' +
+      '<div class="fc-meaning hidden" id="fcMeaning">' + esc(back) + '</div>' +
+      '<div class="fc-hint">Click to reveal meaning</div>' +
+      '<div class="fc-source">' + esc(w.sourceLabel) + ' / ' + tierLabel(w.tier) + '</div>';
+    card.addEventListener("click", function(){
+      var m = $("fcMeaning");
+      if(m.classList.contains("hidden")){ m.classList.remove("hidden"); }
+    });
+    area.appendChild(card);
+
+    var actions = el("div", "fc-actions");
+    actions.innerHTML =
+      '<button class="fc-btn hard" id="fcHard">Hard</button>' +
+      '<button class="fc-btn show" id="fcShow">Show</button>' +
+      '<button class="fc-btn easy" id="fcEasy">Easy</button>';
+    area.appendChild(actions);
+
+    $("fcHard").addEventListener("click", function(){ memoNext(0); });
+    $("fcShow").addEventListener("click", function(){ $("fcMeaning").classList.remove("hidden"); });
+    $("fcEasy").addEventListener("click", function(){ memoNext(2); });
+  } else {
+    /* Test mode */
+    card.innerHTML =
+      '<div class="fc-word">' + esc(front) + '</div>' +
+      '<div class="fc-pos">' + esc(w.pos) + '</div>' +
+      '<input type="text" id="fcInput" placeholder="Type your answer..." style="margin-top:16px;padding:10px 14px;font-size:16px;border:2px solid var(--line);border-radius:8px;width:80%;text-align:center;font-family:inherit" autofocus>' +
+      '<div id="fcResult" style="margin-top:12px;font-size:14px"></div>' +
+      '<div class="fc-source">' + esc(w.sourceLabel) + '</div>';
+    area.appendChild(card);
+
+    var input = $("fcInput");
+    input.focus();
+    input.addEventListener("keydown", function(e){
+      if(e.key === "Enter"){
+        var val = input.value.trim().toLowerCase();
+        var target = back.toLowerCase();
+        var correct = val === target || target.indexOf(val) >= 0 || val.indexOf(target) >= 0;
+        $("fcResult").innerHTML = correct
+          ? '<span style="color:var(--green)">Correct! ' + esc(back) + '</span>'
+          : '<span style="color:var(--red)">Answer: ' + esc(back) + '</span>';
+
+        var actions = el("div", "fc-actions");
+        actions.style.marginTop = "16px";
+        actions.innerHTML =
+          '<button class="fc-btn hard" id="fcHard">Hard</button>' +
+          '<button class="fc-btn easy" id="fcEasy">Easy</button>';
+        area.appendChild(actions);
+        $("fcHard").addEventListener("click", function(){ memoNext(0); });
+        $("fcEasy").addEventListener("click", function(){ memoNext(correct ? 2 : 0); });
+      }
+    });
+  }
+}
+
+async function memoNext(quality){
+  var w = memoQueue[memoIndex];
+  var srs = srsNext(w.srsLevel || 0, quality);
+  w.srsLevel = srs.level;
+  w.difficulty = srs.difficulty;
+  w.reviewCount = (w.reviewCount || 0) + 1;
+  w.lastReviewed = Date.now();
+  w.nextReview = daysFromNow(srs.interval);
+  if(quality === 2) w.status = "known";
+  await dbPut("words", w);
+  memoIndex++;
+  renderFlashcard();
+}
+
+$("memoMode").addEventListener("change", renderFlashcard);
+$("memoOrder").addEventListener("change", initMemorize);
+$("memoDir").addEventListener("change", renderFlashcard);
+
+/* --- Stage 4: Library --- */
+async function renderLibrary(){
+  var all = await dbGetAll("words");
+
+  /* Stats */
+  var stats = {
+    total: all.length,
+    known: 0, unknown: 0, unmarked: 0,
+    easy: 0, medium: 0, hard: 0,
+    due: 0
+  };
+  var now = Date.now();
+  all.forEach(function(w){
+    if(w.status === "known") stats.known++;
+    else if(w.status === "unknown") stats.unknown++;
+    else stats.unmarked++;
+    if(w.difficulty === "easy") stats.easy++;
+    else if(w.difficulty === "medium") stats.medium++;
+    else if(w.difficulty === "hard") stats.hard++;
+    if(w.nextReview && w.nextReview <= now) stats.due++;
+  });
+
+  $("libStats").innerHTML =
+    statBox(stats.total, "Total") +
+    statBox(stats.unknown, "Unknown") +
+    statBox(stats.known, "Known") +
+    statBox(stats.due, "Review Due") +
+    statBox(stats.hard, "Hard") +
+    statBox(all.length - stats.unmarked, "Studied");
+
+  /* Source filter */
+  var sources = {};
+  all.forEach(function(w){ sources[w.source] = w.sourceLabel; });
+  var sel = $("libSource");
+  var current = sel.value;
+  sel.innerHTML = '<option value="">All</option>';
+  Object.keys(sources).sort().forEach(function(s){
+    var opt = document.createElement("option");
+    opt.value = s; opt.textContent = sources[s];
+    sel.appendChild(opt);
+  });
+  sel.value = current;
+
+  /* Table */
+  var filter = $("libFilter").value;
+  var srcFilter = $("libSource").value;
+  var search = $("libSearch").value.toLowerCase().trim();
+
+  var filtered = all.filter(function(w){
+    if(srcFilter && w.source !== srcFilter) return false;
+    if(search && w.word.toLowerCase().indexOf(search) < 0) return false;
+    if(filter === "unknown" && w.status !== "unknown") return false;
+    if(filter === "easy" && w.difficulty !== "easy") return false;
+    if(filter === "medium" && w.difficulty !== "medium") return false;
+    if(filter === "hard" && w.difficulty !== "hard") return false;
+    if(filter === "due" && (!w.nextReview || w.nextReview > now)) return false;
+    if(filter === "all" && w.status === "unmarked") return false;
+    return true;
+  }).sort(function(a,b){
+    if(a.nextReview && b.nextReview) return a.nextReview - b.nextReview;
+    if(a.nextReview) return -1;
+    if(b.nextReview) return 1;
+    return a.word.localeCompare(b.word);
+  });
+
+  var tbody = $("libTableBody");
+  tbody.innerHTML = "";
+
+  if(filtered.length === 0){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No matching records.</td></tr>';
+  } else {
+    filtered.forEach(function(w){
+      var tr = el("tr");
+      var diffCls = w.difficulty === "easy" ? "diff-easy" : w.difficulty === "medium" ? "diff-medium" : w.difficulty === "hard" ? "diff-hard" : "";
+      var due = w.nextReview && w.nextReview <= now;
+      var nextReviewText = w.nextReview ? formatDate(w.nextReview) : "-";
+      if(due) nextReviewText = '<span class="review-due">' + nextReviewText + '</span>';
+
+      tr.innerHTML =
+        '<td class="l-word">' + esc(w.word) + '</td>' +
+        '<td class="l-meaning">' + esc(w.meaning) + '</td>' +
+        '<td class="l-source">' + esc(w.sourceLabel) + '</td>' +
+        '<td class="l-date">' + formatDate(w.firstSeen) + '</td>' +
+        '<td class="l-diff ' + diffCls + '">' + (w.difficulty || "-") + '</td>' +
+        '<td class="l-review">' + (w.reviewCount || 0) + '</td>' +
+        '<td class="l-review">' + nextReviewText + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+}
+
+function statBox(val, label){
+  return '<div class="s4-stat"><div class="v">' + val + '</div><div class="l">' + label + '</div></div>';
+}
+
+$("libFilter").addEventListener("change", renderLibrary);
+$("libSource").addEventListener("change", renderLibrary);
+$("libSearch").addEventListener("input", renderLibrary);
+
+$("btnExport").addEventListener("click", async function(){
+  var all = await dbGetAll("words");
+  var data = {
+    exportDate: new Date().toISOString(),
+    version: 1,
+    wordCount: all.length,
+    words: all
+  };
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "ielts-reading-vocab-backup-" + formatDate(Date.now()) + ".json";
+  a.click();
+  toast("Exported " + all.length + " records");
+});
+
+$("btnClearData").addEventListener("click", async function(){
+  if(confirm("This will permanently delete all your vocabulary data. This cannot be undone. Are you sure?")){
+    await dbClear("words");
+    toast("All data cleared");
+    renderLibrary();
+  }
+});
+
+/* --- Init --- */
+dbOpen().then(function(){
+  initStage1();
+  console.log("Reading Vocabulary module initialized");
+});
+</script>
+</body>
+</html>
