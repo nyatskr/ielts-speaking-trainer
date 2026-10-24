@@ -155,7 +155,7 @@ audio{width:100%;margin:6px 0 18px}
   var P = window.PRACTICE_PROJECT || { title:"", topics:[] };
   var T = window.PRACTICE_TIMESTAMPS || {};
   var done = {};
-  var DONE_KEY = "ielts-practice-done-" + (P.title || "default");
+  var DONE_KEY = "ielts-practice-done-" + (P.projectId || P.title || "default").replace(/[^a-zA-Z0-9-]/g,"").toLowerCase().slice(0,60);
   var audios = [];
   var currentAudio = null;
   var segMode = false, segEnd = 0, blockJump = false, autoPlay = true;
@@ -197,7 +197,7 @@ audio{width:100%;margin:6px 0 18px}
       a.href = "#t" + num;
       a.id = "nav" + num;
       a.innerHTML = '<span class="n">' + pad(num) + '</span><span>' + esc(t.title || ("Topic " + num)) + '</span>';
-      if (done[num]) a.className = "done";
+      if (done[t.id]) a.className = "done";
       a.addEventListener("click", function(e){
         e.preventDefault();
         document.getElementById("t" + num).scrollIntoView({behavior:"smooth", block:"start"});
@@ -219,6 +219,7 @@ audio{width:100%;margin:6px 0 18px}
       var a = document.createElement("article");
       a.className = "topic";
       a.id = "t" + num;
+      a.setAttribute("data-tid", t.id || ("topic-" + num));
 
       var meta = t.part === 1
         ? (t.items ? t.items.length + " questions" : "")
@@ -234,13 +235,12 @@ audio{width:100%;margin:6px 0 18px}
       if (t.part === 1){
         /* Part 1: Q/A pairs */
         (t.items || []).forEach(function(it){
-          var q = esc(it.question);
           html += '<div class="qa">' +
             '<div class="row"><div class="tag ex">EXAMINER</div>' +
-            '<div class="txt q">' + blkHTML(src, bi++, q, "q") + '</div></div>';
+            '<div class="txt q">' + blkHTML(src, bi++, it.question, "q") + '</div></div>';
           if (it.answer){
             html += '<div class="row"><div class="tag you">CANDIDATE</div>' +
-              '<div class="txt a">' + blkHTML(src, bi++, esc(it.answer), "a") + '</div></div>';
+              '<div class="txt a">' + blkHTML(src, bi++, it.answer, "a") + '</div></div>';
           } else {
             html += '<div class="row"><div class="tag you">CANDIDATE</div>' +
               '<div class="txt pending">Answer pending.</div></div>';
@@ -254,7 +254,7 @@ audio{width:100%;margin:6px 0 18px}
         if (t.cue){
           html += '<div class="part-label">PART 2 / CUE CARD</div>' +
             '<div class="cuecard"><div class="cs">EXAMINER</div>' +
-            '<div class="cm">' + blkHTML(src, bi++, esc(t.cue.main), "q") + '</div>';
+            '<div class="cm">' + blkHTML(src, bi++, t.cue.main, "q") + '</div>';
           if (t.cue.bullets && t.cue.bullets.length){
             html += '<div class="cs">YOU SHOULD SAY</div><ul>';
             t.cue.bullets.forEach(function(b){
@@ -270,7 +270,7 @@ audio{width:100%;margin:6px 0 18px}
         if (t.answer && t.answer.length){
           t.answer.forEach(function(p){
             html += '<div class="row"><div class="tag you">CANDIDATE</div>' +
-              '<div class="txt a">' + blkHTML(src, bi++, esc(p), "a") + '</div></div>';
+              '<div class="txt a">' + blkHTML(src, bi++, p, "a") + '</div></div>';
           });
         } else {
           html += '<div class="pending">Answer pending.</div>';
@@ -282,10 +282,10 @@ audio{width:100%;margin:6px 0 18px}
           t.discussion.forEach(function(d){
             html += '<div class="qa">' +
               '<div class="row"><div class="tag ex">EXAMINER</div>' +
-              '<div class="txt q">' + blkHTML(src, bi++, esc(d.question), "q") + '</div></div>';
+              '<div class="txt q">' + blkHTML(src, bi++, d.question, "q") + '</div></div>';
             if (d.answer){
               html += '<div class="row"><div class="tag you">CANDIDATE</div>' +
-                '<div class="txt a">' + blkHTML(src, bi++, esc(d.answer), "a") + '</div></div>';
+                '<div class="txt a">' + blkHTML(src, bi++, d.answer, "a") + '</div></div>';
             } else {
               html += '<div class="row"><div class="tag you">CANDIDATE</div>' +
                 '<div class="txt pending">Answer pending.</div></div>';
@@ -297,7 +297,7 @@ audio{width:100%;margin:6px 0 18px}
 
       /* completion checkbox */
       html += '<div class="done-row"><label>' +
-        '<input type="checkbox" data-t="' + num + '"' + (done[num] ? " checked" : "") + '>' +
+        '<input type="checkbox" data-tid="' + esc(t.id) + '"' + (done[t.id] ? " checked" : "") + '>' +
         'Mark as completed</label></div>';
 
       a.innerHTML = html;
@@ -307,8 +307,8 @@ audio{width:100%;margin:6px 0 18px}
     /* wire checkboxes */
     topicsEl.querySelectorAll('.done-row input[type="checkbox"]').forEach(function(cb){
       cb.addEventListener("change", function(){
-        var t = parseInt(cb.getAttribute("data-t"));
-        if (cb.checked) done[t] = 1; else delete done[t];
+        var tid = cb.getAttribute("data-tid");
+        if (cb.checked) done[tid] = 1; else delete done[tid];
         saveDone();
         renderNav();
       });
@@ -340,8 +340,9 @@ audio{width:100%;margin:6px 0 18px}
         document.getElementById("progBar").style.width = pct + "%";
       });
       x.addEventListener("ended", function(){
-        var n = parseInt(x.closest("article").id.replace("t",""));
-        if (!done[n]){ done[n] = 1; saveDone(); renderNav(); }
+        var art = x.closest("article");
+        var tid = art ? art.getAttribute("data-tid") : null;
+        if (tid && !done[tid]){ done[tid] = 1; saveDone(); renderNav(); }
         document.getElementById("progBar").style.width = "0%";
         if (autoPlay){
           for (var j = i + 1; j < audios.length; j++){
