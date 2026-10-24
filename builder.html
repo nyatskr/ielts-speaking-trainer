@@ -1085,10 +1085,11 @@ C: I think the main benefit is learning about different cultures and widening yo
     var dataScript = '<script>window.PRACTICE_PROJECT=' + JSON.stringify(projData) + ';window.PRACTICE_TIMESTAMPS=' + JSON.stringify(tsData) + ';</scr' + 'ipt>';
     var coreScript = '<scr' + 'ipt>\n' + PRACTICE_CORE_JS + '\n</scr' + 'ipt>';
 
-    /* The template has <script src="practice-data.js"></script> placeholder.
-       We replace it with inline data + core JS. */
+    /* The template has a <script src="practice-data.js"> element plus its closing tag.
+       We replace it with inline data + core JS. (The inlined HTML skeleton has no
+       placeholder, so inject right before </body>.) */
     var html = templateHtml
-      .replace('<script src="practice-data.js"></script>', dataScript + "\n" + coreScript);
+      .replace('</body>', dataScript + "\n" + coreScript + "\n</body>");
 
     return html;
   }
