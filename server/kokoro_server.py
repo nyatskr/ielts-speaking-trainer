@@ -32,6 +32,7 @@ Usage:
 
 import json
 import io
+import os
 import base64
 import threading
 import sys
@@ -136,7 +137,27 @@ class Handler(BaseHTTPRequestHandler):
             ]
             self._send_json(200, {"voices": voices})
         elif self.path == "/health":
-            self._send_json(200, {"status": "ok"})
+            self._send_json(200, {"status": "ok", "build": "v2-speed", "supports_speed": True})
+        elif self.path == "/version":
+            # Report the ACTUAL file this process loaded, so we can prove
+            # whether the running server is the current build.
+            import os as _os
+            import hashlib as _hl
+            this_file = _os.path.abspath(__file__)
+            try:
+                with open(this_file, "rb") as f:
+                    digest = _hl.sha256(f.read()).hexdigest()[:12]
+            except Exception:
+                digest = "unreadable"
+            self._send_json(200, {
+                "build": "v2-speed",
+                "loaded_from": this_file,
+                "cwd": _os.getcwd(),
+                "file_mtime": _os.path.getmtime(this_file) if _os.path.exists(this_file) else 0,
+                "file_sha256_12": digest,
+                "pid": _os.getpid(),
+                "supports_speed": True
+            })
         else:
             self.send_response(404)
             self._cors()
@@ -196,8 +217,33 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         print(f"[http] {args[0]}")
 
+class Server(ThreadingHTTPServer):
+    """ThreadingHTTPServer that refuses to start when the port is already taken.
+
+    On Windows, the stdlib default allow_reuse_address=1 lets a second
+    process bind the same port silently. The old process keeps serving
+    every request while the new one prints "Ready" and looks healthy.
+    Disabling it makes the bind fail loudly instead.
+    """
+    allow_reuse_address = False
+    daemon_threads = True
+
+
+def port_in_use(port, host="127.0.0.1"):
+    """Return True if something is already listening on host:port."""
+    import socket as _socket
+    s = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+    s.settimeout(0.5)
+    try:
+        return s.connect_ex((host, port)) == 0
+    finally:
+        s.close()
+
+
 def main():
     print("[server] Kokoro TTS server v2 -- speed parameter enabled", flush=True)
+    print(f"[server] Code file: {os.path.abspath(__file__)}", flush=True)
+
     try:
         import torch
         cuda = torch.cuda.is_available()
@@ -207,8 +253,26 @@ def main():
     except ImportError:
         print("[torch] not found, will use CPU")
 
+    if port_in_use(PORT):
+        print("")
+        print("=" * 60)
+        print(f"ERROR: port {PORT} is ALREADY IN USE by another process.")
+        print("An older server instance is still running and would keep")
+        print("serving requests, so this new one would never be reached.")
+        print("")
+        print("Fix: close EVERY Kokoro server window, then start this one")
+        print("      again. (Task Manager -> look for python.exe)")
+        print("=" * 60)
+        print("")
+        sys.exit(1)
+
     print(f"[server] Starting on http://localhost:{PORT}")
-    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
+    try:
+        server = Server(("127.0.0.1", PORT), Handler)
+    except OSError as e:
+        print(f"[server] ERROR: cannot bind port {PORT}: {e}")
+        sys.exit(1)
+
     print(f"[server] Ready. Open builder.html and point it to http://localhost:{PORT}")
     print("[server] Warming up the model (first run downloads if needed)...", flush=True)
     try:

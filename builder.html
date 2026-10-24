@@ -333,8 +333,13 @@ C: I think the main benefit is learning about different cultures and widening yo
     fetch(url).then(function(r){ return r.json(); }).then(function(d){
       if (d.status === "ok"){
         setConn(true, "Connected");
-        $("engineSub").textContent = "Kokoro engine ready";
-        logLine("engine connected", "ok");
+        if (d.build === "v2-speed"){
+          $("engineSub").textContent = "Kokoro engine ready (speed enabled)";
+          logLine("engine connected - build " + d.build, "ok");
+        } else {
+          $("engineSub").textContent = "Kokoro engine ready (OLD BUILD)";
+          logLine("engine connected but this is an OLD server build - speed control will NOT work. Close the server window and run the launcher .bat again.", "er");
+        }
       } else {
         setConn(false, "Bad response");
         logLine("unexpected response: " + JSON.stringify(d), "er");
