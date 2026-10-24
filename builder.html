@@ -162,7 +162,7 @@ a{color:inherit}
     <div class="stage">
       <button type="button" class="dbtn" id="btnCheck">Check connection</button>
     </div>
-    <p class="note">Start the server: <code>python _build/kokoro_server.py</code> then click Check connection. The server runs locally on your machine and uses your GPU for fast generation. No API key, no cloud, no data leaves your computer.</p>
+    <p class="note">Start the server: <code>python server/kokoro_server.py</code> then click Check connection. The server runs locally on your machine and uses your GPU for fast generation. No API key, no cloud, no data leaves your computer.</p>
   </div>
 
   <div class="card">
@@ -334,7 +334,7 @@ C: I think the main benefit is learning about different cultures and widening yo
     }).catch(function(e){
       setConn(false, "Not reachable");
       logLine("cannot reach server: " + e.message, "er");
-      logLine("start it: python _build/kokoro_server.py", "mu");
+      logLine("start it: python server/kokoro_server.py", "mu");
       $("engineSub").textContent = "offline";
     });
   }
@@ -408,6 +408,7 @@ C: I think the main benefit is learning about different cultures and widening yo
   /* ---- voice test ---- */
   function testVoice(voice){
     var url = serverUrl() + "/generate";
+    var speedV = parseFloat($("speed").value) || 1.0;
     var sample = voice.indexOf("bf") === 0
       ? "Hello, my name is Emma. I am from London and I work as a teacher."
       : "Good morning. My name is George. Can you tell me your full name, please?";
@@ -416,7 +417,7 @@ C: I think the main benefit is learning about different cultures and widening yo
     fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ turns: [{ voice: voice, text: sample }], pause: 0 })
+      body: JSON.stringify({ turns: [{ voice: voice, text: sample }], pause: 0, speed: speedV })
     }).then(function(r){ return r.json(); }).then(function(d){
       if (d.error){ logLine("test error: " + d.error, "er"); return; }
       var audio = new Audio("data:audio/wav;base64," + d.audio);
@@ -444,6 +445,7 @@ C: I think the main benefit is learning about different cultures and widening yo
     var examV = $("examVoice").value;
     var candV = $("candVoice").value;
     var pauseV = parseFloat($("pause").value) || 0.4;
+    var speedV = parseFloat($("speed").value) || 1.0;
     var totalTopics = topics.length;
     var totalTurns = topics.reduce(function(s,t){ return s + t.turns.length; }, 0);
     var doneTurns = 0;
@@ -476,7 +478,7 @@ C: I think the main benefit is learning about different cultures and widening yo
       fetch(serverUrl() + "/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ turns: turns, pause: pauseV })
+        body: JSON.stringify({ turns: turns, pause: pauseV, speed: speedV })
       }).then(function(r){ return r.json(); }).then(function(d){
         if (d.error){
           logLine("topic " + (ti+1) + " error: " + d.error, "er");
@@ -605,7 +607,7 @@ C: I think the main benefit is learning about different cultures and widening yo
       "var ROLES=" + JSON.stringify(roles) + ";",
       "function pad(n){return String(n).padStart(2,'0')}",
       "Object.keys(BLOCKS).forEach(function(key){",
-      "  var div=document.createElement('div');div.className='topic';",
+      "  var div=document.createElement('div');div.className='topic';div.dataset.topicKey=key;",
       "  var h3=document.createElement('h3');h3.textContent='Topic '+key.replace('topic_','');div.appendChild(h3);",
       "  BLOCKS[key].forEach(function(text,bi){",
       "    var b=document.createElement('div');b.className='block';b.dataset.topic=key;b.dataset.idx=bi;",
@@ -621,7 +623,7 @@ C: I think the main benefit is learning about different cultures and widening yo
       "});",
       "function playBlock(topic,bi){",
       "  var tsArr=TS[topic+'.wav'][bi];if(!tsArr)return;",
-      "  var au=document.querySelector('.topic audio');",
+      "  var au=document.querySelector('.topic[data-topic-key=\"'+topic+'\"] audio');",
       "  document.querySelectorAll('.block.playing').forEach(function(b){b.classList.remove('playing')});",
       "  var blocks=document.querySelectorAll('[data-topic=\"'+topic+'\"]');",
       "  blocks[bi].classList.add('playing');",
