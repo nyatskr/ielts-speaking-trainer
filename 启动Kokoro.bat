@@ -8,6 +8,7 @@ set HF_ENDPOINT=https://hf-mirror.com
 echo ============================================
 echo  Kokoro TTS server starting...
 echo  http://localhost:8880
+echo  Build: speed-parameter-enabled (v2)
 echo  Close this window to stop the server.
 echo ============================================
 echo.

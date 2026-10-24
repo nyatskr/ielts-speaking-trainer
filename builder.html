@@ -253,8 +253,16 @@ C: I think the main benefit is learning about different cultures and widening yo
         <input id="pause" type="number" value="0.4" step="0.1" min="0" max="2">
       </div>
       <div class="field">
-        <span for="speed">Speech speed (1.0 = normal)</span>
-        <input id="speed" type="number" value="1.0" step="0.05" min="0.5" max="2">
+        <span for="speed">Speech speed</span>
+        <select id="speed">
+          <option value="0.5">0.50 - very slow (practice)</option>
+          <option value="0.75">0.75 - slow</option>
+          <option value="1.0" selected>1.00 - normal (exam pace)</option>
+          <option value="1.25">1.25 - slightly fast</option>
+          <option value="1.5">1.50 - fast</option>
+          <option value="1.75">1.75 - very fast</option>
+          <option value="2.0">2.00 - double speed</option>
+        </select>
       </div>
     </div>
     <div class="stage">
@@ -422,7 +430,11 @@ C: I think the main benefit is learning about different cultures and widening yo
       if (d.error){ logLine("test error: " + d.error, "er"); return; }
       var audio = new Audio("data:audio/wav;base64," + d.audio);
       audio.play();
-      logLine("test played (" + d.duration.toFixed(2) + "s)", "ok");
+      if (d.speed_used === undefined){
+        logLine("test played (" + d.duration.toFixed(2) + "s) - WARNING: server is an old build, speed is IGNORED. Restart the server.", "er");
+      } else {
+        logLine("test played (" + d.duration.toFixed(2) + "s) at speed " + d.speed_used, "ok");
+      }
     }).catch(function(e){
       logLine("test failed: " + e.message, "er");
     });
@@ -496,8 +508,13 @@ C: I think the main benefit is learning about different cultures and widening yo
           doneTurns += topic.turns.length;
           $("statTurns").textContent = doneTurns + "/" + totalTurns;
           $("statDur").textContent = d.duration.toFixed(1) + "s";
-          logLine("topic " + (ti+1) + " done: " + d.duration.toFixed(1) + "s, " +
-            d.timestamps.length + " timestamps", "ok");
+          if (d.speed_used === undefined){
+            logLine("topic " + (ti+1) + " done: " + d.duration.toFixed(1) + "s, " +
+              d.timestamps.length + " timestamps - WARNING: old server build, speed IGNORED. Restart it.", "er");
+          } else {
+            logLine("topic " + (ti+1) + " done: " + d.duration.toFixed(1) + "s, " +
+              d.timestamps.length + " timestamps @ speed " + d.speed_used, "ok");
+          }
         }
         var pct = ((ti+1) / totalTopics) * 100;
         $("progBar").style.width = pct + "%";

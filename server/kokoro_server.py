@@ -183,7 +183,9 @@ class Handler(BaseHTTPRequestHandler):
                 "audio": audio_b64,
                 "duration": round(duration, 3),
                 "timestamps": timestamps,
-                "sample_rate": 24000
+                "sample_rate": 24000,
+                "speed_used": speed,
+                "server_speed_supported": True
             }
             self._send_json(200, response)
             print(f"[generate] Done: {duration:.2f}s, {len(timestamps)} timestamps")
@@ -195,6 +197,7 @@ class Handler(BaseHTTPRequestHandler):
         print(f"[http] {args[0]}")
 
 def main():
+    print("[server] Kokoro TTS server v2 -- speed parameter enabled", flush=True)
     try:
         import torch
         cuda = torch.cuda.is_available()
@@ -207,6 +210,12 @@ def main():
     print(f"[server] Starting on http://localhost:{PORT}")
     server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
     print(f"[server] Ready. Open builder.html and point it to http://localhost:{PORT}")
+    print("[server] Warming up the model (first run downloads if needed)...", flush=True)
+    try:
+        get_pipeline()
+        print("[server] Model ready. You can now use builder.html.", flush=True)
+    except Exception as e:
+        print(f"[server] Warmup failed (will retry on first request): {e}", flush=True)
     server.serve_forever()
 
 if __name__ == "__main__":
