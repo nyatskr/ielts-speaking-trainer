@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IELTS Speaking Practice</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e7490'/%3E%3Cpath d='M6 14v4M11 10v12M16 6v20M21 10v12M26 14v4' stroke='white' stroke-width='2.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+<style>
+:root{
+  --ink:#101823; --ink2:#16222f; --ink3:#0c141d;
+  --bg:#f5f3ed; --card:#ffffff; --line:#e6e1d5;
+  --muted:#64707d; --text:#232c38;
+  --teal:#0e7490; --teal-deep:#0a4d63; --teal-bright:#2dd4bf;
+  --examiner:#1f4e5f; --candidate:#9a5b21;
+  --mono:"Consolas","Cascadia Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.7;font-size:16px}
+.en{font-family:Georgia,"Times New Roman",serif}
+
+/* sitebar */
+.sitebar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  background:#0b141d;color:#e6f0f4;padding:10px 22px;border-bottom:1px solid #1e3342}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none}
+.brand svg{width:30px;height:30px;flex:0 0 auto}
+.brand-name{font-weight:700;font-size:14.5px;letter-spacing:.2px;color:#e6f0f4}
+.brand-sub{font-size:10.5px;color:#8fb3c4;font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase}
+
+/* layout */
+.wrap{display:flex;max-width:1240px;margin:0 auto;gap:28px;padding:26px 20px 46px}
+.wrap nav{width:250px;flex:0 0 250px;position:sticky;top:62px;height:calc(100vh - 78px);overflow-y:auto;padding:18px 0}
+.wrap nav .nav-brand{font-size:14.5px;font-weight:700;color:var(--teal);margin-bottom:2px;display:block}
+.wrap nav .nav-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.wrap nav ol{list-style:none;margin:0;padding:0}
+.wrap nav li a{display:flex;gap:8px;align-items:baseline;padding:5px 10px;border-radius:8px;
+  color:#3f4651;text-decoration:none;font-size:13.5px;line-height:1.35;border-left:3px solid transparent;cursor:pointer}
+.wrap nav li a .n{color:var(--muted);font-size:11.5px;font-family:Georgia,serif;min-width:20px}
+.wrap nav li a:hover{background:#e6f3f1}
+.wrap nav li a.active{background:#e6f3f1;color:var(--teal);font-weight:600;border-left-color:var(--teal)}
+.wrap nav li a.done .n::after{content:" \2713";color:var(--teal)}
+
+main{flex:1;min-width:0;padding:0 0 20px}
+header.page{padding:14px 4px 22px;border-bottom:1px solid var(--line);margin-bottom:26px}
+header.page h1{margin:0 0 8px;font-size:27px}
+header.page p{margin:0;color:var(--muted);font-size:14.5px}
+.tools{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.tools select{padding:4px 8px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text);font-size:13px}
+.tools button{padding:5px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:var(--text)}
+.tools button:hover{border-color:var(--teal);color:var(--teal)}
+.tools label{cursor:pointer;user-select:none}
+
+/* topic card */
+article.topic{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:22px 26px;margin-bottom:26px;scroll-margin-top:76px;box-shadow:0 1px 2px rgba(30,40,50,.04)}
+article.topic h2{display:flex;align-items:baseline;gap:12px;margin:0 0 6px;font-size:22px}
+article.topic h2 .num{font-family:Georgia,serif;color:var(--teal);font-size:15px;
+  background:#e6f3f1;border-radius:999px;padding:2px 12px;white-space:nowrap}
+article.topic h2 .en-title{font-family:Georgia,serif}
+article.topic .meta{color:var(--muted);font-size:12.5px;margin-bottom:14px}
+audio{width:100%;margin:6px 0 18px}
+
+.part-label{margin:18px 0 10px;font-size:13px;font-weight:700;letter-spacing:1px;color:var(--teal)}
+.cuecard{background:#e6f3f1;border:1px solid #cfe5e2;border-radius:12px;padding:14px 16px}
+.cuecard .cs{font-size:12px;font-weight:700;letter-spacing:.8px;color:var(--examiner);margin-bottom:4px}
+.cuecard .cm{font-family:Georgia,serif;font-size:17px;color:#163844;margin-bottom:8px}
+.cuecard ul{margin:6px 0 0;padding-left:20px;font-family:Georgia,serif;font-size:15.5px;color:#27424d}
+.cuecard li{margin:2px 0}
+
+.qa{border-top:1px dashed var(--line);padding:14px 0}
+.qa:first-of-type{border-top:none}
+.row{display:flex;gap:12px;margin:0 0 10px}
+.tag{flex:0 0 78px;font-size:10.5px;font-weight:700;letter-spacing:.8px;padding-top:5px;text-align:right}
+.tag.ex{color:var(--examiner)} .tag.you{color:var(--candidate)}
+.txt{flex:1;min-width:0}
+.txt.q{font-family:Georgia,serif;font-size:16.5px;color:#1b2733}
+.txt.a{font-family:Georgia,serif;font-size:16px;color:#2b2f36}
+.pending{color:#9aa1ab;font-style:italic;font-size:14.5px}
+.done-row{display:flex;justify-content:flex-end;margin-top:10px}
+.done-row label{font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+.done-row input{margin-right:6px;accent-color:var(--teal)}
+
+/* click-to-play blocks */
+.blk{cursor:pointer;border-radius:8px;padding:3px 8px;margin:-3px -8px;transition:background .12s,box-shadow .12s;position:relative}
+.blk:hover{background:#eef4f3}
+.blk.active{background:#d8efec;box-shadow:inset 3px 0 0 var(--teal)}
+.blk .rep{display:inline-block;margin-left:8px;font-size:11px;font-family:var(--mono);color:var(--teal);
+  border:1px solid #bfe0db;border-radius:999px;padding:1px 8px;vertical-align:middle;opacity:0;transition:opacity .12s}
+.blk:hover .rep,.blk.active .rep{opacity:1}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:var(--teal-bright);z-index:100;transition:width .2s;width:0}
+@media(max-width:900px){
+  .wrap{flex-direction:column}
+  .wrap nav{width:100%;position:static;height:auto;max-height:none;border-bottom:1px solid var(--line);padding:10px 0}
+  .wrap nav ol{display:flex;flex-wrap:wrap;gap:4px}
+  .wrap nav li a{border-left:none;border-radius:6px;padding:4px 10px}
+}
+</style>
+</head>
+<body>
+
+<nav class="sitebar">
+  <a class="brand" href="#">
+    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="7" fill="#0e7490"/>
+      <path d="M6 14v4M11 10v12M16 6v20M21 10v12M26 14v4" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+    </svg>
+    <div>
+      <div class="brand-name" id="navTitle">IELTS Speaking Practice</div>
+      <div class="brand-sub">click-to-play audio trainer</div>
+    </div>
+  </a>
+</nav>
+
+<div class="progress-bar" id="progBar"></div>
+
+<div class="wrap">
+  <nav id="sidebar">
+    <span class="nav-brand">Topics</span>
+    <div class="nav-sub" id="navSub">0 topics</div>
+    <ol id="navlist"></ol>
+  </nav>
+  <main>
+    <header class="page">
+      <h1 id="pageTitle">IELTS Speaking Practice</h1>
+      <p id="pageSub">Click any block to play that segment. Audio plays sequentially with auto-advance.</p>
+      <div class="tools">
+        <label>Speed:
+          <select id="speed">
+            <option value="0.5">0.5x</option>
+            <option value="0.75">0.75x</option>
+            <option value="1" selected>1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="1.75">1.75x</option>
+            <option value="2">2x</option>
+          </select>
+        </label>
+        <label><input type="checkbox" id="autoPlay" checked> Auto-advance</label>
+        <button id="btnExpand">Expand all</button>
+        <button id="btnCollapse">Collapse all</button>
+        <span id="doneCount"></span>
+      </div>
+    </header>
+    <div id="topics"></div>
+  </main>
+</div>
+
+<script src="practice-data.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var P = window.PRACTICE_PROJECT || { title:"", topics:[] };
+  var T = window.PRACTICE_TIMESTAMPS || {};
+  var done = {};
+  var DONE_KEY = "ielts-practice-done-" + (P.title || "default");
+  var audios = [];
+  var currentAudio = null;
+  var segMode = false, segEnd = 0, blockJump = false, autoPlay = true;
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  function pad(n){ return String(n).padStart(2,"0"); }
+
+  function audioSrc(topic){
+    return "audio/topic_" + pad(topic.num || (topic._idx + 1)) + ".wav";
+  }
+
+  function tsFor(src){
+    var entry = T[src];
+    if (!entry) return null;
+    if (Array.isArray(entry)) return entry;  /* legacy format */
+    if (entry.segments) return entry.segments.map(function(s){ return [s.start, s.end]; });
+    return null;
+  }
+
+  function blkHTML(src, bi, text, extraClass){
+    return '<div class="blk ' + extraClass + '" data-src="' + esc(src) + '" data-block="' + bi + '">' +
+      esc(text) + ' <span class="rep">repeat</span></div>';
+  }
+
+  function loadDone(){ try { done = JSON.parse(localStorage.getItem(DONE_KEY) || "{}"); } catch(e){ done = {}; } }
+  function saveDone(){ localStorage.setItem(DONE_KEY, JSON.stringify(done)); updateProgress(); }
+
+  var navlist = document.getElementById("navlist");
+  var topicsEl = document.getElementById("topics");
+
+  function renderNav(){
+    navlist.innerHTML = "";
+    P.topics.forEach(function(t, idx){
+      var num = idx + 1;
+      var li = document.createElement("li");
+      var a = document.createElement("a");
+      a.href = "#t" + num;
+      a.id = "nav" + num;
+      a.innerHTML = '<span class="n">' + pad(num) + '</span><span>' + esc(t.title || ("Topic " + num)) + '</span>';
+      if (done[num]) a.className = "done";
+      a.addEventListener("click", function(e){
+        e.preventDefault();
+        document.getElementById("t" + num).scrollIntoView({behavior:"smooth", block:"start"});
+      });
+      li.appendChild(a);
+      navlist.appendChild(li);
+    });
+    document.getElementById("navSub").textContent = P.topics.length + " topics";
+  }
+
+  function renderTopics(){
+    topicsEl.innerHTML = "";
+    var bi = 0;
+    P.topics.forEach(function(t, idx){
+      var num = idx + 1;
+      t._idx = idx;
+      t.num = num;
+      var src = audioSrc(t);
+      var a = document.createElement("article");
+      a.className = "topic";
+      a.id = "t" + num;
+
+      var meta = t.part === 1
+        ? (t.items ? t.items.length + " questions" : "")
+        : "Cue card" + (t.discussion && t.discussion.length ? " + " + t.discussion.length + " discussion" : "");
+
+      var html = '<h2><span class="num">Topic ' + pad(num) + '</span>' +
+        '<span class="en-title">' + esc(t.title || ("Topic " + num)) + '</span></h2>' +
+        '<div class="meta">Part ' + t.part + (meta ? " / " + meta : "") + '</div>' +
+        '<audio controls preload="none" src="' + esc(src) + '"></audio>';
+
+      bi = 0;
+
+      if (t.part === 1){
+        /* Part 1: Q/A pairs */
+        (t.items || []).forEach(function(it){
+          var q = esc(it.question);
+          html += '<div class="qa">' +
+            '<div class="row"><div class="tag ex">EXAMINER</div>' +
+            '<div class="txt q">' + blkHTML(src, bi++, q, "q") + '</div></div>';
+          if (it.answer){
+            html += '<div class="row"><div class="tag you">CANDIDATE</div>' +
+              '<div class="txt a">' + blkHTML(src, bi++, esc(it.answer), "a") + '</div></div>';
+          } else {
+            html += '<div class="row"><div class="tag you">CANDIDATE</div>' +
+              '<div class="txt pending">Answer pending.</div></div>';
+          }
+          html += '</div>';
+        });
+      }
+
+      if (t.part >= 2){
+        /* Part 2: Cue card */
+        if (t.cue){
+          html += '<div class="part-label">PART 2 / CUE CARD</div>' +
+            '<div class="cuecard"><div class="cs">EXAMINER</div>' +
+            '<div class="cm">' + blkHTML(src, bi++, esc(t.cue.main), "q") + '</div>';
+          if (t.cue.bullets && t.cue.bullets.length){
+            html += '<div class="cs">YOU SHOULD SAY</div><ul>';
+            t.cue.bullets.forEach(function(b){
+              html += '<li>' + esc(b) + '</li>';
+            });
+            html += '</ul>';
+          }
+          html += '</div>';
+        }
+
+        /* Part 2: Answer */
+        html += '<div class="part-label">PART 2 / ANSWER</div>';
+        if (t.answer && t.answer.length){
+          t.answer.forEach(function(p){
+            html += '<div class="row"><div class="tag you">CANDIDATE</div>' +
+              '<div class="txt a">' + blkHTML(src, bi++, esc(p), "a") + '</div></div>';
+          });
+        } else {
+          html += '<div class="pending">Answer pending.</div>';
+        }
+
+        /* Part 3: Discussion */
+        if (t.discussion && t.discussion.length){
+          html += '<div class="part-label">PART 3 / DISCUSSION</div>';
+          t.discussion.forEach(function(d){
+            html += '<div class="qa">' +
+              '<div class="row"><div class="tag ex">EXAMINER</div>' +
+              '<div class="txt q">' + blkHTML(src, bi++, esc(d.question), "q") + '</div></div>';
+            if (d.answer){
+              html += '<div class="row"><div class="tag you">CANDIDATE</div>' +
+                '<div class="txt a">' + blkHTML(src, bi++, esc(d.answer), "a") + '</div></div>';
+            } else {
+              html += '<div class="row"><div class="tag you">CANDIDATE</div>' +
+                '<div class="txt pending">Answer pending.</div></div>';
+            }
+            html += '</div>';
+          });
+        }
+      }
+
+      /* completion checkbox */
+      html += '<div class="done-row"><label>' +
+        '<input type="checkbox" data-t="' + num + '"' + (done[num] ? " checked" : "") + '>' +
+        'Mark as completed</label></div>';
+
+      a.innerHTML = html;
+      topicsEl.appendChild(a);
+    });
+
+    /* wire checkboxes */
+    topicsEl.querySelectorAll('.done-row input[type="checkbox"]').forEach(function(cb){
+      cb.addEventListener("change", function(){
+        var t = parseInt(cb.getAttribute("data-t"));
+        if (cb.checked) done[t] = 1; else delete done[t];
+        saveDone();
+        renderNav();
+      });
+    });
+  }
+
+  /* ---- audio playback ---- */
+  function attachAudios(){
+    audios = [].slice.call(document.querySelectorAll("audio"));
+    audios.forEach(function(x, i){
+      x.addEventListener("play", function(){
+        audios.forEach(function(y){ if(y!==x){ y.pause(); } });
+        currentAudio = x;
+        if (!blockJump) segMode = false;
+      });
+      x.addEventListener("timeupdate", function(){
+        var src = x.getAttribute("src");
+        var ranges = tsFor(src);
+        if (!ranges) return;
+        var t = x.currentTime;
+        if (segMode && t >= segEnd){ x.pause(); segMode = false; return; }
+        for (var k = 0; k < ranges.length; k++){
+          if (t >= ranges[k][0] - 0.25 && t < ranges[k][1] + 0.25){
+            highlightBlock(src, k, x.closest("article")); break;
+          }
+        }
+        /* progress bar */
+        var pct = (t / (x.duration || 1)) * 100;
+        document.getElementById("progBar").style.width = pct + "%";
+      });
+      x.addEventListener("ended", function(){
+        var n = parseInt(x.closest("article").id.replace("t",""));
+        if (!done[n]){ done[n] = 1; saveDone(); renderNav(); }
+        document.getElementById("progBar").style.width = "0%";
+        if (autoPlay){
+          for (var j = i + 1; j < audios.length; j++){
+            audios[j].play().catch(function(){});
+            break;
+          }
+        }
+      });
+      x.addEventListener("pause", function(){
+        document.getElementById("progBar").style.width = "0%";
+      });
+    });
+  }
+
+  function highlightBlock(src, bi, article){
+    document.querySelectorAll(".blk.active").forEach(function(el){
+      el.classList.remove("active");
+    });
+    var el;
+    if (article){
+      el = article.querySelector('.blk[data-src="' + CSS.escape(src) + '"][data-block="' + bi + '"]');
+    } else {
+      el = document.querySelector('.blk[data-src="' + CSS.escape(src) + '"][data-block="' + bi + '"]');
+    }
+    if (el){
+      el.classList.add("active");
+      el.scrollIntoView({block:"nearest", behavior:"smooth"});
+    }
+  }
+
+  function jumpToBlock(src, bi, article, single){
+    var audio = null;
+    for (var i = 0; i < audios.length; i++){
+      if (audios[i].getAttribute("src") === src){ audio = audios[i]; break; }
+    }
+    if (!audio) return;
+    var ranges = ts_for(src);
+    if (!ranges || !ranges[bi]) return;
+    blockJump = true;
+    audio.currentTime = ranges[bi][0];
+    segMode = !!single; segEnd = ranges[bi][1];
+    audio.play().catch(function(){});
+    highlightBlock(src, bi, article);
+    setTimeout(function(){ blockJump = false; }, 80);
+  }
+
+  /* ---- block click handling ---- */
+  function wireBlocks(){
+    document.querySelectorAll(".blk").forEach(function(blk){
+      blk.addEventListener("click", function(){
+        var src = blk.getAttribute("data-src");
+        var bi = parseInt(blk.getAttribute("data-block"));
+        var article = blk.closest("article");
+        jumpToBlock(src, bi, article, true);
+      });
+    });
+  }
+
+  /* ---- speed ---- */
+  function applySpeed(){
+    var v = parseFloat(document.getElementById("speed").value);
+    audios.forEach(function(x){ x.playbackRate = v; });
+  }
+
+  /* ---- progress ---- */
+  function updateProgress(){
+    var total = P.topics.length;
+    var doneCount = Object.keys(done).length;
+    document.getElementById("doneCount").textContent = doneCount + "/" + total + " completed";
+  }
+
+  /* ---- sidebar active tracking ---- */
+  function wireSidebar(){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          var id = e.target.id.replace("t","");
+          document.querySelectorAll("#navlist a").forEach(function(a){ a.classList.remove("active"); });
+          var nav = document.getElementById("nav" + id);
+          if (nav) nav.classList.add("active");
+        }
+      });
+    }, { rootMargin: "-20% 0px -60% 0px" });
+    document.querySelectorAll("article.topic").forEach(function(art){ obs.observe(art); });
+  }
+
+  /* ---- expand/collapse ---- */
+  function toggleAll(show){
+    document.querySelectorAll("article.topic").forEach(function(a){
+      a.style.display = show ? "" : "none";
+    });
+  }
+
+  /* ---- init ---- */
+  document.getElementById("pageTitle").textContent = P.title || "IELTS Speaking Practice";
+  document.getElementById("navTitle").textContent = P.title || "IELTS Speaking Practice";
+
+  loadDone();
+  renderNav();
+  renderTopics();
+  attachAudios();
+  wireBlocks();
+  wireSidebar();
+  updateProgress();
+
+  document.getElementById("speed").addEventListener("change", applySpeed);
+  document.getElementById("autoPlay").addEventListener("change", function(){
+    autoPlay = this.checked;
+  });
+  document.getElementById("btnExpand").addEventListener("click", function(){ toggleAll(true); });
+  document.getElementById("btnCollapse").addEventListener("click", function(){ toggleAll(false); });
+
+})();
+</script>
+</body>
+</html>
