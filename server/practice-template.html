@@ -378,7 +378,7 @@ audio{width:100%;margin:6px 0 18px}
       if (audios[i].getAttribute("src") === src){ audio = audios[i]; break; }
     }
     if (!audio) return;
-    var ranges = ts_for(src);
+    var ranges = tsFor(src);
     if (!ranges || !ranges[bi]) return;
     blockJump = true;
     audio.currentTime = ranges[bi][0];
