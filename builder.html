@@ -168,28 +168,51 @@ a{color:inherit}
   <div class="card">
     <div class="ck">
       <span class="n">02</span>
-      <h2>Paste your IELTS script</h2>
+      <h2>Input script</h2>
       <span class="sub" id="parseSub">not parsed yet</span>
     </div>
     <div class="field wide">
-      <span for="script">Script (plain text)</span>
+      <span for="script">Script (plain text, Markdown, or paste JSON)</span>
       <textarea id="script" placeholder="Paste your IELTS speaking script here.
 
-Format:
-- Lines starting with E: = examiner
-- Lines starting with C: = candidate
-- A line with only --- = topic boundary
-- Part headers: Part 1, Part 2, Part 3
+Supported formats:
+  1. Plain text:  E: / C: / ---  (legacy)
+  2. Markdown:    # / ## / ### / Q: / A: / Cue: / bullets
+  3. JSON:        paste a standard project JSON
 
-Example:
-Part 1
-E: Good morning. Can you tell me your full name?
+--- Legacy format ---
+E: Good morning. Can you tell me your full name, please?
 C: My name is Emma Johnson.
-E: Can I see your identification?
-C: Sure, here you are.
 ---
 E: Let's talk about your hometown. Where is it?
-C: I'm from Manchester, in the north of England.">E: Good morning. Can you tell me your full name, please?
+C: I'm from Manchester, in the north of England.
+
+--- Markdown format ---
+# IELTS Speaking 2027 Jan-Apr
+
+## Part 1
+
+### Hometown
+
+Q: Where is your hometown?
+A: My hometown is Nanjing.
+
+## Part 2 & 3
+
+### A Place You Visited
+
+Cue: Describe a place you visited recently.
+- Where it was
+- When you went there
+- What you did there
+
+Answer:
+I'd like to talk about a trip I made last summer.
+
+### Discussion
+
+Q: Why do people enjoy travelling?
+A: I think the main reason is...">E: Good morning. Can you tell me your full name, please?
 C: My name is Emma Johnson.
 E: Can I see your identification?
 C: Sure, here you are.
@@ -207,11 +230,19 @@ C: I usually prefer travelling with friends because it's more fun and we can sha
 E: What are the benefits of travelling to new places?
 C: I think the main benefit is learning about different cultures and widening your perspective.</textarea>
     </div>
+    <div class="field wide" style="margin-top:10px">
+      <span>Or upload a file (.json / .md / .txt)</span>
+      <input type="file" id="fileInput" accept=".json,.md,.markdown,.txt" style="font-size:13px;color:#8fa8b8;background:#101c27;border:1px solid #1e3443;border-radius:8px;padding:8px 10px">
+    </div>
     <div class="stage">
       <button type="button" class="dbtn" id="btnParse">Parse script</button>
       <button type="button" class="dbtn" id="btnClearScript">Clear</button>
     </div>
-    <p class="note">Use <code>E:</code> for examiner lines and <code>C:</code> for candidate lines. Use <code>---</code> to separate topics. The parser automatically detects Part boundaries from long examiner prompts (Part 2 cue card) and question-style Part 3 follow-ups.</p>
+    <p class="note">
+      <b>Legacy:</b> <code>E:</code> examiner, <code>C:</code> candidate, <code>---</code> topic boundary.<br>
+      <b>Markdown:</b> <code>#</code> title, <code>##</code> Part, <code>###</code> topic, <code>Q:</code>/<code>A:</code> turns, <code>Cue:</code> cue card, bullets, <code>Answer:</code> and <code>Discussion</code> sections.<br>
+      <b>JSON:</b> paste a standard project JSON (schemaVersion 1). All three are auto-detected.
+    </p>
   </div>
 
   <div class="card" id="parsedCard" style="display:none">
@@ -314,8 +345,9 @@ C: I think the main benefit is learning about different cultures and widening yo
   "use strict";
 
   var $ = function(id){ return document.getElementById(id); };
-  var topics = [];   /* [{num, turns:[{role, text}]}] */
-  var results = [];  /* [{num, audio(WAV base64), duration, timestamps}] */
+  var project = null;  /* standardized project object */
+  var topics = [];     /* legacy: [{num, turns:[{role, text}]}] -- derived from project */
+  var results = [];    /* [{num, audio(WAV base64), duration, timestamps}] */
   var abort = false;
 
   /* ---- connection ---- */
@@ -352,14 +384,283 @@ C: I think the main benefit is learning about different cultures and widening yo
     });
   }
 
-  /* ---- script parser ---- */
+  /* ---- format auto-detection ---- */
+  function detectFormat(raw){
+    var trimmed = raw.trim();
+    /* JSON detection: starts with { */
+    if (trimmed.charAt(0) === "{"){ return "json"; }
+    /* Markdown detection: has # or ## or ### at line start, or Q:/A: patterns */
+    if (/^#{1,3}\s/m.test(trimmed) || /^Q:/m.test(trimmed) || /^A:/m.test(trimmed) || /^Cue:/m.test(trimmed)){
+      return "markdown";
+    }
+    /* Legacy: has E: or C: at line start */
+    if (/^[EC]:/im.test(trimmed)){ return "legacy"; }
+    /* Default to legacy if ambiguous */
+    return "legacy";
+  }
+
+  /* ---- main parse entry: auto-detect and route ---- */
   function parseScript(){
     var raw = $("script").value;
     if (!raw.trim()){ $("parseSub").textContent = "empty"; return; }
 
-    topics = [];
-    var current = { num: 0, turns: [] };
+    var fmt = detectFormat(raw);
+    logLine("detected format: " + fmt, "mu");
+
+    try {
+      if (fmt === "json"){
+        project = parseJSON(raw);
+      } else if (fmt === "markdown"){
+        project = parseMarkdown(raw);
+      } else {
+        project = parseLegacy(raw);
+      }
+      project = normalizeProject(project);
+    } catch(e){
+      logLine("parse error: " + e.message, "er");
+      $("parseSub").textContent = "parse error";
+      return;
+    }
+
+    /* derive legacy topics[] from project for generate() compatibility */
+    topics = flattenProject(project);
+
+    var turnCount = topics.reduce(function(s,t){ return s + t.turns.length; }, 0);
+    $("parseSub").textContent = project.topics.length + " topic" + (project.topics.length !== 1 ? "s" : "") +
+      " / " + turnCount + " turns";
+
+    renderParsed();
+    $("parsedCard").style.display = "";
+    $("voicesCard").style.display = "";
+    $("genCard").style.display = "";
+    logLine("parsed " + project.topics.length + " topics, " + turnCount + " turns (format: " + fmt + ")", "ok");
+  }
+
+  /* ---- JSON parser ---- */
+  function parseJSON(raw){
+    var obj = JSON.parse(raw);
+    if (!obj.topics || !Array.isArray(obj.topics)){
+      throw new Error("JSON must have a topics array");
+    }
+    return obj;
+  }
+
+  /* ---- Markdown parser ---- */
+  /*
+    Parses Markdown like:
+
+    # IELTS Speaking 2027 Jan-Apr
+
+    ## Part 1
+
+    ### Hometown
+    Q: Where is your hometown?
+    A: My hometown is Nanjing.
+
+    ## Part 2 & 3
+
+    ### A Place You Visited
+    Cue: Describe a place you visited recently.
+    - Where it was
+    - When you went there
+    - What you did there
+
+    Answer:
+    I'd like to talk about...
+
+    ### Discussion
+    Q: Why do people enjoy travelling?
+    A: I think the main reason is...
+  */
+  function parseMarkdown(raw){
     var lines = raw.split(/\r?\n/);
+    var title = "IELTS Speaking Practice";
+    var currentPart = 1;
+    var topics = [];
+    var currentTopic = null;
+    var section = null;  /* "qa" | "cue" | "answer" | "discussion" */
+    var answerLines = [];
+    var cueMain = "";
+    var cueBullets = [];
+    var discussion = [];
+
+    function pushTopic(){
+      if (!currentTopic) return;
+      if (answerLines.length){
+        currentTopic.answer = answerLines.slice();
+        answerLines = [];
+      }
+      if (cueMain){
+        currentTopic.cue = { main: cueMain, bullets: cueBullets.slice() };
+        cueMain = "";
+        cueBullets = [];
+      }
+      if (discussion.length){
+        currentTopic.discussion = discussion.slice();
+        discussion = [];
+      }
+      topics.push(currentTopic);
+      currentTopic = null;
+    }
+
+    for (var i = 0; i < lines.length; i++){
+      var line = lines[i];
+      var trimmed = line.trim();
+
+      /* H1: title */
+      var h1 = trimmed.match(/^#\s+(.+)$/);
+      if (h1){ title = h1[1]; continue; }
+
+      /* H2: Part header */
+      var h2 = trimmed.match(/^##\s+(.+)$/);
+      if (h2){
+        pushTopic();
+        var partText = h2[1].toLowerCase();
+        if (partText.indexOf("part 2") !== -1 || partText.indexOf("part 3") !== -1 || partText.indexOf("part 2 & 3") !== -1){
+          currentPart = 2;
+        } else if (partText.indexOf("part 1") !== -1){
+          currentPart = 1;
+        }
+        section = null;
+        continue;
+      }
+
+      /* H3: topic title */
+      var h3 = trimmed.match(/^###\s+(.+)$/);
+      if (h3){
+        pushTopic();
+        currentTopic = {
+          id: "topic-" + (topics.length + 1),
+          part: currentPart,
+          title: h3[1],
+          items: []
+        };
+        section = null;
+        continue;
+      }
+
+      if (!currentTopic && trimmed){
+        /* non-header text before any ### -- skip or start a default topic */
+        continue;
+      }
+
+      if (!trimmed){ continue; }
+
+      /* Section markers */
+      if (/^Answer:\s*$/i.test(trimmed)){ section = "answer"; continue; }
+      if (/^Discussion\s*$/i.test(trimmed)){ section = "discussion"; continue; }
+
+      /* Cue card main prompt */
+      var cueMatch = trimmed.match(/^Cue:\s*(.*)$/i);
+      if (cueMatch){
+        cueMain = cueMatch[1] || cueMatch[0].replace(/^Cue:\s*/i, "");
+        section = "cue";
+        continue;
+      }
+
+      /* Bullet points (for cue card) */
+      if (trimmed.charAt(0) === "-" || trimmed.charAt(0) === "*"){
+        var bulletText = trimmed.replace(/^[-*]\s*/, "");
+        if (section === "cue" || cueMain){
+          cueBullets.push(bulletText);
+        }
+        continue;
+      }
+
+      /* Q: / A: pairs */
+      var qMatch = trimmed.match(/^Q:\s*(.*)$/i);
+      var aMatch = trimmed.match(/^A:\s*(.*)$/i);
+
+      if (qMatch){
+        if (section === "answer" && answerLines.length){
+          /* new Q while in answer section -- flush answer to topic */
+          if (currentTopic && !currentTopic.answer){
+            currentTopic.answer = answerLines.slice();
+            answerLines = [];
+          }
+          section = null;
+        }
+        if (section === "discussion" || (currentTopic && currentTopic.part >= 2 && discussion.length)){
+          /* new discussion Q */
+          /* previous discussion item might have answer pending */
+        }
+        section = "qa";
+        if (!currentTopic.items) currentTopic.items = [];
+        currentTopic.items.push({ id: "q" + (currentTopic.items.length + 1), question: qMatch[1], answer: "" });
+        continue;
+      }
+
+      if (aMatch){
+        if (section === "qa" && currentTopic.items.length){
+          currentTopic.items[currentTopic.items.length - 1].answer = aMatch[1];
+        } else if (section === "discussion" && discussion.length){
+          discussion[discussion.length - 1].answer = aMatch[1];
+        }
+        continue;
+      }
+
+      /* Multi-line answer text (for Part 2 long answer) */
+      if (section === "answer" || (currentTopic && currentTopic.part >= 2 && !currentTopic.answer && !section)){
+        if (section !== "answer") section = "answer";
+        answerLines.push(trimmed);
+        continue;
+      }
+
+      /* Discussion Q without explicit Discussion header (Part 3 after Part 2) */
+      if (currentTopic && currentTopic.part >= 2 && !qMatch && !aMatch && !cueMatch && section !== "answer" && section !== "cue"){
+        /* could be discussion Q or A continuation */
+      }
+    }
+
+    /* flush last topic */
+    pushTopic();
+
+    /* post-process: if a Part 2 topic has discussion items, attach them */
+    /* also: if Part 2 topic has items without explicit Q/A, they're discussion questions */
+    var result = { schemaVersion: 1, title: title, topics: [] };
+    topics.forEach(function(t){
+      if (t.part >= 2){
+        /* Part 2/3 topic */
+        var topicObj = {
+          id: t.id,
+          part: 2,
+          title: t.title,
+          cue: t.cue || null,
+          answer: t.answer || [],
+          discussion: []
+        };
+        /* if items exist and no cue, treat items as discussion */
+        if (t.items && t.items.length){
+          topicObj.discussion = t.items.map(function(it){
+            return { id: it.id, question: it.question, answer: it.answer || "" };
+          });
+        }
+        if (t.discussion && t.discussion.length){
+          topicObj.discussion = topicObj.discussion.concat(t.discussion);
+        }
+        result.topics.push(topicObj);
+      } else {
+        /* Part 1 topic */
+        result.topics.push({
+          id: t.id,
+          part: 1,
+          title: t.title,
+          items: (t.items || []).map(function(it){
+            return { id: it.id, question: it.question, answer: it.answer || "", variants: [] };
+          })
+        });
+      }
+    });
+
+    return result;
+  }
+
+  /* ---- Legacy E:/C:/--- parser (returns standard project) ---- */
+  function parseLegacy(raw){
+    var lines = raw.split(/\r?\n/);
+    var topics = [];
+    var current = { turns: [] };
+    var topicNum = 0;
 
     for (var i = 0; i < lines.length; i++){
       var line = lines[i].trim();
@@ -367,10 +668,10 @@ C: I think the main benefit is learning about different cultures and widening yo
 
       if (line === "---"){
         if (current.turns.length){
-          current.num = topics.length + 1;
-          topics.push(current);
+          topicNum++;
+          topics.push(buildLegacyTopic(topicNum, current.turns));
         }
-        current = { num: 0, turns: [] };
+        current = { turns: [] };
         continue;
       }
 
@@ -379,34 +680,143 @@ C: I think the main benefit is learning about different cultures and widening yo
         var role = m[1].toUpperCase() === "E" ? "examiner" : "candidate";
         current.turns.push({ role: role, text: m[2] });
       } else {
-        /* continuation of previous turn, or standalone */
         if (current.turns.length){
           current.turns[current.turns.length - 1].text += " " + line;
         }
       }
     }
     if (current.turns.length){
-      current.num = topics.length + 1;
-      topics.push(current);
+      topicNum++;
+      topics.push(buildLegacyTopic(topicNum, current.turns));
     }
 
-    $("parseSub").textContent = topics.length + " topic" + (topics.length !== 1 ? "s" : "") +
-      " / " + topics.reduce(function(s,t){ return s + t.turns.length; }, 0) + " turns";
+    return { schemaVersion: 1, title: "IELTS Speaking Practice", topics: topics };
+  }
 
-    renderParsed();
-    $("parsedCard").style.display = "";
-    $("voicesCard").style.display = "";
-    $("genCard").style.display = "";
-    logLine("parsed " + topics.length + " topics, " +
-      topics.reduce(function(s,t){ return s + t.turns.length; }, 0) + " turns", "ok");
+  /* Convert legacy E/C turns into standard topic structure */
+  function buildLegacyTopic(num, turns){
+    /* Heuristic: if first turn is a long examiner prompt about "describe", treat as Part 2 */
+    var firstText = turns.length ? turns[0].text.toLowerCase() : "";
+    var isPart2 = /describe|i'd like you to|part 2/i.test(firstText) && turns.length >= 2;
+
+    if (isPart2){
+      var cueText = turns[0].text;
+      var answerTexts = [];
+      var discussion = [];
+      var inDiscussion = false;
+
+      for (var i = 1; i < turns.length; i++){
+        if (turns[i].role === "candidate" && !inDiscussion){
+          answerTexts.push(turns[i].text);
+        } else if (turns[i].role === "examiner" && i > 1){
+          inDiscussion = true;
+          discussion.push({ id: "p3q" + (discussion.length + 1), question: turns[i].text, answer: "" });
+        } else if (turns[i].role === "candidate" && inDiscussion && discussion.length){
+          discussion[discussion.length - 1].answer = turns[i].text;
+        }
+      }
+
+      return {
+        id: "legacy-" + num,
+        part: 2,
+        title: "Topic " + num,
+        cue: { main: cueText, bullets: [] },
+        answer: answerTexts,
+        discussion: discussion
+      };
+    }
+
+    /* Part 1: pair E/C turns into Q/A items */
+    var items = [];
+    for (var j = 0; j < turns.length; j++){
+      if (turns[j].role === "examiner"){
+        var q = turns[j].text;
+        var a = (j + 1 < turns.length && turns[j+1].role === "candidate") ? turns[j+1].text : "";
+        items.push({ id: "q" + (items.length + 1), question: q, answer: a, variants: [] });
+        if (a) j++;
+      }
+    }
+
+    return {
+      id: "legacy-" + num,
+      part: 1,
+      title: "Topic " + num,
+      items: items
+    };
+  }
+
+  /* ---- normalizeProject: validate + fill defaults ---- */
+  function normalizeProject(proj){
+    if (!proj) throw new Error("null project");
+    if (!proj.topics || !Array.isArray(proj.topics)){
+      throw new Error("project must have a topics array");
+    }
+    if (!proj.schemaVersion) proj.schemaVersion = 1;
+    if (!proj.title) proj.title = "IELTS Speaking Practice";
+
+    proj.topics.forEach(function(t, idx){
+      if (!t.id) t.id = "topic-" + (idx + 1);
+      if (!t.part) t.part = 1;
+      if (!t.title) t.title = "Topic " + (idx + 1);
+      if (t.part === 1 && !t.items) t.items = [];
+      if (t.part >= 2){
+        if (!t.cue) t.cue = null;
+        if (!t.answer) t.answer = [];
+        if (!t.discussion) t.discussion = [];
+      }
+    });
+
+    return proj;
+  }
+
+  /* ---- flattenProject: convert standard project -> legacy topics[] for generate() ---- */
+  /*
+    For each topic, produces [{role, text}] turns:
+      Part 1: examiner(Q) / candidate(A) alternating
+      Part 2: examiner(cue) / candidate(answer) / examiner(discussion Q) / candidate(discussion A)
+  */
+  function flattenProject(proj){
+    var topics = [];
+    proj.topics.forEach(function(t, idx){
+      var turns = flattenTopic(t);
+      topics.push({ num: idx + 1, turns: turns, title: t.title, part: t.part, topicId: t.id });
+    });
+    return topics;
+  }
+
+  function flattenTopic(t){
+    var turns = [];
+
+    if (t.part === 1){
+      (t.items || []).forEach(function(it){
+        if (it.question) turns.push({ role: "examiner", text: it.question, turnId: it.id + "-q" });
+        if (it.answer) turns.push({ role: "candidate", text: it.answer, turnId: it.id + "-a" });
+      });
+    }
+
+    if (t.part >= 2){
+      if (t.cue && t.cue.main){
+        turns.push({ role: "examiner", text: t.cue.main, turnId: t.id + "-cue" });
+      }
+      (t.answer || []).forEach(function(a, i){
+        turns.push({ role: "candidate", text: a, turnId: t.id + "-a" + (i+1) });
+      });
+      (t.discussion || []).forEach(function(d){
+        if (d.question) turns.push({ role: "examiner", text: d.question, turnId: d.id + "-q" });
+        if (d.answer) turns.push({ role: "candidate", text: d.answer, turnId: d.id + "-a" });
+      });
+    }
+
+    return turns;
   }
 
   function renderParsed(){
-    var html = "<table><thead><tr><th>#</th><th>Role</th><th>Text</th></tr></thead><tbody>";
+    var html = "<table><thead><tr><th>Topic</th><th>Part</th><th>Role</th><th>Text</th></tr></thead><tbody>";
     topics.forEach(function(t){
       t.turns.forEach(function(turn, idx){
         html += '<tr>' +
-          (idx === 0 ? '<td rowspan="' + t.turns.length + '" style="vertical-align:top;font-weight:600;color:#c084d0">' + t.num + '</td>' : '') +
+          (idx === 0 ? '<td rowspan="' + t.turns.length + '" style="vertical-align:top;font-weight:600;color:#c084d0">' + t.num + '</td>' +
+           '<td rowspan="' + t.turns.length + '" style="vertical-align:top;font-size:11px;color:#7d94a4">P' + t.part + '</td>' : (idx === 0 ? '<td></td><td></td>' : '')) +
           '<td class="role-' + (turn.role === "examiner" ? "e" : "c") + '">' +
             (turn.role === "examiner" ? "E" : "C") + '</td>' +
           '<td class="turn-text">' + esc(turn.text.slice(0, 120)) + (turn.text.length > 120 ? "..." : "") + '</td>' +
@@ -415,7 +825,8 @@ C: I think the main benefit is learning about different cultures and widening yo
     });
     html += "</tbody></table>";
     $("turnsPreview").innerHTML = html;
-    $("turnsSub").textContent = topics.length + " topic" + (topics.length !== 1 ? "s" : "");
+    $("turnsSub").textContent = topics.length + " topic" + (topics.length !== 1 ? "s" : "") +
+      " / " + (project ? project.title : "");
   }
 
   /* ---- voice test ---- */
@@ -557,28 +968,46 @@ C: I think the main benefit is learning about different cultures and widening yo
 
     var files = [];
 
-    /* project.json */
-    var project = {
-      title: "IELTS Speaking Practice",
+    /* project.json -- standard schema */
+    var stdProject = {
+      schemaVersion: 1,
+      title: project ? project.title : "IELTS Speaking Practice",
       generated: new Date().toISOString(),
       topics: results.map(function(r){
+        var topic = project.topics[r.num - 1] || {};
+        var flat = topics[r.num - 1] || {};
         return {
-          num: r.num,
-          blocks: r.turns.map(function(t){ return t.text; }),
-          roles: r.turns.map(function(t){ return t.role; }),
-          src: "audio/topic_" + pad(r.num) + ".wav",
-          duration: r.duration
+          id: topic.id || ("topic-" + r.num),
+          part: topic.part || flat.part || 1,
+          title: topic.title || ("Topic " + r.num),
+          items: topic.items || [],
+          cue: topic.cue || null,
+          answer: topic.answer || [],
+          discussion: topic.discussion || [],
+          audio: {
+            src: "audio/topic_" + pad(r.num) + ".wav",
+            duration: r.duration,
+            segments: r.turns.map(function(t, i){
+              var ts = r.timestamps[i] || [0, 0];
+              return { turnId: t.turnId || ("turn-" + i), role: t.role, start: ts[0], end: ts[1] };
+            })
+          }
         };
       })
     };
-    files.push({ name: "project.json", data: new TextEncoder().encode(JSON.stringify(project, null, 2)) });
+    files.push({ name: "project.json", data: new TextEncoder().encode(JSON.stringify(stdProject, null, 2)) });
 
-    /* timestamps.json */
-    var ts = {};
+    /* timestamps.json -- segments with turnId and role */
+    var tsObj = {};
     results.forEach(function(r){
-      ts["topic_" + pad(r.num) + ".wav"] = r.timestamps;
+      tsObj["topic_" + pad(r.num) + ".wav"] = {
+        segments: r.turns.map(function(t, i){
+          var tsVal = r.timestamps[i] || [0, 0];
+          return { turnId: t.turnId || ("turn-" + i), role: t.role, start: tsVal[0], end: tsVal[1] };
+        })
+      };
     });
-    files.push({ name: "timestamps.json", data: new TextEncoder().encode(JSON.stringify(ts, null, 2)) });
+    files.push({ name: "timestamps.json", data: new TextEncoder().encode(JSON.stringify(tsObj, null, 2)) });
 
     /* audio files (WAV from base64) */
     results.forEach(function(r){
@@ -783,14 +1212,29 @@ C: I think the main benefit is learning about different cultures and widening yo
   /* ---- wiring ---- */
   $("btnCheck").addEventListener("click", checkConn);
   $("btnParse").addEventListener("click", parseScript);
+  $("fileInput").addEventListener("change", function(e){
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      $("script").value = ev.target.result;
+      $("parseSub").textContent = "loaded: " + file.name;
+      logLine("file loaded: " + file.name + " (" + file.size + " bytes)", "mu");
+      /* auto-parse */
+      parseScript();
+    };
+    reader.readAsText(file);
+  });
   $("btnClearScript").addEventListener("click", function(){
     $("script").value = "";
+    $("fileInput").value = "";
     $("parseSub").textContent = "not parsed yet";
     $("parsedCard").style.display = "none";
     $("voicesCard").style.display = "none";
     $("genCard").style.display = "none";
     $("resultCard").style.display = "none";
     topics = [];
+    project = null;
     results = [];
   });
   $("btnTestExam").addEventListener("click", function(){ testVoice($("examVoice").value); });
