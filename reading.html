@@ -35,13 +35,13 @@ a{color:inherit}
 .mod.active{color:#a7e8dd;background:#12222e}
 
 .hero{background:radial-gradient(1100px 460px at 74% -14%, #13303e 0%, #0b141d 60%), #0b141d;
-  color:#dbe7ee;padding:50px 22px 52px}
-.hero-in{max-width:1000px;margin:0 auto}
-.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--teal-bright);
-  text-transform:uppercase;margin:0 0 14px}
-.hero h1{font-family:Georgia,serif;font-weight:700;font-size:clamp(26px,4.2vw,42px);line-height:1.16;
-  margin:0 0 16px;color:#f2f7fa;max-width:800px}
-.hero .lead{font-size:16px;color:#b6c9d5;max-width:720px;margin:0 0 18px}
+  color:#dbe7ee;padding:22px 22px 22px}
+.hero-in{max-width:1400px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--teal-bright);
+  text-transform:uppercase;margin:0 0 8px}
+.hero h1{font-family:Georgia,serif;font-weight:700;font-size:clamp(20px,2.8vw,28px);line-height:1.2;
+  margin:0 0 8px;color:#f2f7fa;max-width:800px}
+.hero .lead{font-size:14px;color:#b6c9d5;max-width:720px;margin:0}
 .hero .lead strong{color:#e2edf3;font-weight:600}
 
 .tabs{display:flex;gap:2px;flex-wrap:wrap;margin-bottom:0}
@@ -55,9 +55,9 @@ a{color:inherit}
 .tab.active .num{color:var(--teal)}
 .tab .badge{background:var(--teal);color:#fff;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:700}
 
-.panel{max-width:1000px;margin:0 auto;padding:0}
+.panel{max-width:1400px;margin:0 auto;padding:0}
 .stage-panel{display:none;background:var(--card);border:1px solid var(--line);border-top:none;
-  border-radius:0 0 14px 14px;padding:28px 28px 30px;min-height:400px}
+  border-radius:0 0 14px 14px;padding:28px 28px 30px;min-height:400px;max-width:1400px;margin:0 auto}
 .stage-panel.active{display:block}
 
 /* Stage 1: Upload */
@@ -124,61 +124,47 @@ a{color:inherit}
   position:sticky;top:0;background:var(--card)}
 .word-table td{padding:10px;border-bottom:1px solid #f0ede5;font-size:14px;vertical-align:top}
 .word-table tr:hover{background:#f8f6f0}
+.word-table tr.known-row{opacity:.4}
+.word-table tr.known-row .w-word{text-decoration:line-through}
 .word-table .w-word{font-weight:600;color:var(--teal-deep);min-width:120px}
 .word-table .w-phon{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .word-table .w-pos{font-size:11px;color:var(--amber);font-weight:600;white-space:nowrap}
 .word-table .w-meaning{color:var(--text)}
-.word-table .w-source{font-family:var(--mono);font-size:10.5px;color:var(--muted);white-space:nowrap}
-.word-table .w-tier{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-.word-table .tier1{color:var(--red)}
-.word-table .tier2{color:var(--teal)}
-.word-table .tier3{color:var(--amber)}
-.word-table .w-action{text-align:center;white-space:nowrap}
-.word-table .w-btn{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);
-  background:#fff;cursor:pointer;font-family:inherit;transition:background .12s}
-.word-table .w-btn:hover{background:#f0ede5}
-.word-table .w-btn.known{color:var(--green);border-color:var(--green)}
-.word-table .w-btn.known:hover{background:var(--green-light)}
-.word-table .w-btn.unknown{color:var(--red);border-color:var(--red)}
-.word-table .w-btn.unknown:hover{background:var(--red-light)}
-.word-table .w-btn.active.known{background:var(--green);color:#fff}
-.word-table .w-btn.active.unknown{background:var(--red);color:#fff}
+.word-table .w-check{text-align:center}
+.word-table .w-check input{width:18px;height:18px;cursor:pointer;accent-color:var(--green)}
+.word-table .hl-mark{display:inline-block;width:10px;height:10px;border-radius:50%;cursor:pointer;margin-left:6px;vertical-align:middle}
+.word-table .hl-0{background:transparent;border:1px solid var(--line)}
+.word-table .hl-1{background:#fef3c7}
+.word-table .hl-2{background:#fb923c}
+.word-table .hl-3{background:#dc2626}
 
 /* Stage 3: Memorize */
-.s3-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px;padding-bottom:14px;
+.s3-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px;padding-bottom:14px;
   border-bottom:1px solid var(--line)}
-.s3-controls .group{display:flex;align-items:center;gap:6px}
-.s3-controls label{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
-.s3-controls select{background:#fff;border:1px solid var(--line);border-radius:8px;
-  padding:7px 10px;font-size:13px;font-family:inherit}
-.s3-controls .btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 14px;
+.s3-btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 14px;
   font-size:12.5px;font-family:inherit;cursor:pointer;transition:background .15s}
-.s3-controls .btn:hover{background:var(--teal-deep)}
-.s3-controls .spacer{flex:1}
+.s3-btn:hover{background:var(--teal-deep)}
+.s3-btn.outline{background:#fff;border:1px solid var(--line);color:var(--text)}
+.s3-btn.outline:hover{background:#f0ede5}
+.s3-btn.primary{background:var(--amber);border-color:var(--amber)}
+.s3-btn.primary:hover{background:#b45309}
+.s3-btn.active{background:var(--amber);color:#fff}
+.s3-spacer{flex:1}
 .s3-progress{font-family:var(--mono);font-size:12px;color:var(--muted)}
 
-.flashcard{background:var(--card);border:1px solid var(--line);border-radius:18px;
-  padding:40px 32px;text-align:center;max-width:600px;margin:0 auto 20px;min-height:240px;
-  display:flex;flex-direction:column;justify-content:center;cursor:pointer;transition:border-color .2s,box-shadow .2s}
-.flashcard:hover{border-color:var(--teal);box-shadow:0 8px 24px rgba(14,116,144,.08)}
-.flashcard .fc-word{font-family:Georgia,serif;font-size:32px;font-weight:700;color:var(--teal-deep);margin-bottom:8px}
-.flashcard .fc-phon{font-family:var(--mono);font-size:14px;color:var(--muted);margin-bottom:4px}
-.flashcard .fc-pos{font-size:13px;color:var(--amber);font-weight:600;margin-bottom:16px}
-.flashcard .fc-meaning{font-size:18px;color:var(--text);line-height:1.6}
-.flashcard .fc-meaning.hidden{color:transparent;background:#f0ede5;border-radius:8px;padding:6px 12px}
-.flashcard .fc-hint{font-size:12px;color:var(--muted);margin-top:16px;font-family:var(--mono)}
-.flashcard .fc-source{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:14px}
-
-.fc-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.fc-btn{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 20px;
-  font-size:13px;font-family:inherit;cursor:pointer;transition:background .15s,border-color .15s}
-.fc-btn:hover{background:#f8f6f0}
-.fc-btn.easy{color:var(--green);border-color:var(--green)}
-.fc-btn.easy:hover{background:var(--green-light)}
-.fc-btn.hard{color:var(--red);border-color:var(--red)}
-.fc-btn.hard:hover{background:var(--red-light)}
-.fc-btn.show{background:var(--teal);color:#fff;border-color:var(--teal)}
-.fc-btn.show:hover{background:var(--teal-deep)}
+.memo-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.memo-row{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 14px;
+  cursor:pointer;transition:border-color .12s,background .12s}
+.memo-row:hover{border-color:var(--teal);background:#f8fdfb}
+.memo-row .mr-word{font-weight:600;color:var(--teal-deep);font-size:15px}
+.memo-row .mr-phon{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:8px}
+.memo-row .mr-pos{font-size:11px;color:var(--amber);font-weight:600;margin-left:6px}
+.memo-row .mr-meaning{font-size:13px;color:var(--text);margin-top:4px;min-height:18px}
+.memo-row .mr-meaning.hidden{color:transparent;background:#f0ede5;border-radius:4px;padding:2px 8px}
+.memo-row .mr-hl{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:6px;vertical-align:middle}
+.memo-row .mr-hl-1{background:#fef3c7}
+.memo-row .mr-hl-2{background:#fb923c}
+.memo-row .mr-hl-3{background:#dc2626}
 
 .s3-empty{text-align:center;padding:60px 20px;color:var(--muted)}
 .s3-empty h3{font-family:Georgia,serif;font-size:20px;color:var(--text);margin:0 0 8px}
@@ -212,12 +198,11 @@ a{color:inherit}
 .lib-table .l-meaning{color:var(--text)}
 .lib-table .l-source{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
 .lib-table .l-date{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
-.lib-table .l-diff{font-size:11px;font-weight:700}
-.diff-easy{color:var(--green)}
-.diff-medium{color:var(--amber)}
-.diff-hard{color:var(--red)}
+.lib-table .l-status{font-size:11px;font-weight:700;white-space:nowrap}
+.st-pending{color:var(--amber)}
+.st-known{color:var(--green)}
+.lib-table .l-hl{font-size:11px}
 .lib-table .l-review{font-family:var(--mono);font-size:10.5px;color:var(--muted);white-space:nowrap}
-.review-due{color:var(--red);font-weight:600}
 
 .s4-empty{text-align:center;padding:40px 20px;color:var(--muted)}
 .s4-empty h3{font-family:Georgia,serif;font-size:20px;color:var(--text);margin:0 0 8px}
@@ -228,12 +213,12 @@ a{color:inherit}
 .toast.show{opacity:1}
 
 @media(max-width:640px){
-  .hero{padding:36px 18px 38px}
+  .hero{padding:24px 18px 24px}
   .panel{padding:0}
   .stage-panel{padding:20px 16px}
   .passage-grid{grid-template-columns:1fr}
-  .word-table .w-phon,.word-table .w-source{display:none}
-  .flashcard .fc-word{font-size:26px}
+  .word-table .w-phon{display:none}
+  .memo-list{grid-template-columns:1fr !important}
 }
 </style>
 </head>
@@ -259,7 +244,7 @@ a{color:inherit}
   <div class="hero-in">
     <p class="eyebrow">Vocabulary from Cambridge IELTS 10-20</p>
     <h1>Reading Vocabulary Trainer</h1>
-    <p class="lead">132 passages, 10,712 entries. Screen what you don't know, memorize with flashcards, and review on a spaced schedule. <strong>All data lives in your browser via IndexedDB.</strong></p>
+    <p class="lead">132 passages, 10,712 entries. Screen, scan, and memorize with multi-round review. <strong>All data lives in your browser via IndexedDB.</strong></p>
   </div>
 </section>
 
@@ -345,10 +330,9 @@ a{color:inherit}
       <div class="group">
         <label>Status</label>
         <select id="screenStatus">
+          <option value="pending">Pending</option>
           <option value="">All</option>
-          <option value="unmarked">Unmarked</option>
           <option value="known">Known</option>
-          <option value="unknown">Unknown</option>
         </select>
       </div>
       <div class="group">
@@ -358,17 +342,18 @@ a{color:inherit}
       <div class="spacer"></div>
       <span class="s2-stats" id="screenStats">0 words</span>
     </div>
-    <div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap">
+    <div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <button class="btn outline" style="background:#fff;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer" id="btnMarkAllKnown">Mark All Known</button>
-      <button class="btn outline" style="background:#fff;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer" id="btnMarkAllUnknown">Mark All Unknown</button>
       <div style="flex:1"></div>
-      <button class="btn" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer" id="btnToMemorize">Send Unknown to Memorize &rarr;</button>
+      <span class="s2-stats" id="pendingCount" style="margin-right:6px"></span>
+      <button class="btn" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer" id="btnToMemorize">Start Memorizing &rarr;</button>
     </div>
-    <div style="max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:10px">
+    <div style="max-height:calc(100vh - 200px);overflow:auto;border:1px solid var(--line);border-radius:10px">
       <table class="word-table">
         <thead>
           <tr>
-            <th>Word</th><th>Phonetic</th><th>POS</th><th>Meaning</th><th>Source</th><th>Tier</th><th>Action</th>
+            <th style="width:50px;text-align:center">Known</th>
+            <th>Word</th><th>Phonetic</th><th>POS</th><th>Meaning</th>
           </tr>
         </thead>
         <tbody id="wordTableBody"></tbody>
@@ -378,33 +363,15 @@ a{color:inherit}
 
   <!-- Stage 3: Memorize -->
   <div class="stage-panel" id="stage3">
-    <div class="s3-controls">
-      <div class="group">
-        <label>Mode</label>
-        <select id="memoMode">
-          <option value="show">Show/Hide</option>
-          <option value="test">Test (type answer)</option>
-        </select>
-      </div>
-      <div class="group">
-        <label>Order</label>
-        <select id="memoOrder">
-          <option value="original">Original</option>
-          <option value="random">Random</option>
-          <option value="difficulty">By Difficulty</option>
-        </select>
-      </div>
-      <div class="group">
-        <label>Direction</label>
-        <select id="memoDir">
-          <option value="en-zh">EN &rarr; ZH</option>
-          <option value="zh-en">ZH &rarr; EN</option>
-        </select>
-      </div>
-      <div class="spacer"></div>
+    <div class="s3-toolbar">
+      <button class="s3-btn" id="btnToggleAllMeaning">Hide All Meanings</button>
+      <button class="s3-btn outline" id="btnReshuffle">Reshuffle</button>
+      <button class="s3-btn outline" id="btnFilterHighlight">Highlighted Only</button>
+      <div class="s3-spacer"></div>
       <span class="s3-progress" id="memoProgress">0 / 0</span>
+      <button class="s3-btn primary" id="btnFinishRound">Finish Round</button>
     </div>
-    <div id="flashcardArea"></div>
+    <div id="memoArea"></div>
   </div>
 
   <!-- Stage 4: Library -->
@@ -414,12 +381,10 @@ a{color:inherit}
       <div class="group">
         <label>Filter</label>
         <select id="libFilter">
-          <option value="all">All Learned</option>
-          <option value="unknown">Unknown</option>
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-          <option value="due">Review Due</option>
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="known">Known</option>
+          <option value="highlighted">Highlighted</option>
         </select>
       </div>
       <div class="group">
@@ -437,7 +402,7 @@ a{color:inherit}
     <div style="max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:10px">
       <table class="lib-table">
         <thead>
-          <tr><th>Word</th><th>Meaning</th><th>Source</th><th>First Seen</th><th>Difficulty</th><th>Reviews</th><th>Next Review</th></tr>
+          <tr><th>Word</th><th>Meaning</th><th>Source</th><th>First Seen</th><th>Status</th><th>HL</th><th>Reviews</th><th>Last Reviewed</th><th>Session</th></tr>
         </thead>
         <tbody id="libTableBody"></tbody>
       </table>
@@ -455,7 +420,7 @@ a{color:inherit}
 
 /* --- IndexedDB Layer --- */
 var DB_NAME = "ielts-reading-vocab";
-var DB_VERSION = 1;
+var DB_VERSION = 2;
 var db = null;
 
 function dbOpen(){
@@ -468,8 +433,8 @@ function dbOpen(){
         s.createIndex("word", "word", {unique: false});
         s.createIndex("source", "source", {unique: false});
         s.createIndex("status", "status", {unique: false});
-        s.createIndex("difficulty", "difficulty", {unique: false});
-        s.createIndex("nextReview", "nextReview", {unique: false});
+        s.createIndex("highlight", "highlight", {unique: false});
+        s.createIndex("sessionDate", "sessionDate", {unique: false});
       }
       if(!d.objectStoreNames.contains("meta")){
         d.createObjectStore("meta", {keyPath: "key"});
@@ -537,7 +502,6 @@ var corpus = null;
 var selectedPassages = new Set();
 var currentWordList = [];
 var memoQueue = [];
-var memoIndex = 0;
 
 /* --- Utilities --- */
 function $(id){ return document.getElementById(id); }
@@ -567,18 +531,7 @@ function formatDate(ts){
   return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
 }
 
-function daysFromNow(days){
-  return Date.now() + days * 86400000;
-}
 
-/* SM-2-like spaced repetition */
-var SRS_INTERVALS = [1, 2, 4, 7, 14, 30, 60];
-function srsNext(currentLevel, quality){
-  /* quality: 0=hard, 1=medium, 2=easy */
-  if(quality === 0) return {level: Math.max(0, currentLevel), interval: 1, difficulty: "hard"};
-  if(quality === 1) return {level: Math.min(SRS_INTERVALS.length-1, currentLevel + 1), interval: SRS_INTERVALS[Math.min(SRS_INTERVALS.length-1, currentLevel + 1)], difficulty: "medium"};
-  return {level: Math.min(SRS_INTERVALS.length-1, currentLevel + 2), interval: SRS_INTERVALS[Math.min(SRS_INTERVALS.length-1, currentLevel + 2)], difficulty: "easy"};
-}
 
 /* --- Stage Navigation --- */
 function showStage(n){
@@ -1039,17 +992,18 @@ async function loadSelectedPassages(){
   if(selectedPassages.size === 0){ toast("Select at least one passage"); return; }
 
   var allEntries = [];
+  var idx = 0;
   selectedPassages.forEach(function(pid){
     var p = corpus.passages.find(function(x){ return x.id === pid; });
     if(!p) return;
     p.part1.forEach(function(w){
-      allEntries.push(makeEntry(w, p, 1, "word"));
+      allEntries.push(makeEntry(w, p, 1, "word", idx++));
     });
     p.part2.forEach(function(w){
-      allEntries.push(makeEntry(w, p, 2, "word"));
+      allEntries.push(makeEntry(w, p, 2, "word", idx++));
     });
     p.part3.forEach(function(ph){
-      allEntries.push(makeEntry(ph, p, 3, "phrase"));
+      allEntries.push(makeEntry(ph, p, 3, "phrase", idx++));
     });
   });
 
@@ -1071,7 +1025,7 @@ async function loadSelectedPassages(){
   showStage(2);
 }
 
-function makeEntry(w, passage, tier, type){
+function makeEntry(w, passage, tier, type, idx){
   var word = w.word || w.phrase || "";
   var id = wordId(word, passage.id);
   return {
@@ -1087,13 +1041,15 @@ function makeEntry(w, passage, tier, type){
     passage: passage.source.passage,
     tier: tier,
     type: type,
-    status: "unmarked",
-    difficulty: "",
-    srsLevel: 0,
+    originalIndex: idx,
+    status: "pending",
+    highlight: 0,
     reviewCount: 0,
     firstSeen: Date.now(),
     lastReviewed: null,
-    nextReview: null
+    nextReview: null,
+    sessionDate: null,
+    sessionRound: 0
   };
 }
 
@@ -1103,6 +1059,7 @@ function handleFileUpload(e){
   var reader = new FileReader();
   reader.onload = function(){
     var entries = [];
+    var idx = 0;
     try {
       if(file.name.endsWith(".json")){
         var data = JSON.parse(reader.result);
@@ -1119,15 +1076,17 @@ function handleFileUpload(e){
               cambridge: 0, test: 0, passage: 0,
               tier: w.tier || 1,
               type: w.type || "word",
-              status: "unmarked", difficulty: "", srsLevel: 0,
+              originalIndex: idx++,
+              status: "pending", highlight: 0,
               reviewCount: 0, firstSeen: Date.now(),
-              lastReviewed: null, nextReview: null
+              lastReviewed: null, nextReview: null,
+              sessionDate: null, sessionRound: 0
             });
           });
         }
       } else {
         var lines = reader.result.trim().split("\n");
-        lines.forEach(function(line, i){
+        lines.forEach(function(line){
           line = line.trim();
           if(!line) return;
           entries.push({
@@ -1137,9 +1096,11 @@ function handleFileUpload(e){
             source: "upload", sourceLabel: "Uploaded",
             cambridge: 0, test: 0, passage: 0,
             tier: 1, type: "word",
-            status: "unmarked", difficulty: "", srsLevel: 0,
+            originalIndex: idx++,
+            status: "pending", highlight: 0,
             reviewCount: 0, firstSeen: Date.now(),
-            lastReviewed: null, nextReview: null
+            lastReviewed: null, nextReview: null,
+            sessionDate: null, sessionRound: 0
           });
         });
       }
@@ -1187,16 +1148,14 @@ function getFilteredWords(){
     return all.filter(function(w){
       if(src && w.source !== src) return false;
       if(tier && String(w.tier) !== tier) return false;
+      if(status === "pending" && w.status !== "pending") return false;
       if(status === "known" && w.status !== "known") return false;
-      if(status === "unknown" && w.status !== "unknown") return false;
-      if(status === "unmarked" && w.status !== "unmarked" && w.status) return false;
       if(search){
         if(w.word.toLowerCase().indexOf(search) < 0 && (w.meaning || "").toLowerCase().indexOf(search) < 0) return false;
       }
       return true;
     }).sort(function(a,b){
-      if(a.tier !== b.tier) return a.tier - b.tier;
-      return a.word.localeCompare(b.word);
+      return (a.originalIndex || 0) - (b.originalIndex || 0);
     });
   });
 }
@@ -1207,35 +1166,44 @@ async function renderWordTable(){
   tbody.innerHTML = "";
 
   if(words.length === 0){
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No words to display. Load passages from the Upload tab first.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">No words to display. Load passages from the Upload tab first.</td></tr>';
+    $("pendingCount").textContent = "";
   } else {
+    var pendingCount = 0;
     words.forEach(function(w){
+      if(w.status !== "known") pendingCount++;
       var tr = el("tr");
-      var tierCls = "tier" + w.tier;
-      var knownActive = w.status === "known" ? " active" : "";
-      var unknownActive = w.status === "unknown" ? " active" : "";
+      if(w.status === "known") tr.className = "known-row";
+      var hlCls = "hl-" + (w.highlight || 0);
+      var checked = w.status === "known" ? " checked" : "";
 
       tr.innerHTML =
-        '<td class="w-word">' + esc(w.word) + '</td>' +
+        '<td class="w-check"><input type="checkbox" data-id="' + esc(w.id) + '"' + checked + '></td>' +
+        '<td class="w-word">' + esc(w.word) + '<span class="hl-mark ' + hlCls + '" data-hlid="' + esc(w.id) + '" title="Highlight"></span></td>' +
         '<td class="w-phon">' + esc(w.phonetic) + '</td>' +
         '<td class="w-pos">' + esc(w.pos) + '</td>' +
-        '<td class="w-meaning">' + esc(w.meaning) + '</td>' +
-        '<td class="w-source">' + esc(w.sourceLabel) + '</td>' +
-        '<td class="w-tier ' + tierCls + '">' + tierLabel(w.tier) + '</td>' +
-        '<td class="w-action">' +
-          '<button class="w-btn known' + knownActive + '" data-id="' + esc(w.id) + '" data-status="known">Known</button> ' +
-          '<button class="w-btn unknown' + unknownActive + '" data-id="' + esc(w.id) + '" data-status="unknown">Unknown</button>' +
-        '</td>';
+        '<td class="w-meaning">' + esc(w.meaning) + '</td>';
       tbody.appendChild(tr);
     });
 
-    tbody.querySelectorAll(".w-btn").forEach(function(btn){
-      btn.addEventListener("click", async function(){
-        var id = btn.dataset.id;
-        var status = btn.dataset.status;
+    tbody.querySelectorAll('input[type="checkbox"]').forEach(function(cb){
+      cb.addEventListener("change", async function(){
+        var id = cb.dataset.id;
         var w = await dbGet("words", id);
         if(w){
-          w.status = status;
+          w.status = cb.checked ? "known" : "pending";
+          await dbPut("words", w);
+          renderWordTable();
+        }
+      });
+    });
+
+    tbody.querySelectorAll(".hl-mark").forEach(function(mk){
+      mk.addEventListener("click", async function(){
+        var id = mk.dataset.hlid;
+        var w = await dbGet("words", id);
+        if(w){
+          w.highlight = ((w.highlight || 0) + 1) % 4;
           await dbPut("words", w);
           renderWordTable();
         }
@@ -1244,6 +1212,7 @@ async function renderWordTable(){
   }
 
   $("screenStats").textContent = words.length + " words";
+  $("pendingCount").textContent = pendingCount > 0 ? pendingCount + " pending" : "";
   populateScreenSourceFilter();
 }
 
@@ -1276,138 +1245,125 @@ $("btnMarkAllKnown").addEventListener("click", async function(){
   renderWordTable();
 });
 
-$("btnMarkAllUnknown").addEventListener("click", async function(){
-  var words = await getFilteredWords();
-  var updates = words.map(function(w){ w.status = "unknown"; return w; });
-  if(updates.length > 0) await dbBulkPut("words", updates);
-  toast("Marked " + updates.length + " words as unknown");
-  renderWordTable();
-});
-
 $("btnToMemorize").addEventListener("click", async function(){
   var all = await dbGetAll("words");
-  memoQueue = all.filter(function(w){ return w.status === "unknown"; });
-  if(memoQueue.length === 0){ toast("No unknown words to memorize. Mark some words as Unknown first."); return; }
-  toast("Loaded " + memoQueue.length + " unknown words");
+  memoQueue = all.filter(function(w){ return w.status === "pending"; });
+  if(memoQueue.length === 0){ toast("No pending words. All marked as known!"); return; }
+  toast("Loaded " + memoQueue.length + " pending words for memorizing");
   showStage(3);
 });
 
 /* --- Stage 3: Memorize --- */
+var memoShuffled = [];
+var memoMeaningHidden = true;
+var memoHighlightOnly = false;
+
+function stableShuffle(arr){
+  var a = arr.slice();
+  for(var i = a.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+
 function initMemorize(){
   if(memoQueue.length === 0){
-    $("flashcardArea").innerHTML = '<div class="s3-empty"><h3>No words in queue</h3><p>Go to Screen tab and mark words as Unknown to add them to your memorize queue.</p></div>';
+    $("memoArea").innerHTML = '<div class="s3-empty"><h3>No words in queue</h3><p>Go to Screen tab and mark words as known, then send the rest here.</p></div>';
     $("memoProgress").textContent = "0 / 0";
     return;
   }
-  memoIndex = 0;
-  var order = $("memoOrder").value;
-  if(order === "random"){
-    memoQueue.sort(function(){ return Math.random() - 0.5; });
-  } else if(order === "difficulty"){
-    var orderMap = {"hard": 0, "medium": 1, "easy": 2, "": 3};
-    memoQueue.sort(function(a,b){ return (orderMap[a.difficulty] || 3) - (orderMap[b.difficulty] || 3); });
+  memoShuffled = stableShuffle(memoQueue);
+  if(memoHighlightOnly){
+    memoShuffled = memoShuffled.filter(function(w){ return (w.highlight || 0) > 0; });
   }
-  renderFlashcard();
+  renderMemoList();
 }
 
-function renderFlashcard(){
-  if(memoIndex >= memoQueue.length){
-    $("flashcardArea").innerHTML = '<div class="s3-empty"><h3>All done!</h3><p>You reviewed all ' + memoQueue.length + ' words in this session. Great work.</p></div>';
-    $("memoProgress").textContent = memoQueue.length + " / " + memoQueue.length;
+function renderMemoList(){
+  var area = $("memoArea");
+  area.innerHTML = "";
+
+  if(memoShuffled.length === 0){
+    area.innerHTML = '<div class="s3-empty"><h3>No words to show</h3><p>No highlighted words in this round. Toggle "Highlighted Only" off or reshuffle.</p></div>';
+    $("memoProgress").textContent = "0 / 0";
     return;
   }
 
-  var w = memoQueue[memoIndex];
-  $("memoProgress").textContent = (memoIndex + 1) + " / " + memoQueue.length;
+  var list = el("div", "memo-list");
+  memoShuffled.forEach(function(w, i){
+    var row = el("div", "memo-row");
+    var hlCls = "mr-hl-" + (w.highlight || 0);
+    var hlDot = (w.highlight || 0) > 0 ? '<span class="mr-hl ' + hlCls + '"></span>' : '';
+    var meaningHtml = memoMeaningHidden
+      ? '<div class="mr-meaning hidden">__</div>'
+      : '<div class="mr-meaning">' + esc(w.meaning) + '</div>';
 
-  var mode = $("memoMode").value;
-  var dir = $("memoDir").value;
-
-  var front, back;
-  if(dir === "en-zh"){ front = w.word; back = w.meaning; }
-  else { front = w.meaning; back = w.word; }
-
-  var area = $("flashcardArea");
-  area.innerHTML = "";
-
-  var card = el("div", "flashcard");
-  card.id = "flashcard";
-
-  if(mode === "show"){
-    card.innerHTML =
-      '<div class="fc-word">' + esc(front) + '</div>' +
-      (w.phonetic && dir === "en-zh" ? '<div class="fc-phon">' + esc(w.phonetic) + '</div>' : '') +
-      '<div class="fc-pos">' + esc(w.pos) + '</div>' +
-      '<div class="fc-meaning hidden" id="fcMeaning">' + esc(back) + '</div>' +
-      '<div class="fc-hint">Click to reveal meaning</div>' +
-      '<div class="fc-source">' + esc(w.sourceLabel) + ' / ' + tierLabel(w.tier) + '</div>';
-    card.addEventListener("click", function(){
-      var m = $("fcMeaning");
-      if(m.classList.contains("hidden")){ m.classList.remove("hidden"); }
-    });
-    area.appendChild(card);
-
-    var actions = el("div", "fc-actions");
-    actions.innerHTML =
-      '<button class="fc-btn hard" id="fcHard">Hard</button>' +
-      '<button class="fc-btn show" id="fcShow">Show</button>' +
-      '<button class="fc-btn easy" id="fcEasy">Easy</button>';
-    area.appendChild(actions);
-
-    $("fcHard").addEventListener("click", function(){ memoNext(0); });
-    $("fcShow").addEventListener("click", function(){ $("fcMeaning").classList.remove("hidden"); });
-    $("fcEasy").addEventListener("click", function(){ memoNext(2); });
-  } else {
-    /* Test mode */
-    card.innerHTML =
-      '<div class="fc-word">' + esc(front) + '</div>' +
-      '<div class="fc-pos">' + esc(w.pos) + '</div>' +
-      '<input type="text" id="fcInput" placeholder="Type your answer..." style="margin-top:16px;padding:10px 14px;font-size:16px;border:2px solid var(--line);border-radius:8px;width:80%;text-align:center;font-family:inherit" autofocus>' +
-      '<div id="fcResult" style="margin-top:12px;font-size:14px"></div>' +
-      '<div class="fc-source">' + esc(w.sourceLabel) + '</div>';
-    area.appendChild(card);
-
-    var input = $("fcInput");
-    input.focus();
-    input.addEventListener("keydown", function(e){
-      if(e.key === "Enter"){
-        var val = input.value.trim().toLowerCase();
-        var target = back.toLowerCase();
-        var correct = val === target || target.indexOf(val) >= 0 || val.indexOf(target) >= 0;
-        $("fcResult").innerHTML = correct
-          ? '<span style="color:var(--green)">Correct! ' + esc(back) + '</span>'
-          : '<span style="color:var(--red)">Answer: ' + esc(back) + '</span>';
-
-        var actions = el("div", "fc-actions");
-        actions.style.marginTop = "16px";
-        actions.innerHTML =
-          '<button class="fc-btn hard" id="fcHard">Hard</button>' +
-          '<button class="fc-btn easy" id="fcEasy">Easy</button>';
-        area.appendChild(actions);
-        $("fcHard").addEventListener("click", function(){ memoNext(0); });
-        $("fcEasy").addEventListener("click", function(){ memoNext(correct ? 2 : 0); });
+    row.innerHTML =
+      '<span class="mr-word">' + esc(w.word) + '</span>' +
+      '<span class="mr-phon">' + esc(w.phonetic) + '</span>' +
+      '<span class="mr-pos">' + esc(w.pos) + '</span>' +
+      hlDot +
+      meaningHtml;
+    row.dataset.i = i;
+    row.addEventListener("click", function(){
+      var meaningEl = row.querySelector(".mr-meaning");
+      if(meaningEl && meaningEl.classList.contains("hidden")){
+        meaningEl.classList.remove("hidden");
+        meaningEl.textContent = w.meaning;
       }
     });
+    list.appendChild(row);
+  });
+  area.appendChild(list);
+  $("memoProgress").textContent = memoShuffled.length + " / " + memoQueue.length;
+}
+
+$("btnToggleAllMeaning").addEventListener("click", function(){
+  memoMeaningHidden = !memoMeaningHidden;
+  $("btnToggleAllMeaning").textContent = memoMeaningHidden ? "Show All Meanings" : "Hide All Meanings";
+  renderMemoList();
+});
+
+$("btnReshuffle").addEventListener("click", function(){
+  memoShuffled = stableShuffle(memoQueue);
+  if(memoHighlightOnly){
+    memoShuffled = memoShuffled.filter(function(w){ return (w.highlight || 0) > 0; });
   }
-}
+  renderMemoList();
+  toast("Reshuffled");
+});
 
-async function memoNext(quality){
-  var w = memoQueue[memoIndex];
-  var srs = srsNext(w.srsLevel || 0, quality);
-  w.srsLevel = srs.level;
-  w.difficulty = srs.difficulty;
-  w.reviewCount = (w.reviewCount || 0) + 1;
-  w.lastReviewed = Date.now();
-  w.nextReview = daysFromNow(srs.interval);
-  if(quality === 2) w.status = "known";
-  await dbPut("words", w);
-  memoIndex++;
-  renderFlashcard();
-}
+$("btnFilterHighlight").addEventListener("click", function(){
+  memoHighlightOnly = !memoHighlightOnly;
+  $("btnFilterHighlight").classList.toggle("active", memoHighlightOnly);
+  $("btnFilterHighlight").textContent = memoHighlightOnly ? "Show All" : "Highlighted Only";
+  memoShuffled = stableShuffle(memoQueue);
+  if(memoHighlightOnly){
+    memoShuffled = memoShuffled.filter(function(w){ return (w.highlight || 0) > 0; });
+  }
+  renderMemoList();
+});
 
-$("memoMode").addEventListener("change", renderFlashcard);
-$("memoOrder").addEventListener("change", initMemorize);
-$("memoDir").addEventListener("change", renderFlashcard);
+$("btnFinishRound").addEventListener("click", async function(){
+  var today = new Date().toISOString().slice(0, 10);
+  var all = await dbGetAll("words");
+  all.forEach(function(w){
+    if(w.status === "pending"){
+      if(w.sessionDate === today){
+        w.sessionRound = (w.sessionRound || 0) + 1;
+      } else {
+        w.sessionDate = today;
+        w.sessionRound = 1;
+      }
+      w.reviewCount = (w.reviewCount || 0) + 1;
+      w.lastReviewed = Date.now();
+    }
+  });
+  await dbBulkPut("words", all);
+  toast("Round complete! " + memoQueue.length + " words reviewed on " + today);
+  showStage(4);
+});
 
 /* --- Stage 4: Library --- */
 async function renderLibrary(){
@@ -1416,28 +1372,24 @@ async function renderLibrary(){
   /* Stats */
   var stats = {
     total: all.length,
-    known: 0, unknown: 0, unmarked: 0,
-    easy: 0, medium: 0, hard: 0,
-    due: 0
+    known: 0, pending: 0,
+    highlighted: 0,
+    studied: 0
   };
-  var now = Date.now();
   all.forEach(function(w){
     if(w.status === "known") stats.known++;
-    else if(w.status === "unknown") stats.unknown++;
-    else stats.unmarked++;
-    if(w.difficulty === "easy") stats.easy++;
-    else if(w.difficulty === "medium") stats.medium++;
-    else if(w.difficulty === "hard") stats.hard++;
-    if(w.nextReview && w.nextReview <= now) stats.due++;
+    else stats.pending++;
+    if((w.highlight || 0) > 0) stats.highlighted++;
+    if(w.reviewCount > 0) stats.studied++;
   });
 
   $("libStats").innerHTML =
     statBox(stats.total, "Total") +
-    statBox(stats.unknown, "Unknown") +
+    statBox(stats.pending, "Pending") +
     statBox(stats.known, "Known") +
-    statBox(stats.due, "Review Due") +
-    statBox(stats.hard, "Hard") +
-    statBox(all.length - stats.unmarked, "Studied");
+    statBox(stats.highlighted, "Highlighted") +
+    statBox(stats.studied, "Studied") +
+    statBox(all.length - stats.known - stats.pending, "Other");
 
   /* Source filter */
   var sources = {};
@@ -1460,41 +1412,37 @@ async function renderLibrary(){
   var filtered = all.filter(function(w){
     if(srcFilter && w.source !== srcFilter) return false;
     if(search && w.word.toLowerCase().indexOf(search) < 0) return false;
-    if(filter === "unknown" && w.status !== "unknown") return false;
-    if(filter === "easy" && w.difficulty !== "easy") return false;
-    if(filter === "medium" && w.difficulty !== "medium") return false;
-    if(filter === "hard" && w.difficulty !== "hard") return false;
-    if(filter === "due" && (!w.nextReview || w.nextReview > now)) return false;
-    if(filter === "all" && w.status === "unmarked") return false;
+    if(filter === "pending" && w.status !== "pending") return false;
+    if(filter === "known" && w.status !== "known") return false;
+    if(filter === "highlighted" && (w.highlight || 0) === 0) return false;
     return true;
   }).sort(function(a,b){
-    if(a.nextReview && b.nextReview) return a.nextReview - b.nextReview;
-    if(a.nextReview) return -1;
-    if(b.nextReview) return 1;
-    return a.word.localeCompare(b.word);
+    return (a.originalIndex || 0) - (b.originalIndex || 0);
   });
 
   var tbody = $("libTableBody");
   tbody.innerHTML = "";
 
   if(filtered.length === 0){
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No matching records.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted)">No matching records.</td></tr>';
   } else {
     filtered.forEach(function(w){
       var tr = el("tr");
-      var diffCls = w.difficulty === "easy" ? "diff-easy" : w.difficulty === "medium" ? "diff-medium" : w.difficulty === "hard" ? "diff-hard" : "";
-      var due = w.nextReview && w.nextReview <= now;
-      var nextReviewText = w.nextReview ? formatDate(w.nextReview) : "-";
-      if(due) nextReviewText = '<span class="review-due">' + nextReviewText + '</span>';
+      var stCls = w.status === "known" ? "st-known" : "st-pending";
+      var stText = w.status === "known" ? "Known" : "Pending";
+      var hlText = w.highlight > 0 ? "HL" + w.highlight : "-";
+      var sessionText = w.sessionDate ? (w.sessionDate + " R" + (w.sessionRound || 0)) : "-";
 
       tr.innerHTML =
         '<td class="l-word">' + esc(w.word) + '</td>' +
         '<td class="l-meaning">' + esc(w.meaning) + '</td>' +
         '<td class="l-source">' + esc(w.sourceLabel) + '</td>' +
         '<td class="l-date">' + formatDate(w.firstSeen) + '</td>' +
-        '<td class="l-diff ' + diffCls + '">' + (w.difficulty || "-") + '</td>' +
+        '<td class="l-status ' + stCls + '">' + stText + '</td>' +
+        '<td class="l-hl">' + hlText + '</td>' +
         '<td class="l-review">' + (w.reviewCount || 0) + '</td>' +
-        '<td class="l-review">' + nextReviewText + '</td>';
+        '<td class="l-review">' + (w.lastReviewed ? formatDate(w.lastReviewed) : "-") + '</td>' +
+        '<td class="l-review">' + sessionText + '</td>';
       tbody.appendChild(tr);
     });
   }
