@@ -292,6 +292,11 @@ a{color:inherit}
       </div>
     </div>
 
+    <div style="margin-bottom:16px">
+      <button class="btn" style="background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 12px;font-size:11.5px;cursor:pointer;font-family:var(--mono)" id="btnDiag">Diagnostics</button>
+      <div id="diagBox" style="display:none;background:#f8f6f0;border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-top:10px"></div>
+    </div>
+
     <div class="corpus-browser" id="corpusBrowser">
       <h3>Corpus Browser</h3>
       <p class="desc">Select one or more passages. Words from all selected passages will be combined for screening.</p>
@@ -364,7 +369,7 @@ a{color:inherit}
   <!-- Stage 3: Memorize -->
   <div class="stage-panel" id="stage3">
     <div class="s3-toolbar">
-      <button class="s3-btn" id="btnToggleAllMeaning">Hide All Meanings</button>
+      <button class="s3-btn" id="btnToggleAllMeaning">Show All Meanings</button>
       <button class="s3-btn outline" id="btnReshuffle">Reshuffle</button>
       <button class="s3-btn outline" id="btnFilterHighlight">Highlighted Only</button>
       <div class="s3-spacer"></div>
@@ -422,6 +427,22 @@ a{color:inherit}
 var DB_NAME = "ielts-reading-vocab";
 var DB_VERSION = 2;
 var db = null;
+var dbUnavailable = false;
+
+/* --- Storage notice banner (shown when IndexedDB is blocked) --- */
+function setDbNotice(msg){
+  var el = $("dbNotice");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "dbNotice";
+    el.style.cssText = "background:#fee2e2;border:1px solid var(--red);color:#7f1d1d;" +
+      "padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;line-height:1.5";
+    var panel = document.querySelector(".stage-panel.active") || document.querySelector(".stage-panel");
+    if(panel && panel.parentNode) panel.parentNode.insertBefore(el, panel);
+  }
+  el.innerHTML = "<strong>Storage unavailable.</strong> " + esc(msg);
+  el.style.display = "block";
+}
 
 function dbOpen(){
   return new Promise(function(resolve, reject){
@@ -446,29 +467,38 @@ function dbOpen(){
 }
 
 function dbPut(store, value){
+  if(!db || dbUnavailable) return Promise.resolve(value);
   return new Promise(function(resolve, reject){
-    var tx = db.transaction(store, "readwrite");
-    var req = tx.objectStore(store).put(value);
-    req.onsuccess = function(){ resolve(value); };
-    req.onerror = function(e){ reject(e.target.error); };
+    try{
+      var tx = db.transaction(store, "readwrite");
+      var req = tx.objectStore(store).put(value);
+      req.onsuccess = function(){ resolve(value); };
+      req.onerror = function(e){ reject(e.target.error); };
+    }catch(err){ resolve(value); }
   });
 }
 
 function dbGet(store, key){
+  if(!db || dbUnavailable) return Promise.resolve(null);
   return new Promise(function(resolve, reject){
-    var tx = db.transaction(store, "readonly");
-    var req = tx.objectStore(store).get(key);
-    req.onsuccess = function(){ resolve(req.result); };
-    req.onerror = function(e){ reject(e.target.error); };
+    try{
+      var tx = db.transaction(store, "readonly");
+      var req = tx.objectStore(store).get(key);
+      req.onsuccess = function(){ resolve(req.result || null); };
+      req.onerror = function(e){ reject(e.target.error); };
+    }catch(err){ resolve(null); }
   });
 }
 
 function dbGetAll(store){
+  if(!db || dbUnavailable) return Promise.resolve([]);
   return new Promise(function(resolve, reject){
-    var tx = db.transaction(store, "readonly");
-    var req = tx.objectStore(store).getAll();
-    req.onsuccess = function(){ resolve(req.result); };
-    req.onerror = function(e){ reject(e.target.error); };
+    try{
+      var tx = db.transaction(store, "readonly");
+      var req = tx.objectStore(store).getAll();
+      req.onsuccess = function(){ resolve(req.result || []); };
+      req.onerror = function(e){ reject(e.target.error); };
+    }catch(err){ resolve([]); }
   });
 }
 
@@ -482,15 +512,20 @@ function dbClear(store){
 }
 
 function dbBulkPut(store, values){
+  if(!db || dbUnavailable) return Promise.resolve(0);
+  if(!values || values.length === 0) return Promise.resolve(0);
   return new Promise(function(resolve, reject){
-    var tx = db.transaction(store, "readwrite");
-    var os = tx.objectStore(store);
-    var count = 0;
-    values.forEach(function(v){
-      var r = os.put(v);
-      r.onsuccess = function(){ count++; if(count === values.length) resolve(count); };
-    });
-    tx.onerror = function(e){ reject(e.target.error); };
+    try{
+      var tx = db.transaction(store, "readwrite");
+      var os = tx.objectStore(store);
+      var count = 0;
+      values.forEach(function(v){
+        var r = os.put(v);
+        r.onsuccess = function(){ count++; if(count === values.length) resolve(count); };
+      });
+      tx.onerror = function(e){ reject(e.target.error); };
+      tx.onabort = function(){ resolve(count); };
+    }catch(err){ resolve(0); }
   });
 }
 
@@ -563,6 +598,7 @@ function initStage1(){
   $("btnClearAll").addEventListener("click", function(){ selectedPassages.clear(); renderPassageGrid(); });
   $("btnLoadPassages").addEventListener("click", loadSelectedPassages);
   $("filterCam").addEventListener("change", updateTestFilter);
+  $("btnDiag").addEventListener("click", showDiagnostics);
 
   /* Load the corpus immediately so the page is never blank */
   loadCorpus();
@@ -572,35 +608,70 @@ function initStage1(){
    Two sources, in priority order:
    1. Embedded base64+gzip blob (works on file:// where fetch is CORS-blocked)
    2. fetch("reading-corpus.json") (works when served over HTTP)
+
+   The embedded blob is the reliable path: it never touches the network and
+   never depends on IndexedDB. A watchdog guarantees the status label always
+   resolves to ready or failed - never stuck on "Loading...".
 */
 function loadCorpus(){
+  var settled = false;
+  var watchdog = setTimeout(function(){
+    if(settled) return;
+    settled = true;
+    console.warn("Corpus load timed out after 20s");
+    setCorpusState("failed", "Load timed out");
+    showCorpusError(new Error("Timed out while loading the embedded corpus. " +
+      "Your browser may be blocking the decompression API."));
+  }, 20000);
+
+  function succeed(data){
+    if(settled) return;
+    settled = true;
+    clearTimeout(watchdog);
+    corpus = data;
+    onCorpusLoaded();
+  }
+  function fail(e){
+    if(settled) return;
+    settled = true;
+    clearTimeout(watchdog);
+    console.warn("Corpus load failed:", e);
+    setCorpusState("failed", "Corpus unavailable");
+    showCorpusError(e);
+  }
+
   /* Source 1: embedded blob */
   if(typeof CORPUS_B64 === "string" && CORPUS_B64.length > 0){
     setCorpusState("loading", "Decompressing corpus...");
-    decompressGzip(base64ToBytes(CORPUS_B64)).then(function(text){
-      corpus = JSON.parse(text);
-      onCorpusLoaded();
-    }).catch(function(e){
-      console.warn("Embedded corpus failed, falling back to fetch:", e);
-      loadCorpusViaFetch();
-    });
+    try {
+      decompressGzip(base64ToBytes(CORPUS_B64)).then(function(text){
+        succeed(JSON.parse(text));
+      }).catch(function(e){
+        console.warn("Embedded corpus failed:", e);
+        loadCorpusViaFetch(succeed, fail);
+      });
+    } catch(e){
+      loadCorpusViaFetch(succeed, fail);
+    }
     return;
   }
-  loadCorpusViaFetch();
+  loadCorpusViaFetch(succeed, fail);
 }
 
-function loadCorpusViaFetch(){
+function loadCorpusViaFetch(succeed, fail){
   setCorpusState("loading", "Fetching corpus...");
-  fetch("reading-corpus.json").then(function(r){
-    if(!r.ok) throw new Error("HTTP " + r.status);
-    return r.json();
-  }).then(function(data){
-    corpus = data;
-    onCorpusLoaded();
-  }).catch(function(e){
-    setCorpusState("failed", "Corpus unavailable");
-    showCorpusError(e);
-  });
+  try{
+    fetch("reading-corpus.json").then(function(r){
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    }).then(function(data){
+      succeed(data);
+    }).catch(function(e){
+      fail(e);
+    });
+  } catch(e){
+    fail(e);
+  }
 }
 
 function onCorpusLoaded(){
@@ -633,15 +704,38 @@ function setCorpusState(state, label){
    look empty with no explanation. */
 function showCorpusError(err){
   var grid = $("passageGrid");
+  var msg = err && err.message ? err.message : String(err);
   if(grid){
     grid.innerHTML =
       '<div style="grid-column:1/-1;padding:24px;text-align:center;color:var(--muted);font-size:13.5px">' +
       '<p style="margin:0 0 10px"><strong style="color:var(--red)">Corpus could not be loaded.</strong></p>' +
-      '<p style="margin:0 0 10px">' + esc(err && err.message ? err.message : String(err)) + '</p>' +
-      '<p style="margin:0">Use <strong>Upload List</strong> to load a word list from your own file instead.</p>' +
+      '<p style="margin:0 0 10px">' + esc(msg) + '</p>' +
+      '<p style="margin:0 0 14px">Use <strong>Upload List</strong> to load a word list from your own file instead.</p>' +
+      '<button class="btn" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer" id="btnRetryCorpus">Retry</button>' +
       '</div>';
+    var retry = $("btnRetryCorpus");
+    if(retry) retry.addEventListener("click", function(){ loadCorpus(); });
   }
   $("corpusStats").textContent = "corpus unavailable";
+}
+
+/* Diagnostics panel — prints the browser capabilities that affect loading. */
+function showDiagnostics(){
+  var box = $("diagBox");
+  if(!box) return;
+  var rows = [
+    ["DecompressionStream", typeof DecompressionStream !== "undefined" ? "yes" : "no"],
+    ["Blob.stream", typeof Blob !== "undefined" && typeof Blob.prototype.stream === "function" ? "yes" : "no"],
+    ["ReadableStream.getReader", typeof ReadableStream !== "undefined" && typeof ReadableStream.prototype.getReader === "function" ? "yes" : "no"],
+    ["atob", typeof atob !== "undefined" ? "yes" : "no"],
+    ["IndexedDB", typeof indexedDB !== "undefined" ? "yes" : "no"],
+    ["DB open result", dbUnavailable ? "BLOCKED" : (db ? "ok (v" + db.version + ")" : "not opened")],
+    ["Protocol", location.protocol],
+    ["Corpus blob length", (typeof CORPUS_B64 === "string" ? CORPUS_B64.length : 0) + " chars"]
+  ];
+  box.innerHTML = "<pre style=\"margin:0;font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--text)\">" +
+    rows.map(function(r){ return esc(r[0].padEnd(24) + " : " + r[1]); }).join("\n") + "</pre>";
+  box.style.display = "block";
 }
 
 function base64ToBytes(b64){
@@ -1246,9 +1340,14 @@ $("btnMarkAllKnown").addEventListener("click", async function(){
 });
 
 $("btnToMemorize").addEventListener("click", async function(){
+  /* Re-read from the database so the queue reflects the latest status and
+     highlight values (the in-memory list can be stale after edits). */
   var all = await dbGetAll("words");
   memoQueue = all.filter(function(w){ return w.status === "pending"; });
   if(memoQueue.length === 0){ toast("No pending words. All marked as known!"); return; }
+  memoHighlightOnly = false;
+  $("btnFilterHighlight").classList.remove("active");
+  $("btnFilterHighlight").textContent = "Highlighted Only";
   toast("Loaded " + memoQueue.length + " pending words for memorizing");
   showStage(3);
 });
@@ -1273,11 +1372,26 @@ function initMemorize(){
     $("memoProgress").textContent = "0 / 0";
     return;
   }
+  /* Refresh from the database so highlight/status changes made in the Screen
+     tab are picked up even if the user switched tabs directly. */
+  dbGetAll("words").then(function(all){
+    var fresh = {};
+    all.forEach(function(w){ fresh[w.id] = w; });
+    memoQueue = memoQueue.map(function(w){ return fresh[w.id] || w; })
+                        .filter(function(w){ return w.status === "pending"; });
+    applyMemoOrder();
+    renderMemoList();
+  }).catch(function(){
+    applyMemoOrder();
+    renderMemoList();
+  });
+}
+
+function applyMemoOrder(){
   memoShuffled = stableShuffle(memoQueue);
   if(memoHighlightOnly){
     memoShuffled = memoShuffled.filter(function(w){ return (w.highlight || 0) > 0; });
   }
-  renderMemoList();
 }
 
 function renderMemoList(){
@@ -1326,10 +1440,7 @@ $("btnToggleAllMeaning").addEventListener("click", function(){
 });
 
 $("btnReshuffle").addEventListener("click", function(){
-  memoShuffled = stableShuffle(memoQueue);
-  if(memoHighlightOnly){
-    memoShuffled = memoShuffled.filter(function(w){ return (w.highlight || 0) > 0; });
-  }
+  applyMemoOrder();
   renderMemoList();
   toast("Reshuffled");
 });
@@ -1338,10 +1449,7 @@ $("btnFilterHighlight").addEventListener("click", function(){
   memoHighlightOnly = !memoHighlightOnly;
   $("btnFilterHighlight").classList.toggle("active", memoHighlightOnly);
   $("btnFilterHighlight").textContent = memoHighlightOnly ? "Show All" : "Highlighted Only";
-  memoShuffled = stableShuffle(memoQueue);
-  if(memoHighlightOnly){
-    memoShuffled = memoShuffled.filter(function(w){ return (w.highlight || 0) > 0; });
-  }
+  applyMemoOrder();
   renderMemoList();
 });
 
@@ -1480,9 +1588,39 @@ $("btnClearData").addEventListener("click", async function(){
   }
 });
 
-/* --- Init --- */
-dbOpen().then(function(){
-  initStage1();
+/* --- Init ---
+   The corpus is static data and must load even if IndexedDB is unavailable
+   (embedded browsers, private mode, or file:// with storage blocked).
+   Database failure must never block the corpus, and the corpus must never
+   be silently stuck on "Loading corpus...". */
+function initStage1Safe(){
+  try {
+    initStage1();
+  } catch(e){
+    console.error("Stage 1 init failed:", e);
+    setCorpusState("failed", "Init error");
+    showCorpusError(e);
+  }
+}
+
+var dbReady = dbOpen().then(function(){
+  console.log("IndexedDB ready");
+  return true;
+}).catch(function(e){
+  console.error("IndexedDB unavailable:", e);
+  db = null;
+  dbUnavailable = true;
+  setDbNotice("Storage is unavailable in this browser. Vocabulary will not be saved. " +
+              (e && e.message ? e.message : String(e)));
+  return false;
+});
+
+/* Never let the DB block the UI: race it against a timeout. */
+Promise.race([
+  dbReady,
+  new Promise(function(resolve){ setTimeout(function(){ resolve(false); }, 3000); })
+]).then(function(){
+  initStage1Safe();
   console.log("Reading Vocabulary module initialized");
 });
 </script>
