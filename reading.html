@@ -449,6 +449,10 @@ function dbOpen(){
     var req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = function(e){
       var d = e.target.result;
+      /* Version 1 only had "words" with indexes word/source/status.
+         Version 2 adds highlight + sessionDate indexes.
+         If upgrading from v1, the store already exists — we need to
+         add the missing indexes on the existing store. */
       if(!d.objectStoreNames.contains("words")){
         var s = d.createObjectStore("words", {keyPath: "id"});
         s.createIndex("word", "word", {unique: false});
@@ -456,6 +460,18 @@ function dbOpen(){
         s.createIndex("status", "status", {unique: false});
         s.createIndex("highlight", "highlight", {unique: false});
         s.createIndex("sessionDate", "sessionDate", {unique: false});
+      } else {
+        /* Upgrading from v1: add missing indexes on the existing store */
+        var existingStore = e.target.transaction.objectStore("words");
+        if(!existingStore.indexNames.contains("highlight")){
+          existingStore.createIndex("highlight", "highlight", {unique: false});
+        }
+        if(!existingStore.indexNames.contains("sessionDate")){
+          existingStore.createIndex("sessionDate", "sessionDate", {unique: false});
+        }
+        if(!existingStore.indexNames.contains("status")){
+          existingStore.createIndex("status", "status", {unique: false});
+        }
       }
       if(!d.objectStoreNames.contains("meta")){
         d.createObjectStore("meta", {keyPath: "key"});
@@ -463,6 +479,11 @@ function dbOpen(){
     };
     req.onsuccess = function(e){ db = e.target.result; resolve(db); };
     req.onerror = function(e){ reject(e.target.error); };
+    /* When another tab holds an older DB version, onblocked fires and
+       the promise would hang forever without this handler. */
+    req.onblocked = function(){
+      reject(new Error("Database upgrade blocked. Close other tabs with this page open and reload."));
+    };
   });
 }
 
@@ -720,18 +741,23 @@ function showCorpusError(err){
 }
 
 /* Diagnostics panel — prints the browser capabilities that affect loading. */
+var APP_VERSION = "2026-10-25-v4"; /* bump this on every fix so the user can verify */
 function showDiagnostics(){
   var box = $("diagBox");
   if(!box) return;
   var rows = [
+    ["App version", APP_VERSION],
     ["DecompressionStream", typeof DecompressionStream !== "undefined" ? "yes" : "no"],
     ["Blob.stream", typeof Blob !== "undefined" && typeof Blob.prototype.stream === "function" ? "yes" : "no"],
     ["ReadableStream.getReader", typeof ReadableStream !== "undefined" && typeof ReadableStream.prototype.getReader === "function" ? "yes" : "no"],
     ["atob", typeof atob !== "undefined" ? "yes" : "no"],
     ["IndexedDB", typeof indexedDB !== "undefined" ? "yes" : "no"],
     ["DB open result", dbUnavailable ? "BLOCKED" : (db ? "ok (v" + db.version + ")" : "not opened")],
+    ["DB unavailable flag", String(dbUnavailable)],
+    ["currentWordList length", String(currentWordList.length)],
     ["Protocol", location.protocol],
-    ["Corpus blob length", (typeof CORPUS_B64 === "string" ? CORPUS_B64.length : 0) + " chars"]
+    ["Corpus blob length", (typeof CORPUS_B64 === "string" ? CORPUS_B64.length : 0) + " chars"],
+    ["User agent", navigator.userAgent.substring(0, 80)]
   ];
   box.innerHTML = "<pre style=\"margin:0;font-family:var(--mono);font-size:11.5px;line-height:1.7;color:var(--text)\">" +
     rows.map(function(r){ return esc(r[0].padEnd(24) + " : " + r[1]); }).join("\n") + "</pre>";
@@ -1134,8 +1160,9 @@ async function loadSelectedPassages(){
   if(toPut.length > 0) await dbBulkPut("words", toPut);
   currentWordList = allEntries;
   var msg = "Loaded " + allEntries.length + " entries";
-  if(toPut.length > 0) msg += " (" + toPut.length + " added)";
+  if(toPut.length > 0 && !dbUnavailable) msg += " (" + toPut.length + " added)";
   if(refreshed > 0) msg += " (" + refreshed + " updated)";
+  if(dbUnavailable) msg += " (in-memory only — DB unavailable)";
   toast(msg);
   /* Reset the filter bar: browsers persist <select> values across reloads,
      which can leave a stale filter hiding the freshly loaded words. */
@@ -1258,16 +1285,21 @@ async function handleImportBackup(e){
   e.target.value = "";
 }
 
-/* --- Stage 2: Screen --- */
+/* --- Stage 2: Screen ---
+   When DB is unavailable, fall back to the in-memory word list so
+   the user can still see and study words even though nothing is saved. */
 function getFilteredWords(){
   return dbGetAll("words").then(function(all){
-    var src = $("screenSource").value;
+    /* In-memory fallback: if DB returned nothing but we have words
+       in memory (just loaded from corpus), use those instead. */
+    var src = all.length > 0 ? all : currentWordList;
+    var sFilter = $("screenSource").value;
     var tier = $("screenTier").value;
     var status = $("screenStatus").value;
     var search = $("screenSearch").value.toLowerCase().trim();
 
-    return all.filter(function(w){
-      if(src && w.source !== src) return false;
+    return src.filter(function(w){
+      if(sFilter && w.source !== sFilter) return false;
       if(tier && String(w.tier) !== tier) return false;
       if(status === "pending" && w.status !== "pending") return false;
       if(status === "known" && w.status !== "known") return false;
@@ -1287,9 +1319,11 @@ async function renderWordTable(){
   tbody.innerHTML = "";
 
   if(words.length === 0){
-    var hasAny = false;
-    dbGetAll("words").then(function(all){
-      if(all.length > 0 && all.length !== words.length){
+    /* Check if there are ANY words (in DB or in memory) — if so,
+       the filters are hiding them and we offer a "Clear filters" button. */
+    var dbAll = await dbGetAll("words");
+    var totalAvailable = dbAll.length > 0 ? dbAll.length : currentWordList.length;
+    if(totalAvailable > 0){
         $("wordTableBody").innerHTML =
           '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">' +
           'No words match the current filters. ' +
@@ -1304,8 +1338,7 @@ async function renderWordTable(){
           $("screenSearch").value = "";
           renderWordTable();
         });
-      }
-    });
+    }
     $("pendingCount").textContent = "";
   } else {
     var pendingCount = 0;
@@ -1328,12 +1361,17 @@ async function renderWordTable(){
     tbody.querySelectorAll('input[type="checkbox"]').forEach(function(cb){
       cb.addEventListener("change", async function(){
         var id = cb.dataset.id;
+        /* Try DB first; if unavailable, update in-memory list */
         var w = await dbGet("words", id);
         if(w){
           w.status = cb.checked ? "known" : "pending";
           await dbPut("words", w);
-          renderWordTable();
+        } else if(currentWordList.length > 0){
+          /* In-memory fallback */
+          var mw = currentWordList.find(function(x){ return x.id === id; });
+          if(mw) mw.status = cb.checked ? "known" : "pending";
         }
+        renderWordTable();
       });
     });
 
@@ -1344,8 +1382,11 @@ async function renderWordTable(){
         if(w){
           w.highlight = ((w.highlight || 0) + 1) % 4;
           await dbPut("words", w);
-          renderWordTable();
+        } else if(currentWordList.length > 0){
+          var mw = currentWordList.find(function(x){ return x.id === id; });
+          if(mw) mw.highlight = ((mw.highlight || 0) + 1) % 4;
         }
+        renderWordTable();
       });
     });
   }
@@ -1358,7 +1399,9 @@ async function renderWordTable(){
 function populateScreenSourceFilter(){
   dbGetAll("words").then(function(all){
     var sources = {};
-    all.forEach(function(w){ sources[w.source] = w.sourceLabel; });
+    /* Fall back to in-memory list when DB is empty/unavailable */
+    var list = all.length > 0 ? all : currentWordList;
+    list.forEach(function(w){ sources[w.source] = w.sourceLabel; });
     var sel = $("screenSource");
     var current = sel.value;
     sel.innerHTML = '<option value="">All</option>';
@@ -1380,15 +1423,22 @@ $("btnMarkAllKnown").addEventListener("click", async function(){
   var words = await getFilteredWords();
   var updates = words.map(function(w){ w.status = "known"; return w; });
   if(updates.length > 0) await dbBulkPut("words", updates);
+  /* Also update in-memory list */
+  updates.forEach(function(u){
+    var mw = currentWordList.find(function(x){ return x.id === u.id; });
+    if(mw) mw.status = "known";
+  });
   toast("Marked " + updates.length + " words as known");
   renderWordTable();
 });
 
 $("btnToMemorize").addEventListener("click", async function(){
   /* Re-read from the database so the queue reflects the latest status and
-     highlight values (the in-memory list can be stale after edits). */
+     highlight values (the in-memory list can be stale after edits).
+     Fall back to in-memory list when DB is unavailable. */
   var all = await dbGetAll("words");
-  memoQueue = all.filter(function(w){ return w.status === "pending"; });
+  var src = all.length > 0 ? all : currentWordList;
+  memoQueue = src.filter(function(w){ return w.status === "pending"; });
   if(memoQueue.length === 0){ toast("No pending words. All marked as known!"); return; }
   memoHighlightOnly = false;
   $("btnFilterHighlight").classList.remove("active");
@@ -1418,8 +1468,15 @@ function initMemorize(){
     return;
   }
   /* Refresh from the database so highlight/status changes made in the Screen
-     tab are picked up even if the user switched tabs directly. */
+     tab are picked up even if the user switched tabs directly.
+     Fall back to in-memory list when DB is unavailable. */
   dbGetAll("words").then(function(all){
+    if(all.length === 0 && currentWordList.length > 0){
+      /* DB empty/unavailable — use in-memory queue as-is */
+      applyMemoOrder();
+      renderMemoList();
+      return;
+    }
     var fresh = {};
     all.forEach(function(w){ fresh[w.id] = w; });
     memoQueue = memoQueue.map(function(w){ return fresh[w.id] || w; })
@@ -1501,7 +1558,9 @@ $("btnFilterHighlight").addEventListener("click", function(){
 $("btnFinishRound").addEventListener("click", async function(){
   var today = new Date().toISOString().slice(0, 10);
   var all = await dbGetAll("words");
-  all.forEach(function(w){
+  /* Fall back to in-memory list when DB is unavailable */
+  var src = all.length > 0 ? all : currentWordList;
+  src.forEach(function(w){
     if(w.status === "pending"){
       if(w.sessionDate === today){
         w.sessionRound = (w.sessionRound || 0) + 1;
@@ -1513,7 +1572,7 @@ $("btnFinishRound").addEventListener("click", async function(){
       w.lastReviewed = Date.now();
     }
   });
-  await dbBulkPut("words", all);
+  if(all.length > 0) await dbBulkPut("words", all);
   toast("Round complete! " + memoQueue.length + " words reviewed on " + today);
   showStage(4);
 });
@@ -1521,15 +1580,17 @@ $("btnFinishRound").addEventListener("click", async function(){
 /* --- Stage 4: Library --- */
 async function renderLibrary(){
   var all = await dbGetAll("words");
+  /* Fall back to in-memory list when DB is unavailable */
+  var src = all.length > 0 ? all : currentWordList;
 
   /* Stats */
   var stats = {
-    total: all.length,
+    total: src.length,
     known: 0, pending: 0,
     highlighted: 0,
     studied: 0
   };
-  all.forEach(function(w){
+  src.forEach(function(w){
     if(w.status === "known") stats.known++;
     else stats.pending++;
     if((w.highlight || 0) > 0) stats.highlighted++;
@@ -1542,11 +1603,11 @@ async function renderLibrary(){
     statBox(stats.known, "Known") +
     statBox(stats.highlighted, "Highlighted") +
     statBox(stats.studied, "Studied") +
-    statBox(all.length - stats.known - stats.pending, "Other");
+    statBox(src.length - stats.known - stats.pending, "Other");
 
   /* Source filter */
   var sources = {};
-  all.forEach(function(w){ sources[w.source] = w.sourceLabel; });
+  src.forEach(function(w){ sources[w.source] = w.sourceLabel; });
   var sel = $("libSource");
   var current = sel.value;
   sel.innerHTML = '<option value="">All</option>';
@@ -1562,7 +1623,7 @@ async function renderLibrary(){
   var srcFilter = $("libSource").value;
   var search = $("libSearch").value.toLowerCase().trim();
 
-  var filtered = all.filter(function(w){
+  var filtered = src.filter(function(w){
     if(srcFilter && w.source !== srcFilter) return false;
     if(search && w.word.toLowerCase().indexOf(search) < 0) return false;
     if(filter === "pending" && w.status !== "pending") return false;
@@ -1611,18 +1672,19 @@ $("libSearch").addEventListener("input", renderLibrary);
 
 $("btnExport").addEventListener("click", async function(){
   var all = await dbGetAll("words");
+  var src = all.length > 0 ? all : currentWordList;
   var data = {
     exportDate: new Date().toISOString(),
     version: 1,
-    wordCount: all.length,
-    words: all
+    wordCount: src.length,
+    words: src
   };
   var blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
   var a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "ielts-reading-vocab-backup-" + formatDate(Date.now()) + ".json";
   a.click();
-  toast("Exported " + all.length + " records");
+  toast("Exported " + src.length + " records");
 });
 
 $("btnClearData").addEventListener("click", async function(){
@@ -1715,11 +1777,26 @@ function migrateLegacyRecords(){
   });
 }
 
-/* Never let the DB block the UI: race it against a timeout. */
+/* Never let the DB block the UI: race it against a timeout.
+   If the DB hasn't opened within 3 seconds (blocked by another tab,
+   private mode, or an embedded browser), mark it unavailable so all
+   DB helpers know to return empty/zero instead of silently hanging.
+   The corpus loads independently and words are still shown via
+   the in-memory fallback. */
 Promise.race([
   dbReady,
   new Promise(function(resolve){ setTimeout(function(){ resolve(false); }, 3000); })
-]).then(function(){
+]).then(function(result){
+  /* If the timeout won (result === false) and db is still null,
+     the DB never opened — mark it unavailable so helpers degrade
+     gracefully instead of returning empty data silently. */
+  if(!result && !db && !dbUnavailable){
+    console.warn("IndexedDB open timed out after 3s — marking unavailable");
+    dbUnavailable = true;
+    setDbNotice("Database could not be opened (blocked or timed out). " +
+      "Words will load from the corpus but will not be saved between sessions. " +
+      "Try closing other tabs with this page and reloading.");
+  }
   initStage1Safe();
   console.log("Reading Vocabulary module initialized");
 });
