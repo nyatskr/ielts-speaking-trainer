@@ -138,6 +138,18 @@ a{color:inherit}
 .word-table .hl-2{background:#fb923c}
 .word-table .hl-3{background:#dc2626}
 
+/* Screen viewbar: button-based view controls */
+.s2-viewbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.s2-viewbar .vb-btn{background:#fff;border:1px solid var(--line);color:var(--text);border-radius:8px;
+  padding:6px 14px;font-size:13px;font-family:inherit;cursor:pointer;transition:all .15s}
+.s2-viewbar .vb-btn:hover{background:#f0ede5}
+.s2-viewbar .vb-btn.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.s2-viewbar .vb-btn.undo{color:var(--amber);border-color:var(--amber)}
+.s2-viewbar .vb-btn.undo:disabled{color:var(--muted);border-color:var(--line);cursor:default;opacity:.5}
+.s2-viewbar .vb-toggle{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:4px;cursor:pointer}
+.s2-viewbar .vb-toggle input{width:16px;height:16px;accent-color:var(--teal)}
+.s2-viewbar .vb-spacer{flex:1}
+
 /* Stage 3: Memorize */
 .s3-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px;padding-bottom:14px;
   border-bottom:1px solid var(--line)}
@@ -152,19 +164,24 @@ a{color:inherit}
 .s3-spacer{flex:1}
 .s3-progress{font-family:var(--mono);font-size:12px;color:var(--muted)}
 
-.memo-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.memo-row{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 14px;
-  cursor:pointer;transition:border-color .12s,background .12s}
-.memo-row:hover{border-color:var(--teal);background:#f8fdfb}
-.memo-row .mr-word{font-weight:600;color:var(--teal-deep);font-size:15px}
-.memo-row .mr-phon{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:8px}
-.memo-row .mr-pos{font-size:11px;color:var(--amber);font-weight:600;margin-left:6px}
-.memo-row .mr-meaning{font-size:13px;color:var(--text);margin-top:4px;min-height:18px}
-.memo-row .mr-meaning.hidden{color:transparent;background:#f0ede5;border-radius:4px;padding:2px 8px}
-.memo-row .mr-hl{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:6px;vertical-align:middle}
-.memo-row .mr-hl-1{background:#f59e0b}
-.memo-row .mr-hl-2{background:#fb923c}
-.memo-row .mr-hl-3{background:#dc2626}
+.memo-list{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.memo-list th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);padding:9px 12px;border-bottom:2px solid var(--line);background:var(--card);position:sticky;top:0}
+.memo-list td{padding:10px 12px;border-bottom:1px solid #f0ede5;vertical-align:middle;font-size:14px}
+.memo-list tr:hover{background:#f8fdfb}
+.memo-list .mr-meaning{width:42%;color:var(--text);cursor:pointer}
+.memo-list .mr-meaning.hidden{color:transparent;background:#f0ede5;border-radius:4px;box-shadow:inset 0 0 0 1px #e6e1d5}
+.memo-list .mr-word{font-weight:600;color:var(--teal-deep);font-size:15px}
+.memo-list .mr-phon{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:8px}
+.memo-list .mr-pos{font-size:11px;color:var(--amber);font-weight:600;margin-left:6px}
+.memo-list .mr-hl-btn{border:1px solid var(--line);background:#fff;border-radius:999px;width:28px;height:28px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;transition:background .12s,border-color .12s}
+.memo-list .mr-hl-btn:hover{border-color:var(--amber);background:#fff7ed}
+.memo-list .mr-hl-dot{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid var(--line)}
+.memo-list .mr-hl-0{background:transparent}
+.memo-list .mr-hl-1{background:#f59e0b;border-color:#f59e0b}
+.memo-list .mr-hl-2{background:#fb923c;border-color:#fb923c}
+.memo-list .mr-hl-3{background:#dc2626;border-color:#dc2626}
 
 .s3-empty{text-align:center;padding:60px 20px;color:var(--muted)}
 .s3-empty h3{font-family:Georgia,serif;font-size:20px;color:var(--text);margin:0 0 8px}
@@ -218,7 +235,7 @@ a{color:inherit}
   .stage-panel{padding:20px 16px}
   .passage-grid{grid-template-columns:1fr}
   .word-table .w-phon{display:none}
-  .memo-list{grid-template-columns:1fr !important}
+  .memo-list{font-size:12px}
 }
 </style>
 </head>
@@ -297,19 +314,21 @@ a{color:inherit}
         </select>
       </div>
       <div class="group">
-        <label>Status</label>
-        <select id="screenStatus">
-          <option value="pending">Pending</option>
-          <option value="">All</option>
-          <option value="known">Known</option>
-        </select>
-      </div>
-      <div class="group">
         <label>Search</label>
         <input type="text" id="screenSearch" placeholder="word or meaning..." style="width:160px">
       </div>
       <div class="spacer"></div>
       <span class="s2-stats" id="screenStats">0 words</span>
+    </div>
+    <!-- Button-based view controls: 本轮全部 / 待背 / 已会 / 隐藏已会 / 撤销 -->
+    <div class="s2-viewbar">
+      <button class="vb-btn active" id="vbPending">待背</button>
+      <button class="vb-btn" id="vbKnown">已会</button>
+      <button class="vb-btn" id="vbAll">本轮全部</button>
+      <label class="vb-toggle"><input type="checkbox" id="vbHideKnown"> 隐藏已会</label>
+      <div class="vb-spacer"></div>
+      <span class="s2-stats" id="roundKnownCount"></span>
+      <button class="vb-btn undo" id="vbUndo" disabled>撤销上一步</button>
     </div>
     <div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <button class="btn outline" style="background:#fff;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer" id="btnMarkAllKnown">Mark All Known</button>
@@ -333,9 +352,9 @@ a{color:inherit}
   <!-- Stage 3: Memorize -->
   <div class="stage-panel" id="stage3">
     <div class="s3-toolbar">
-      <button class="s3-btn" id="btnToggleAllMeaning">Show All Meanings</button>
-      <button class="s3-btn outline" id="btnReshuffle">Reshuffle</button>
-      <button class="s3-btn outline" id="btnFilterHighlight">Highlighted Only</button>
+      <button class="s3-btn" id="btnToggleAllMeaning">开始自测</button>
+      <button class="s3-btn outline" id="btnReshuffle">重新乱序</button>
+      <button class="s3-btn outline" id="btnFilterHighlight">只看高亮</button>
       <div class="s3-spacer"></div>
       <span class="s3-progress" id="memoProgress">0 / 0</span>
       <button class="s3-btn primary" id="btnFinishRound">Finish Round</button>
@@ -389,7 +408,7 @@ a{color:inherit}
 
 /* --- IndexedDB Layer --- */
 var DB_NAME = "ielts-reading-vocab";
-var DB_VERSION = 2;
+var DB_VERSION = 3;
 var db = null;
 var dbUnavailable = false;
 
@@ -522,6 +541,14 @@ var corpus = null;
 var selectedPassages = new Set();
 var currentWordList = [];
 var memoQueue = [];
+/* activeBatchIds: the IDs of words from the current passage selection.
+   Screen and Memorize only show these words, not the entire DB history. */
+var activeBatchIds = new Set();
+/* Screen view state: decoupled from the <select> so we can have
+   custom buttons (本轮全部/待背/已会) + undo + hide-known toggle. */
+var screenStatusView = "pending"; /* "pending" | "known" | "all" */
+var screenHideKnown = false;      /* user toggle: hide known rows */
+var undoStack = [];               /* [{id, prevStatus, newStatus}] */
 
 /* --- Utilities --- */
 function $(id){ return document.getElementById(id); }
@@ -1105,16 +1132,21 @@ async function loadSelectedPassages(){
 
   var toPut = [];
   var refreshed = 0;
+  var mergedEntries = [];
   allEntries.forEach(function(e){
     var old = existingMap[e.id];
     if(!old){
       toPut.push(e);
+      mergedEntries.push(e);
       return;
     }
-    /* Fill in fields the old record is missing, without touching user state. */
+    /* Fill in fields the old record is missing, without touching user state.
+       originalIndex MUST always be refreshed from the fresh corpus entry so
+       that the sort order always follows the corpus, not whatever stale order
+       was in the DB (which could be near-alphabetical from old ID-based keys). */
     var dirty = false;
     if(typeof old.highlight !== "number"){ old.highlight = 0; dirty = true; }
-    if(typeof old.originalIndex !== "number"){ old.originalIndex = e.originalIndex; dirty = true; }
+    if(old.originalIndex !== e.originalIndex){ old.originalIndex = e.originalIndex; dirty = true; }
     if(typeof old.reviewCount !== "number"){ old.reviewCount = 0; dirty = true; }
     if(!("sessionDate" in old)){ old.sessionDate = null; dirty = true; }
     if(!("sessionRound" in old)){ old.sessionRound = 0; dirty = true; }
@@ -1125,10 +1157,14 @@ async function loadSelectedPassages(){
       refreshed++;
       toPut.push(old);
     }
+    mergedEntries.push(old);
   });
 
   if(toPut.length > 0) await dbBulkPut("words", toPut);
-  currentWordList = allEntries;
+  currentWordList = mergedEntries;
+  /* Record which words belong to this batch so Screen and Memorize
+     only show the current selection, not the entire DB history. */
+  activeBatchIds = new Set(allEntries.map(function(e){ return e.id; }));
   var msg = "Loaded " + allEntries.length + " entries";
   if(toPut.length > 0 && !dbUnavailable) msg += " (" + toPut.length + " added)";
   if(refreshed > 0) msg += " (" + refreshed + " updated)";
@@ -1138,7 +1174,12 @@ async function loadSelectedPassages(){
      which can leave a stale filter hiding the freshly loaded words. */
   $("screenSource").value = "";
   $("screenTier").value = "";
-  $("screenStatus").value = "pending";
+  screenStatusView = "pending";
+  screenHideKnown = false;
+  $("vbHideKnown").checked = false;
+  $("vbPending").classList.add("active");
+  $("vbKnown").classList.remove("active");
+  $("vbAll").classList.remove("active");
   $("screenSearch").value = "";
   showStage(2);
 }
@@ -1265,14 +1306,17 @@ function getFilteredWords(){
     var src = all.length > 0 ? all : currentWordList;
     var sFilter = $("screenSource").value;
     var tier = $("screenTier").value;
-    var status = $("screenStatus").value;
+    var status = screenStatusView; /* Use the view state, not the raw select */
     var search = $("screenSearch").value.toLowerCase().trim();
 
     return src.filter(function(w){
+      /* Only show words from the active batch, not the entire DB history */
+      if(activeBatchIds.size > 0 && !activeBatchIds.has(w.id)) return false;
       if(sFilter && w.source !== sFilter) return false;
       if(tier && String(w.tier) !== tier) return false;
       if(status === "pending" && w.status !== "pending") return false;
       if(status === "known" && w.status !== "known") return false;
+      if(screenHideKnown && w.status === "known") return false;
       if(search){
         if(w.word.toLowerCase().indexOf(search) < 0 && (w.meaning || "").toLowerCase().indexOf(search) < 0) return false;
       }
@@ -1304,7 +1348,12 @@ async function renderWordTable(){
         if(cf) cf.addEventListener("click", function(){
           $("screenSource").value = "";
           $("screenTier").value = "";
-          $("screenStatus").value = "";
+          screenStatusView = "all";
+          screenHideKnown = false;
+          $("vbHideKnown").checked = false;
+          $("vbPending").classList.remove("active");
+          $("vbKnown").classList.remove("active");
+          $("vbAll").classList.add("active");
           $("screenSearch").value = "";
           renderWordTable();
         });
@@ -1331,38 +1380,61 @@ async function renderWordTable(){
     tbody.querySelectorAll('input[type="checkbox"]').forEach(function(cb){
       cb.addEventListener("change", async function(){
         var id = cb.dataset.id;
-        /* Try DB first; if unavailable, update in-memory list */
+        var newStatus = cb.checked ? "known" : "pending";
+        var prevStatus = cb.checked ? "pending" : "known";
+        /* Save to DB / in-memory */
         var w = await dbGet("words", id);
         if(w){
-          w.status = cb.checked ? "known" : "pending";
+          w.status = newStatus;
           await dbPut("words", w);
-        } else if(currentWordList.length > 0){
-          /* In-memory fallback */
-          var mw = currentWordList.find(function(x){ return x.id === id; });
-          if(mw) mw.status = cb.checked ? "known" : "pending";
         }
-        renderWordTable();
+        /* Keep the active in-memory batch in sync even when DB is available. */
+        if(currentWordList.length > 0){
+          var mw = currentWordList.find(function(x){ return x.id === id; });
+          if(mw) mw.status = newStatus;
+        }
+        /* Push to undo stack */
+        undoStack.push({id: id, prevStatus: prevStatus, newStatus: newStatus});
+        /* Update the row in place — no full re-render */
+        var tr = cb.closest("tr");
+        if(tr){
+          if(newStatus === "known") tr.className = "known-row";
+          else tr.className = "";
+          /* If hide-known is on, hide the row */
+          if(screenHideKnown && newStatus === "known") tr.style.display = "none";
+        }
+        updateScreenCounts();
+        updateUndoButton();
       });
     });
 
     tbody.querySelectorAll(".hl-mark").forEach(function(mk){
-      mk.addEventListener("click", async function(){
+      mk.addEventListener("click", async function(e){
+        e.stopPropagation();
         var id = mk.dataset.hlid;
         var w = await dbGet("words", id);
+        var newHl = 0;
         if(w){
           w.highlight = ((w.highlight || 0) + 1) % 4;
+          newHl = w.highlight || 0;
           await dbPut("words", w);
-        } else if(currentWordList.length > 0){
-          var mw = currentWordList.find(function(x){ return x.id === id; });
-          if(mw) mw.highlight = ((mw.highlight || 0) + 1) % 4;
         }
-        renderWordTable();
+        /* Keep the active in-memory batch in sync even when DB is available. */
+        if(currentWordList.length > 0){
+          var mw = currentWordList.find(function(x){ return x.id === id; });
+          if(mw){
+            mw.highlight = w ? newHl : ((mw.highlight || 0) + 1) % 4;
+            newHl = mw.highlight || 0;
+          }
+        }
+        /* Update the dot in place — no full re-render */
+        mk.className = "hl-mark hl-" + newHl;
       });
     });
   }
 
-  $("screenStats").textContent = words.length + " words";
-  $("pendingCount").textContent = pendingCount > 0 ? pendingCount + " pending" : "";
+  updateScreenCounts();
+  updateUndoButton();
   populateScreenSourceFilter();
 }
 
@@ -1371,7 +1443,10 @@ function populateScreenSourceFilter(){
     var sources = {};
     /* Fall back to in-memory list when DB is empty/unavailable */
     var list = all.length > 0 ? all : currentWordList;
-    list.forEach(function(w){ sources[w.source] = w.sourceLabel; });
+    list.forEach(function(w){
+      if(activeBatchIds.size > 0 && !activeBatchIds.has(w.id)) return;
+      sources[w.source] = w.sourceLabel;
+    });
     var sel = $("screenSource");
     var current = sel.value;
     sel.innerHTML = '<option value="">All</option>';
@@ -1386,12 +1461,66 @@ function populateScreenSourceFilter(){
 
 $("screenSource").addEventListener("change", renderWordTable);
 $("screenTier").addEventListener("change", renderWordTable);
-$("screenStatus").addEventListener("change", renderWordTable);
 $("screenSearch").addEventListener("input", renderWordTable);
+
+/* Viewbar button handlers */
+function setScreenView(v){
+  screenStatusView = v;
+  $("vbPending").classList.toggle("active", v === "pending");
+  $("vbKnown").classList.toggle("active", v === "known");
+  $("vbAll").classList.toggle("active", v === "all");
+  renderWordTable();
+}
+$("vbPending").addEventListener("click", function(){ setScreenView("pending"); });
+$("vbKnown").addEventListener("click", function(){ setScreenView("known"); });
+$("vbAll").addEventListener("click", function(){ setScreenView("all"); });
+$("vbHideKnown").addEventListener("change", function(){
+  screenHideKnown = this.checked;
+  renderWordTable();
+});
+$("vbUndo").addEventListener("click", async function(){
+  if(undoStack.length === 0) return;
+  var action = undoStack.pop();
+  var w = await dbGet("words", action.id);
+  if(w){
+    w.status = action.prevStatus;
+    await dbPut("words", w);
+  } else if(currentWordList.length > 0){
+    var mw = currentWordList.find(function(x){ return x.id === action.id; });
+    if(mw) mw.status = action.prevStatus;
+  }
+  updateUndoButton();
+  renderWordTable();
+});
+
+function updateUndoButton(){
+  var btn = $("vbUndo");
+  btn.disabled = undoStack.length === 0;
+  btn.textContent = "撤销上一步" + (undoStack.length > 0 ? " (" + undoStack.length + ")" : "");
+}
+
+function updateScreenCounts(){
+  /* Count known/pending in the active batch */
+  var known = 0, pending = 0;
+  var src = currentWordList;
+  src.forEach(function(w){
+    if(activeBatchIds.size > 0 && !activeBatchIds.has(w.id)) return;
+    if(w.status === "known") known++;
+    else pending++;
+  });
+  $("screenStats").textContent = (known + pending) + " words";
+  $("pendingCount").textContent = pending + " pending";
+  $("roundKnownCount").textContent = "本轮已会 " + known + " / 待背 " + pending;
+}
 
 $("btnMarkAllKnown").addEventListener("click", async function(){
   var words = await getFilteredWords();
-  var updates = words.map(function(w){ w.status = "known"; return w; });
+  var updates = words.map(function(w){
+    var prev = w.status;
+    w.status = "known";
+    undoStack.push({id: w.id, prevStatus: prev, newStatus: "known"});
+    return w;
+  });
   if(updates.length > 0) await dbBulkPut("words", updates);
   /* Also update in-memory list */
   updates.forEach(function(u){
@@ -1399,28 +1528,37 @@ $("btnMarkAllKnown").addEventListener("click", async function(){
     if(mw) mw.status = "known";
   });
   toast("Marked " + updates.length + " words as known");
+  updateUndoButton();
   renderWordTable();
 });
 
 $("btnToMemorize").addEventListener("click", async function(){
-  /* Re-read from the database so the queue reflects the latest status and
-     highlight values (the in-memory list can be stale after edits).
-     Fall back to in-memory list when DB is unavailable. */
+  /* Only use words from the active batch, not the entire DB history. */
   var all = await dbGetAll("words");
   var src = all.length > 0 ? all : currentWordList;
-  memoQueue = src.filter(function(w){ return w.status === "pending"; });
+  memoQueue = src.filter(function(w){
+    return w.status === "pending" && (activeBatchIds.size === 0 || activeBatchIds.has(w.id));
+  });
   if(memoQueue.length === 0){ toast("No pending words. All marked as known!"); return; }
   memoHighlightOnly = false;
+  memoTestMode = false;
+  memoRevealedIds = new Set();
+  memoBaseOrder = [];
+  applyMemoOrder(true);
+  $("btnToggleAllMeaning").textContent = "开始自测";
+  $("btnToggleAllMeaning").classList.remove("active");
   $("btnFilterHighlight").classList.remove("active");
-  $("btnFilterHighlight").textContent = "Highlighted Only";
+  $("btnFilterHighlight").textContent = "只看高亮";
   toast("Loaded " + memoQueue.length + " pending words for memorizing");
   showStage(3);
 });
 
 /* --- Stage 3: Memorize --- */
 var memoShuffled = [];
-var memoMeaningHidden = true;
+var memoBaseOrder = [];
 var memoHighlightOnly = false;
+var memoTestMode = false;
+var memoRevealedIds = new Set();
 
 function stableShuffle(arr){
   var a = arr.slice();
@@ -1437,33 +1575,44 @@ function initMemorize(){
     $("memoProgress").textContent = "0 / 0";
     return;
   }
-  /* Refresh from the database so highlight/status changes made in the Screen
-     tab are picked up even if the user switched tabs directly.
-     Fall back to in-memory list when DB is unavailable. */
+  /* Refresh status/highlight for the active batch without changing the current
+     shuffle order. */
   dbGetAll("words").then(function(all){
-    if(all.length === 0 && currentWordList.length > 0){
-      /* DB empty/unavailable — use in-memory queue as-is */
-      applyMemoOrder();
-      renderMemoList();
-      return;
+    if(all.length > 0){
+      var fresh = {};
+      all.forEach(function(w){ fresh[w.id] = w; });
+      memoQueue = memoQueue.map(function(w){ return fresh[w.id] || w; })
+                          .filter(function(w){ return w.status === "pending" && (activeBatchIds.size === 0 || activeBatchIds.has(w.id)); });
+      memoBaseOrder = memoBaseOrder.map(function(w){ return fresh[w.id] || w; })
+                                  .filter(function(w){ return w.status === "pending" && (activeBatchIds.size === 0 || activeBatchIds.has(w.id)); });
     }
-    var fresh = {};
-    all.forEach(function(w){ fresh[w.id] = w; });
-    memoQueue = memoQueue.map(function(w){ return fresh[w.id] || w; })
-                        .filter(function(w){ return w.status === "pending"; });
-    applyMemoOrder();
+    applyMemoOrder(false);
     renderMemoList();
   }).catch(function(){
-    applyMemoOrder();
+    applyMemoOrder(false);
     renderMemoList();
   });
 }
 
-function applyMemoOrder(){
-  memoShuffled = stableShuffle(memoQueue);
+function applyMemoOrder(forceReshuffle){
+  if(forceReshuffle || memoBaseOrder.length === 0){
+    memoBaseOrder = stableShuffle(memoQueue);
+  }
+  memoShuffled = memoBaseOrder.slice();
   if(memoHighlightOnly){
     memoShuffled = memoShuffled.filter(function(w){ return (w.highlight || 0) > 0; });
   }
+}
+
+async function saveMemoHighlight(id, level){
+  var w = await dbGet("words", id);
+  if(w){
+    w.highlight = level;
+    await dbPut("words", w);
+  }
+  [currentWordList, memoQueue, memoBaseOrder, memoShuffled].forEach(function(list){
+    list.forEach(function(x){ if(x.id === id) x.highlight = level; });
+  });
 }
 
 function renderMemoList(){
@@ -1471,67 +1620,89 @@ function renderMemoList(){
   area.innerHTML = "";
 
   if(memoShuffled.length === 0){
-    area.innerHTML = '<div class="s3-empty"><h3>No words to show</h3><p>No highlighted words in this round. Toggle "Highlighted Only" off or reshuffle.</p></div>';
+    area.innerHTML = '<div class="s3-empty"><h3>No words to show</h3><p>No highlighted words in this round. Toggle "只看高亮" off or reshuffle.</p></div>';
     $("memoProgress").textContent = "0 / 0";
     return;
   }
 
-  var list = el("div", "memo-list");
-  memoShuffled.forEach(function(w, i){
-    var row = el("div", "memo-row");
-    var hlCls = "mr-hl-" + (w.highlight || 0);
-    var hlDot = (w.highlight || 0) > 0 ? '<span class="mr-hl ' + hlCls + '"></span>' : '';
-    var meaningHtml = memoMeaningHidden
-      ? '<div class="mr-meaning hidden">__</div>'
-      : '<div class="mr-meaning">' + esc(w.meaning) + '</div>';
+  var table = el("table", "memo-list");
+  table.innerHTML = '<thead><tr><th style="width:42%">中文区</th><th>英文区</th><th style="width:70px;text-align:center">标记</th></tr></thead><tbody></tbody>';
+  var tbody = table.querySelector("tbody");
+  memoShuffled.forEach(function(w){
+    var tr = el("tr");
+    var hidden = memoTestMode && !memoRevealedIds.has(w.id);
+    var hlLevel = w.highlight || 0;
+    var hlCls = "mr-hl-" + hlLevel;
+    tr.innerHTML =
+      '<td class="mr-meaning' + (hidden ? ' hidden' : '') + '" data-reveal-id="' + esc(w.id) + '">' + esc(w.meaning || "") + '</td>' +
+      '<td><span class="mr-word">' + esc(w.word) + '</span>' +
+      '<span class="mr-phon">' + esc(w.phonetic || "") + '</span>' +
+      '<span class="mr-pos">' + esc(w.pos || "") + '</span></td>' +
+      '<td style="text-align:center"><button class="mr-hl-btn" data-hlid="' + esc(w.id) + '" title="Highlight"><span class="mr-hl-dot ' + hlCls + '"></span></button></td>';
+    tbody.appendChild(tr);
+  });
+  area.appendChild(table);
 
-    row.innerHTML =
-      '<span class="mr-word">' + esc(w.word) + '</span>' +
-      '<span class="mr-phon">' + esc(w.phonetic) + '</span>' +
-      '<span class="mr-pos">' + esc(w.pos) + '</span>' +
-      hlDot +
-      meaningHtml;
-    row.dataset.i = i;
-    row.addEventListener("click", function(){
-      var meaningEl = row.querySelector(".mr-meaning");
-      if(meaningEl && meaningEl.classList.contains("hidden")){
-        meaningEl.classList.remove("hidden");
-        meaningEl.textContent = w.meaning;
+  table.querySelectorAll(".mr-meaning").forEach(function(cell){
+    cell.addEventListener("click", function(){
+      if(!memoTestMode) return;
+      var id = cell.dataset.revealId;
+      memoRevealedIds.add(id);
+      cell.classList.remove("hidden");
+    });
+  });
+
+  table.querySelectorAll(".mr-hl-btn").forEach(function(btn){
+    btn.addEventListener("click", async function(e){
+      e.stopPropagation();
+      var id = btn.dataset.hlid;
+      var word = memoShuffled.find(function(x){ return x.id === id; });
+      if(!word) return;
+      var next = ((word.highlight || 0) + 1) % 4;
+      await saveMemoHighlight(id, next);
+      var dot = btn.querySelector(".mr-hl-dot");
+      dot.className = "mr-hl-dot mr-hl-" + next;
+      if(memoHighlightOnly && next === 0){
+        applyMemoOrder(false);
+        renderMemoList();
       }
     });
-    list.appendChild(row);
   });
-  area.appendChild(list);
+
   $("memoProgress").textContent = memoShuffled.length + " / " + memoQueue.length;
 }
 
 $("btnToggleAllMeaning").addEventListener("click", function(){
-  memoMeaningHidden = !memoMeaningHidden;
-  $("btnToggleAllMeaning").textContent = memoMeaningHidden ? "Show All Meanings" : "Hide All Meanings";
+  memoTestMode = !memoTestMode;
+  memoRevealedIds = new Set();
+  $("btnToggleAllMeaning").textContent = memoTestMode ? "退出自测" : "开始自测";
+  $("btnToggleAllMeaning").classList.toggle("active", memoTestMode);
   renderMemoList();
 });
 
 $("btnReshuffle").addEventListener("click", function(){
-  applyMemoOrder();
+  memoRevealedIds = new Set();
+  applyMemoOrder(true);
   renderMemoList();
-  toast("Reshuffled");
+  toast("已重新乱序");
 });
 
 $("btnFilterHighlight").addEventListener("click", function(){
   memoHighlightOnly = !memoHighlightOnly;
   $("btnFilterHighlight").classList.toggle("active", memoHighlightOnly);
-  $("btnFilterHighlight").textContent = memoHighlightOnly ? "Show All" : "Highlighted Only";
-  applyMemoOrder();
+  $("btnFilterHighlight").textContent = memoHighlightOnly ? "显示全部" : "只看高亮";
+  applyMemoOrder(false);
   renderMemoList();
 });
 
 $("btnFinishRound").addEventListener("click", async function(){
   var today = new Date().toISOString().slice(0, 10);
   var all = await dbGetAll("words");
-  /* Fall back to in-memory list when DB is unavailable */
+  /* Fall back to in-memory list when DB is unavailable; only update active batch. */
   var src = all.length > 0 ? all : currentWordList;
+  var reviewed = 0;
   src.forEach(function(w){
-    if(w.status === "pending"){
+    if((activeBatchIds.size === 0 || activeBatchIds.has(w.id)) && w.status === "pending"){
       if(w.sessionDate === today){
         w.sessionRound = (w.sessionRound || 0) + 1;
       } else {
@@ -1540,11 +1711,26 @@ $("btnFinishRound").addEventListener("click", async function(){
       }
       w.reviewCount = (w.reviewCount || 0) + 1;
       w.lastReviewed = Date.now();
+      reviewed++;
+    }
+  });
+  currentWordList.forEach(function(w){
+    var updated = src.find(function(x){ return x.id === w.id; });
+    if(updated){
+      w.sessionDate = updated.sessionDate;
+      w.sessionRound = updated.sessionRound;
+      w.reviewCount = updated.reviewCount;
+      w.lastReviewed = updated.lastReviewed;
     }
   });
   if(all.length > 0) await dbBulkPut("words", all);
-  toast("Round complete! " + memoQueue.length + " words reviewed on " + today);
-  showStage(4);
+  memoTestMode = false;
+  memoRevealedIds = new Set();
+  $("btnToggleAllMeaning").textContent = "开始自测";
+  $("btnToggleAllMeaning").classList.remove("active");
+  applyMemoOrder(true);
+  renderMemoList();
+  toast("本轮完成！已记录 " + reviewed + " 个待背词。继续下一轮。");
 });
 
 /* --- Stage 4: Library --- */
@@ -1696,27 +1882,25 @@ var dbReady = dbOpen().then(function(){
    Records written by earlier versions used the status "unmarked" and carried
    SRS fields (difficulty / srsLevel / nextReview) that no longer exist. The
    new model only knows "pending" (default, to be learned) and "known"
-   (permanently removed). Without this migration the Status filter matches
-   nothing and the word table renders empty.
+   (permanently removed).
+
+   IMPORTANT: We do NOT assign originalIndex here. The old DB records have
+   IDs derived from the word string, so getAll() returns them in approximate
+   alphabetical order. Assigning originalIndex from that order permanently
+   bakes the wrong sort. Instead, we DELETE the stale originalIndex so that
+   loadSelectedPassages() will refresh it from the corpus on the next load.
 
    Rules:
-     unmarked        -> pending   (it was never marked as known)
-     unknown         -> pending   (the old "needs work" state is now the default)
-     difficulty/srsLevel/nextReview -> removed
-     missing highlight / originalIndex / session fields -> filled in
+     unmarked / unknown -> pending
+     difficulty / srsLevel / nextReview -> removed
+     stale originalIndex (from DB key order) -> removed, will be refreshed
+     missing highlight / session fields -> filled in
 */
 function migrateLegacyRecords(){
   if(!db || dbUnavailable) return Promise.resolve(0);
   return dbGetAll("words").then(function(all){
     if(!all || all.length === 0) return 0;
     var changed = 0;
-    var maxIndex = 0;
-    all.forEach(function(w){
-      if(typeof w.originalIndex === "number"){
-        if(w.originalIndex > maxIndex) maxIndex = w.originalIndex;
-      }
-    });
-    var nextIndex = maxIndex + 1;
     var updates = [];
     all.forEach(function(w){
       var dirty = false;
@@ -1725,7 +1909,10 @@ function migrateLegacyRecords(){
         dirty = true;
       }
       if(typeof w.highlight !== "number"){ w.highlight = 0; dirty = true; }
-      if(typeof w.originalIndex !== "number"){ w.originalIndex = nextIndex++; dirty = true; }
+      /* Remove stale originalIndex so loadSelectedPassages can refresh it
+         from the corpus's true entry order. This fixes the alphabetical-sort
+         bug permanently. */
+      if("originalIndex" in w){ delete w.originalIndex; dirty = true; }
       if(typeof w.reviewCount !== "number"){ w.reviewCount = 0; dirty = true; }
       if(!("sessionDate" in w)){ w.sessionDate = null; dirty = true; }
       if(!("sessionRound" in w)){ w.sessionRound = 0; dirty = true; }
