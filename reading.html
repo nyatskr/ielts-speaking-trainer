@@ -1101,21 +1101,48 @@ async function loadSelectedPassages(){
     });
   });
 
-  /* Merge into DB: only add new words, don't overwrite existing status */
+  /* Merge into DB: add new words, and refresh stale fields on existing ones
+     (but never overwrite the user's known/pending status or highlight). */
   var existing = await dbGetAll("words");
   var existingMap = {};
   existing.forEach(function(w){ existingMap[w.id] = w; });
 
   var toPut = [];
+  var refreshed = 0;
   allEntries.forEach(function(e){
-    if(!existingMap[e.id]){
+    var old = existingMap[e.id];
+    if(!old){
       toPut.push(e);
+      return;
+    }
+    /* Fill in fields the old record is missing, without touching user state. */
+    var dirty = false;
+    if(typeof old.highlight !== "number"){ old.highlight = 0; dirty = true; }
+    if(typeof old.originalIndex !== "number"){ old.originalIndex = e.originalIndex; dirty = true; }
+    if(typeof old.reviewCount !== "number"){ old.reviewCount = 0; dirty = true; }
+    if(!("sessionDate" in old)){ old.sessionDate = null; dirty = true; }
+    if(!("sessionRound" in old)){ old.sessionRound = 0; dirty = true; }
+    if(old.status === "unmarked" || old.status === "unknown" || !old.status){
+      old.status = "pending"; dirty = true;
+    }
+    if(dirty){
+      refreshed++;
+      toPut.push(old);
     }
   });
 
   if(toPut.length > 0) await dbBulkPut("words", toPut);
   currentWordList = allEntries;
-  toast("Loaded " + allEntries.length + " entries (" + toPut.length + " new)");
+  var msg = "Loaded " + allEntries.length + " entries";
+  if(toPut.length > 0) msg += " (" + toPut.length + " added)";
+  if(refreshed > 0) msg += " (" + refreshed + " updated)";
+  toast(msg);
+  /* Reset the filter bar: browsers persist <select> values across reloads,
+     which can leave a stale filter hiding the freshly loaded words. */
+  $("screenSource").value = "";
+  $("screenTier").value = "";
+  $("screenStatus").value = "pending";
+  $("screenSearch").value = "";
   showStage(2);
 }
 
@@ -1260,7 +1287,25 @@ async function renderWordTable(){
   tbody.innerHTML = "";
 
   if(words.length === 0){
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">No words to display. Load passages from the Upload tab first.</td></tr>';
+    var hasAny = false;
+    dbGetAll("words").then(function(all){
+      if(all.length > 0 && all.length !== words.length){
+        $("wordTableBody").innerHTML =
+          '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">' +
+          'No words match the current filters. ' +
+          '<button id="btnClearFilters" style="background:transparent;border:1px solid var(--line);' +
+          'color:var(--teal);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit">' +
+          'Clear filters</button></td></tr>';
+        var cf = $("btnClearFilters");
+        if(cf) cf.addEventListener("click", function(){
+          $("screenSource").value = "";
+          $("screenTier").value = "";
+          $("screenStatus").value = "";
+          $("screenSearch").value = "";
+          renderWordTable();
+        });
+      }
+    });
     $("pendingCount").textContent = "";
   } else {
     var pendingCount = 0;
@@ -1605,7 +1650,7 @@ function initStage1Safe(){
 
 var dbReady = dbOpen().then(function(){
   console.log("IndexedDB ready");
-  return true;
+  return migrateLegacyRecords();
 }).catch(function(e){
   console.error("IndexedDB unavailable:", e);
   db = null;
@@ -1614,6 +1659,61 @@ var dbReady = dbOpen().then(function(){
               (e && e.message ? e.message : String(e)));
   return false;
 });
+
+/* --- Legacy data migration ---
+   Records written by earlier versions used the status "unmarked" and carried
+   SRS fields (difficulty / srsLevel / nextReview) that no longer exist. The
+   new model only knows "pending" (default, to be learned) and "known"
+   (permanently removed). Without this migration the Status filter matches
+   nothing and the word table renders empty.
+
+   Rules:
+     unmarked        -> pending   (it was never marked as known)
+     unknown         -> pending   (the old "needs work" state is now the default)
+     difficulty/srsLevel/nextReview -> removed
+     missing highlight / originalIndex / session fields -> filled in
+*/
+function migrateLegacyRecords(){
+  if(!db || dbUnavailable) return Promise.resolve(0);
+  return dbGetAll("words").then(function(all){
+    if(!all || all.length === 0) return 0;
+    var changed = 0;
+    var maxIndex = 0;
+    all.forEach(function(w){
+      if(typeof w.originalIndex === "number"){
+        if(w.originalIndex > maxIndex) maxIndex = w.originalIndex;
+      }
+    });
+    var nextIndex = maxIndex + 1;
+    var updates = [];
+    all.forEach(function(w){
+      var dirty = false;
+      if(w.status === "unmarked" || w.status === "unknown" || !w.status){
+        w.status = "pending";
+        dirty = true;
+      }
+      if(typeof w.highlight !== "number"){ w.highlight = 0; dirty = true; }
+      if(typeof w.originalIndex !== "number"){ w.originalIndex = nextIndex++; dirty = true; }
+      if(typeof w.reviewCount !== "number"){ w.reviewCount = 0; dirty = true; }
+      if(!("sessionDate" in w)){ w.sessionDate = null; dirty = true; }
+      if(!("sessionRound" in w)){ w.sessionRound = 0; dirty = true; }
+      if("difficulty" in w){ delete w.difficulty; dirty = true; }
+      if("srsLevel" in w){ delete w.srsLevel; dirty = true; }
+      if("nextReview" in w){ delete w.nextReview; dirty = true; }
+      if(dirty){
+        changed++;
+        updates.push(w);
+      }
+    });
+    if(updates.length > 0){
+      return dbBulkPut("words", updates).then(function(){ return changed; });
+    }
+    return 0;
+  }).catch(function(e){
+    console.warn("Migration skipped:", e);
+    return 0;
+  });
+}
 
 /* Never let the DB block the UI: race it against a timeout. */
 Promise.race([
