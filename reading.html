@@ -134,7 +134,7 @@ a{color:inherit}
 .word-table .w-check input{width:18px;height:18px;cursor:pointer;accent-color:var(--green)}
 .word-table .hl-mark{display:inline-block;width:10px;height:10px;border-radius:50%;cursor:pointer;margin-left:6px;vertical-align:middle}
 .word-table .hl-0{background:transparent;border:1px solid var(--line)}
-.word-table .hl-1{background:#fef3c7}
+.word-table .hl-1{background:#f59e0b}
 .word-table .hl-2{background:#fb923c}
 .word-table .hl-3{background:#dc2626}
 
@@ -162,7 +162,7 @@ a{color:inherit}
 .memo-row .mr-meaning{font-size:13px;color:var(--text);margin-top:4px;min-height:18px}
 .memo-row .mr-meaning.hidden{color:transparent;background:#f0ede5;border-radius:4px;padding:2px 8px}
 .memo-row .mr-hl{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:6px;vertical-align:middle}
-.memo-row .mr-hl-1{background:#fef3c7}
+.memo-row .mr-hl-1{background:#f59e0b}
 .memo-row .mr-hl-2{background:#fb923c}
 .memo-row .mr-hl-3{background:#dc2626}
 
@@ -250,20 +250,13 @@ a{color:inherit}
 
 <div class="panel">
   <div class="tabs">
-    <button class="tab active" data-stage="1"><span class="num">01</span> Upload</button>
-    <button class="tab" data-stage="2"><span class="num">02</span> Screen</button>
-    <button class="tab" data-stage="3"><span class="num">03</span> Memorize</button>
-    <button class="tab" data-stage="4"><span class="num">04</span> Library</button>
+    <button class="tab active" data-stage="2"><span class="num">01</span> Screen</button>
+    <button class="tab" data-stage="3"><span class="num">02</span> Memorize</button>
+    <button class="tab" data-stage="4"><span class="num">03</span> Library</button>
   </div>
 
-  <!-- Stage 1: Upload / Source Selection -->
-  <div class="stage-panel active" id="stage1">
-    <div class="s1-hero">
-      <h2>Choose Your Vocabulary Source</h2>
-      <p>The built-in corpus covers all 132 reading passages from Cambridge IELTS 10-20, organized into three tiers: essential words, comprehension words, and collocations. Select passages below, or upload your own list.</p>
-    </div>
-
-    <!-- Live corpus status: proves the data actually loaded -->
+  <!-- Hidden corpus status + diagnostics (moved here from removed Stage 1) -->
+  <div style="display:none">
     <div class="corpus-status" id="corpusStatus">
       <div class="cs-item"><span class="v" id="csPassages">--</span><span class="l">Passages</span></div>
       <div class="cs-item"><span class="v" id="csWords">--</span><span class="l">Words</span></div>
@@ -271,53 +264,24 @@ a{color:inherit}
       <div class="cs-item"><span class="v" id="csRange">--</span><span class="l">Cambridge</span></div>
       <div class="cs-state" id="csState">Loading corpus&hellip;</div>
     </div>
-
-    <div class="s1-cards">
-      <div class="s1-card">
-        <h3>Browse Passages</h3>
-        <p>Select passages from the corpus. Each passage contributes 40-100 entries across three difficulty tiers.</p>
-        <button class="btn" id="btnBrowseCorpus">Open Corpus Browser</button>
-      </div>
-      <div class="s1-card">
-        <h3>Upload List</h3>
-        <p>Upload a TXT or JSON file with your own word list. Format: one word per line, or JSON array of word objects.</p>
-        <input type="file" id="fileUpload" accept=".txt,.json" style="display:none">
-        <button class="btn secondary" id="btnUpload">Choose File</button>
-      </div>
-      <div class="s1-card">
-        <h3>Import Progress</h3>
-        <p>Restore a previously exported JSON backup of your learning data, including known words and review history.</p>
-        <input type="file" id="fileImport" accept=".json" style="display:none">
-        <button class="btn secondary" id="btnImport">Import Backup</button>
-      </div>
-    </div>
-
-    <div style="margin-bottom:16px">
-      <button class="btn" style="background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 12px;font-size:11.5px;cursor:pointer;font-family:var(--mono)" id="btnDiag">Diagnostics</button>
-      <div id="diagBox" style="display:none;background:#f8f6f0;border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-top:10px"></div>
-    </div>
-
-    <div class="corpus-browser" id="corpusBrowser">
-      <h3>Corpus Browser</h3>
-      <p class="desc">Select one or more passages. Words from all selected passages will be combined for screening.</p>
-      <div class="corpus-filters">
-        <label>Cambridge</label>
-        <select id="filterCam"><option value="">All</option></select>
-        <label>Test</label>
-        <select id="filterTest"><option value="">All</option></select>
-        <button class="btn" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer" id="btnSelectAll">Select All Filtered</button>
-        <button class="btn" style="background:#fff;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer" id="btnClearAll">Clear</button>
-        <span class="corpus-stats" id="corpusStats">0 passages selected</span>
-      </div>
-      <div class="passage-grid" id="passageGrid"></div>
-      <div style="margin-top:14px;text-align:right">
-        <button class="btn" style="background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:14px;cursor:pointer" id="btnLoadPassages">Load Selected Passages &rarr; Screen</button>
-      </div>
-    </div>
+    <button id="btnDiag">Diagnostics</button>
+    <div id="diagBox"></div>
+    <input type="file" id="fileUpload" accept=".txt,.json">
+    <input type="file" id="fileImport" accept=".json">
+    <button id="btnBrowseCorpus"></button>
+    <button id="btnUpload"></button>
+    <button id="btnImport"></button>
+    <button id="btnSelectAll"></button>
+    <button id="btnClearAll"></button>
+    <button id="btnLoadPassages"></button>
+    <select id="filterCam"><option value="">All</option></select>
+    <select id="filterTest"><option value="">All</option></select>
+    <div id="corpusBrowser"><div id="passageGrid"></div></div>
+    <span id="corpusStats"></span>
   </div>
 
-  <!-- Stage 2: Screen -->
-  <div class="stage-panel" id="stage2">
+  <!-- Stage 2: Screen (now the default/first tab) -->
+  <div class="stage-panel active" id="stage2">
     <div class="s2-toolbar">
       <div class="group">
         <label>Source</label>
@@ -706,6 +670,12 @@ function onCorpusLoaded(){
   $("csPhrases").textContent = (corpus.totalPhrases || 0).toLocaleString();
   $("csRange").textContent = minCam === maxCam ? String(minCam) : (minCam + "-" + maxCam);
   setCorpusState("ready", "Corpus loaded");
+
+  /* Auto-select all passages and load them so the user lands directly
+     on the Screen tab with a full word list — no manual upload step. */
+  selectedPassages.clear();
+  corpus.passages.forEach(function(p){ selectedPassages.add(p.id); });
+  loadSelectedPassages();
 }
 
 function setCorpusState(state, label){
